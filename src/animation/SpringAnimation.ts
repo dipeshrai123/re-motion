@@ -3,7 +3,7 @@ import {
   RequestAnimationFrame,
   CancelAnimationFrame,
 } from "./RequestAnimationFrame";
-import { UseTransitionConfig } from "./useTransition";
+import { UseTransitionConfig } from "../react/useTransition";
 
 /**
  * SpringAnimation class implements physics based spring animation

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { ResultType } from "./Animation";
+import { ResultType } from "../animation/Animation";
 
 /**
  * UseTransitionConfig for useTransition config

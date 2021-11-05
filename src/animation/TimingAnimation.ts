@@ -3,8 +3,8 @@ import {
   RequestAnimationFrame,
   CancelAnimationFrame,
 } from "./RequestAnimationFrame";
-import { UseTransitionConfig } from "./useTransition";
-import { Easing } from "./Easing";
+import { UseTransitionConfig } from "../react/useTransition";
+import { Easing } from "../easing/Easing";
 
 /**
  * TimingAnimation class implements duration based spring animation
