@@ -1,5 +1,5 @@
 {
-  "name": "re-motion",
+  "name": "@raidipesh78/re-motion",
   "version": "1.0.0",
   "description": "Powerful React animation library",
   "main": "dist/index.js",
