@@ -48,49 +48,6 @@ function getCssValue(property: string, value: number | string) {
   return cssValue;
 }
 
-/**
- * getNonAnimatableStyle function returns the non-animatable style object
- * @param style - CSSProperties
- * @returns - non-animatable CSSProperties
- */
-function getNonAnimatableStyle(style: React.CSSProperties) {
-  // for transforms, we add all the transform keys in transformPropertiesObject and
-  // use getTransform() function to get transform string.
-  const transformPropertiesObject = {};
-
-  const stylesWithoutTransforms = Object.keys(style).reduce(
-    (resultObject, styleProp) => {
-      const value = style[styleProp as keyof React.CSSProperties];
-
-      // skips all the subscribers here
-      // only get non-animatable styles
-      if (isSubscriber(value)) {
-        return resultObject;
-      } else if (styleTrasformKeys.indexOf(styleProp) !== -1) {
-        // if not subscriber, then check styleTransformKeys
-        transformPropertiesObject[styleProp] = value;
-        return resultObject;
-      }
-
-      return { ...resultObject, [styleProp]: value };
-    },
-    {}
-  );
-
-  const transformStyle: any = {};
-  if (Object.keys(transformPropertiesObject).length > 0) {
-    transformStyle.transform = getTransform(transformPropertiesObject);
-  }
-
-  // combined transform and non-transform styles
-  const combinedStyle = {
-    ...transformStyle,
-    ...stylesWithoutTransforms,
-  };
-
-  return combinedStyle;
-}
-
 // Combine multiple refs
 function combineRefs(
   ...refs: Array<React.RefObject<any> | ((element: HTMLElement) => void)>
@@ -114,6 +71,49 @@ function combineRefs(
   };
 }
 
+/**
+ * getNonAnimatableStyle function returns the non-animatable style object
+ * @param style - CSSProperties
+ * @returns - non-animatable CSSProperties
+ */
+function getNonAnimatableStyle(
+  style: React.CSSProperties,
+  transformObjectRef: React.MutableRefObject<any>
+) {
+  const stylesWithoutTransforms = Object.keys(style).reduce(
+    (resultObject, styleProp) => {
+      const value = style[styleProp as keyof React.CSSProperties];
+
+      // skips all the subscribers here
+      // only get non-animatable styles
+      if (isSubscriber(value)) {
+        return resultObject;
+      } else if (styleTrasformKeys.indexOf(styleProp) !== -1) {
+        // if not subscriber, then check styleTransformKeys
+        // add it to transformPropertiesObjectRef
+        transformObjectRef.current[styleProp] = value;
+        return resultObject;
+      }
+
+      return { ...resultObject, [styleProp]: value };
+    },
+    {}
+  );
+
+  const transformStyle: any = {};
+  if (Object.keys(transformObjectRef.current).length > 0) {
+    transformStyle.transform = getTransform(transformObjectRef.current);
+  }
+
+  // combined transform and non-transform styles
+  const combinedStyle = {
+    ...transformStyle,
+    ...stylesWithoutTransforms,
+  };
+
+  return combinedStyle;
+}
+
 type AnimationObject = {
   property: string;
   animatable: boolean;
@@ -131,6 +131,15 @@ export function makeAnimatedComponent(
 ) {
   function Wrapper({ style, ...props }: any, forwardRef: any) {
     const ref = React.useRef<any>(null);
+
+    // for transforms, we add all the transform keys in transformPropertiesObjectRef and
+    // use getTransform() function to get transform string.
+    // we make sure that the non-animatable transforms to be present in
+    // transformPropertiesObjectRef , non-animatable transform from first paint
+    // are overridden if it is not added.
+    const transformPropertiesObjectRef = React.useRef<{
+      [property: string]: any;
+    }>({});
 
     // generates the array of animation object
     const animations = React.useMemo<Array<AnimationObject>>(() => {
@@ -159,6 +168,7 @@ export function makeAnimatedComponent(
           let animation: any;
 
           if (isDefined(_config?.duration)) {
+            // duration based animation
             animation = new TimingAnimation({
               initialPosition: _value,
               config: {
@@ -170,6 +180,7 @@ export function makeAnimatedComponent(
               },
             });
           } else {
+            // spring based animation
             animation = new SpringAnimation({
               initialPosition: _value,
               config: {
@@ -200,7 +211,10 @@ export function makeAnimatedComponent(
 
     // Update non-animated style if style changes
     React.useEffect(() => {
-      const nonAnimatableStyle = getNonAnimatableStyle(style);
+      const nonAnimatableStyle = getNonAnimatableStyle(
+        style,
+        transformPropertiesObjectRef
+      );
 
       Object.keys(nonAnimatableStyle).forEach((styleProp) => {
         const value =
@@ -223,21 +237,6 @@ export function makeAnimatedComponent(
       let previousValue: any;
       let updatedValue: any;
 
-      // transformPropertiesObject holds the transform keys transforms
-      // it updates with onFrame
-      const transformPropertiesObject: any = {};
-
-      // we make sure that the non-animatable transforms to be present in
-      // transformPropertiesObject , non-animatable transform from first paint
-      // are overridden if it is not added.
-      Object.keys(style).forEach((styleProp) => {
-        const value = style[styleProp as keyof React.CSSProperties];
-
-        if (styleTrasformKeys.indexOf(styleProp) !== -1) {
-          transformPropertiesObject[styleProp] = value;
-        }
-      });
-
       animations.forEach((props: AnimationObject) => {
         const {
           animation,
@@ -256,10 +255,12 @@ export function makeAnimatedComponent(
         // whether or not the property is one of transform keys
         const isTransform = styleTrasformKeys.indexOf(property) !== -1;
 
-        // set default transform if available
-        if (isTransform) {
-          transformPropertiesObject[property] = _value;
-        }
+        // called every frame to update new transform values
+        // getTransform function returns the valid transform string
+        const getTransformValue = (property: string, value: any) => {
+          transformPropertiesObjectRef.current[property] = value;
+          return getTransform(transformPropertiesObjectRef.current);
+        };
 
         // set previous value
         previousValue = _value;
@@ -270,6 +271,8 @@ export function makeAnimatedComponent(
           // get new value
           updatedValue = value;
 
+          // for interpolation we check isInterpolation boolean
+          // which is injected from interpolate function
           if (props.isInterpolation) {
             const { interpolationConfig } = props;
 
@@ -282,9 +285,9 @@ export function makeAnimatedComponent(
 
             if (ref.current) {
               if (isTransform) {
-                transformPropertiesObject[property] = interpolatedValue;
-                ref.current.style.transform = getTransform(
-                  transformPropertiesObject
+                ref.current.style.transform = getTransformValue(
+                  property,
+                  interpolatedValue
                 );
               } else {
                 ref.current.style[property] = getCssValue(
@@ -294,11 +297,12 @@ export function makeAnimatedComponent(
               }
             }
           } else {
+            // if it is TransitionValue, we dont have to interpolate it
             if (ref.current) {
               if (isTransform) {
-                transformPropertiesObject[property] = value;
-                ref.current.style.transform = getTransform(
-                  transformPropertiesObject
+                ref.current.style.transform = getTransformValue(
+                  property,
+                  value
                 );
               } else {
                 ref.current.style[property] = getCssValue(property, value);
@@ -343,7 +347,8 @@ export function makeAnimatedComponent(
           }
         };
 
-        onFrame(_value as number); // first initial value paint the frame
+        // called initially to paint the frame with initial value '_value'
+        onFrame(_value as number);
 
         const subscribe = _subscribe(onUpdate);
         subscribers.push(subscribe);
