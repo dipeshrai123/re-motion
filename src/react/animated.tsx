@@ -259,6 +259,7 @@ export function makeAnimatedComponent(
         // getTransform function returns the valid transform string
         const getTransformValue = (property: string, value: any) => {
           transformPropertiesObjectRef.current[property] = value;
+          // console.log(transformPropertiesObjectRef.current);
           return getTransform(transformPropertiesObjectRef.current);
         };
 
