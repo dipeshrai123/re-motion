@@ -10,6 +10,22 @@ import { tags, unitlessStyleProps } from "./Tags";
 import { TransitionValue, AssignValue } from "./useTransition";
 import { ResultType } from "../animation/Animation";
 import { styleTrasformKeys, getTransform } from "./TransformStyles";
+import { combineRefs } from "./combineRefs";
+
+type PropertyType = "style" | "props";
+
+type AnimationObject = {
+  propertyType: PropertyType;
+  property: string;
+  animatable: boolean;
+  animation: any;
+  isInterpolation: boolean;
+  interpolationConfig: {
+    inputRange: Array<number>;
+    outputRange: Array<number | string>;
+    extrapolateConfig?: ExtrapolateConfig;
+  };
+} & TransitionValue;
 
 /**
  * isDefined to check the value is defined or not
@@ -32,7 +48,13 @@ export const isSubscriber = (value: any) => {
   );
 };
 
-// Get unitless or unit css prop
+/**
+ * getCssValue() function to get css value with unit or without unit
+ * it is only for style property - it cannot be used with transform keys
+ * @param property - style property
+ * @param value - style value
+ * @returns - value with unit or without unit
+ */
 function getCssValue(property: string, value: number | string) {
   let cssValue;
   if (typeof value === "number") {
@@ -46,29 +68,6 @@ function getCssValue(property: string, value: number | string) {
   }
 
   return cssValue;
-}
-
-// Combine multiple refs
-function combineRefs(
-  ...refs: Array<React.RefObject<any> | ((element: HTMLElement) => void)>
-) {
-  return function applyRef(element: HTMLElement) {
-    refs.forEach((ref) => {
-      if (!ref) {
-        return;
-      }
-
-      if (typeof ref === "function") {
-        ref(element);
-        return;
-      }
-
-      if ("current" in ref) {
-        // @ts-ignore
-        ref.current = element;
-      }
-    });
-  };
 }
 
 /**
@@ -114,22 +113,78 @@ function getNonAnimatableStyle(
   return combinedStyle;
 }
 
-type AnimationObject = {
-  property: string;
-  animatable: boolean;
-  animation: any;
-  isInterpolation: boolean;
-  interpolationConfig: {
-    inputRange: Array<number>;
-    outputRange: Array<number | string>;
-    extrapolateConfig?: ExtrapolateConfig;
-  };
-} & TransitionValue;
+function getAnimatableObject(
+  propertyType: PropertyType,
+  propertiesObject: object
+) {
+  return Object.keys(propertiesObject).reduce(function (acc, styleProp) {
+    const value = propertiesObject[styleProp] as TransitionValue;
+
+    if (isSubscriber(value)) {
+      const { _value, _config } = value;
+
+      // string cannot be interpolated by default ignore it.
+      if (typeof _value === "string") {
+        return [
+          ...acc,
+          {
+            propertyType,
+            property: styleProp,
+            animatable: false,
+            ...value,
+          },
+        ];
+      }
+
+      let animation: any;
+
+      if (isDefined(_config?.duration)) {
+        // duration based animation
+        animation = new TimingAnimation({
+          initialPosition: _value,
+          config: {
+            duration: _config?.duration,
+            easing: _config?.easing,
+            immediate: _config?.immediate,
+            delay: _config?.delay,
+            onRest: _config?.onRest,
+          },
+        });
+      } else {
+        // spring based animation
+        animation = new SpringAnimation({
+          initialPosition: _value,
+          config: {
+            mass: _config?.mass,
+            tension: _config?.tension,
+            friction: _config?.friction,
+            immediate: _config?.immediate,
+            delay: _config?.delay,
+            onRest: _config?.onRest,
+          },
+        });
+      }
+
+      return [
+        ...acc,
+        {
+          propertyType,
+          property: styleProp,
+          animation,
+          animatable: true,
+          ...value,
+        },
+      ];
+    }
+
+    return acc;
+  }, []) as Array<AnimationObject>;
+}
 
 export function makeAnimatedComponent(
   WrapperComponent: React.ComponentType | keyof JSX.IntrinsicElements
 ) {
-  function Wrapper({ style, ...props }: any, forwardRef: any) {
+  function Wrapper(props: any, forwardRef: any) {
     const ref = React.useRef<any>(null);
 
     // for transforms, we add all the transform keys in transformPropertiesObjectRef and
@@ -143,76 +198,22 @@ export function makeAnimatedComponent(
 
     // generates the array of animation object
     const animations = React.useMemo<Array<AnimationObject>>(() => {
-      if (!style) {
-        return [];
-      }
+      const animatableStyles = getAnimatableObject(
+        "style",
+        props.style ?? Object.create({})
+      );
+      const animatableProps = getAnimatableObject(
+        "props",
+        props ?? Object.create({})
+      );
 
-      return Object.keys(style).reduce(function (acc, styleProp) {
-        const value = style[styleProp] as TransitionValue;
-
-        if (isSubscriber(value)) {
-          const { _value, _config } = value;
-
-          // string cannot be interpolated by default ignore it.
-          if (typeof _value === "string") {
-            return [
-              ...acc,
-              {
-                property: styleProp,
-                animatable: false,
-                ...value,
-              },
-            ];
-          }
-
-          let animation: any;
-
-          if (isDefined(_config?.duration)) {
-            // duration based animation
-            animation = new TimingAnimation({
-              initialPosition: _value,
-              config: {
-                duration: _config?.duration,
-                easing: _config?.easing,
-                immediate: _config?.immediate,
-                delay: _config?.delay,
-                onRest: _config?.onRest,
-              },
-            });
-          } else {
-            // spring based animation
-            animation = new SpringAnimation({
-              initialPosition: _value,
-              config: {
-                mass: _config?.mass,
-                tension: _config?.tension,
-                friction: _config?.friction,
-                immediate: _config?.immediate,
-                delay: _config?.delay,
-                onRest: _config?.onRest,
-              },
-            });
-          }
-
-          return [
-            ...acc,
-            {
-              property: styleProp,
-              animation,
-              animatable: true,
-              ...value,
-            },
-          ];
-        }
-
-        return acc;
-      }, []) as any;
-    }, [style]);
+      return [...animatableStyles, ...animatableProps];
+    }, [props]);
 
     // Update non-animated style if style changes
     React.useEffect(() => {
       const nonAnimatableStyle = getNonAnimatableStyle(
-        style,
+        props.style,
         transformPropertiesObjectRef
       );
 
@@ -224,7 +225,7 @@ export function makeAnimatedComponent(
           ref.current.style[styleProp] = getCssValue(styleProp, value);
         }
       });
-    }, [style]);
+    }, [props.style]);
 
     React.useEffect(() => {
       const subscribers: any = [];
@@ -239,13 +240,14 @@ export function makeAnimatedComponent(
 
       animations.forEach((props: AnimationObject) => {
         const {
-          animation,
-          property,
           _subscribe,
           _value,
-          animatable,
           _config,
           _currentValue,
+          animation,
+          propertyType,
+          property,
+          animatable,
         } = props;
 
         if (!ref.current) {
@@ -257,10 +259,26 @@ export function makeAnimatedComponent(
 
         // called every frame to update new transform values
         // getTransform function returns the valid transform string
-        const getTransformValue = (property: string, value: any) => {
+        const getTransformValue = (value: any) => {
           transformPropertiesObjectRef.current[property] = value;
-          // console.log(transformPropertiesObjectRef.current);
           return getTransform(transformPropertiesObjectRef.current);
+        };
+
+        // to apply animation values to a ref node
+        const applyAnimationValues = (value: any) => {
+          if (ref.current) {
+            if (propertyType === "style") {
+              // set animation to style
+              if (isTransform) {
+                ref.current.style.transform = getTransformValue(value);
+              } else {
+                ref.current.style[property] = getCssValue(property, value);
+              }
+            } else if (propertyType === "props") {
+              // set animation to property
+              ref.current.setAttribute(property, value);
+            }
+          }
         };
 
         // set previous value
@@ -284,31 +302,13 @@ export function makeAnimatedComponent(
               interpolationConfig.extrapolateConfig
             );
 
-            if (ref.current) {
-              if (isTransform) {
-                ref.current.style.transform = getTransformValue(
-                  property,
-                  interpolatedValue
-                );
-              } else {
-                ref.current.style[property] = getCssValue(
-                  property,
-                  interpolatedValue
-                );
-              }
-            }
+            // interpolate it first and
+            // apply animation to ref node
+            applyAnimationValues(interpolatedValue);
           } else {
             // if it is TransitionValue, we dont have to interpolate it
-            if (ref.current) {
-              if (isTransform) {
-                ref.current.style.transform = getTransformValue(
-                  property,
-                  value
-                );
-              } else {
-                ref.current.style[property] = getCssValue(property, value);
-              }
-            }
+            // just apply animation value
+            applyAnimationValues(value);
           }
 
           // Handeling duplicate listener value updates
