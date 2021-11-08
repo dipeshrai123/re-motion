@@ -48,6 +48,22 @@ export const isSubscriber = (value: any) => {
   );
 };
 
+// get clean props object without any subscribers
+const getCleanProps = (props: any) => {
+  const cleanProps = { ...props };
+  if (cleanProps.style) {
+    delete cleanProps.style;
+  }
+
+  Object.keys(cleanProps).forEach((prop: string) => {
+    if (isSubscriber(cleanProps[prop])) {
+      delete cleanProps[prop];
+    }
+  });
+
+  return cleanProps;
+};
+
 /**
  * getCssValue() function to get css value with unit or without unit
  * it is only for style property - it cannot be used with transform keys
@@ -212,6 +228,10 @@ export function makeAnimatedComponent(
 
     // Update non-animated style if style changes
     React.useEffect(() => {
+      if (!props.style) {
+        return;
+      }
+
       const nonAnimatableStyle = getNonAnimatableStyle(
         props.style,
         transformPropertiesObjectRef
@@ -363,7 +383,7 @@ export function makeAnimatedComponent(
     }, []);
 
     return React.createElement(WrapperComponent, {
-      ...props,
+      ...getCleanProps(props),
       ref: combineRefs(ref, forwardRef),
     });
   }
