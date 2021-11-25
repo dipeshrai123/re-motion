@@ -347,11 +347,21 @@ export function makeAnimatedComponent(
           const { toValue, immediate, duration } = value;
 
           if (animatable) {
+            const previousAnimation = animation;
+
+            /**
+             * stopping animation here would affect in whole
+             * animation pattern, requestAnimationFrame instance
+             * is created on frequent calls like mousemove
+             * it flushes current running requestAnimationFrame
+             */
+            animation.stop();
+
             // animatable
             animation.start({
               toValue,
               onFrame,
-              previousAnimation: animation,
+              previousAnimation,
               onEnd: callback,
               immediate,
               duration,
