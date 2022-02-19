@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import { SpringAnimation } from "../animation/SpringAnimation";
-import { TimingAnimation } from "../animation/TimingAnimation";
+// import { SpringAnimation } from "../animation/SpringAnimation";
+// import { TimingAnimation } from "../animation/TimingAnimation";
 import {
   ExtrapolateConfig,
   interpolateNumbers,
@@ -32,9 +32,9 @@ type AnimationObject = {
  * @param value - any
  * @returns - boolean
  */
-const isDefined = (value: any) => {
-  return value !== null && value !== undefined;
-};
+// const isDefined = (value: any) => {
+//   return value !== null && value !== undefined;
+// };
 
 /**
  * isSubscriber to check the value is TransitionValue or not
@@ -139,6 +139,8 @@ function getAnimatableObject(
     if (isSubscriber(value)) {
       const { _value, _config } = value;
 
+      console.log("config", _config);
+
       // string cannot be interpolated by default ignore it.
       if (typeof _value === "string") {
         return [
@@ -152,41 +154,41 @@ function getAnimatableObject(
         ];
       }
 
-      let animation: any;
+      // let animation: any;
 
-      if (isDefined(_config?.duration)) {
-        // duration based animation
-        animation = new TimingAnimation({
-          initialPosition: _value,
-          config: {
-            duration: _config?.duration,
-            easing: _config?.easing,
-            immediate: _config?.immediate,
-            delay: _config?.delay,
-            onRest: _config?.onRest,
-          },
-        });
-      } else {
-        // spring based animation
-        animation = new SpringAnimation({
-          initialPosition: _value,
-          config: {
-            mass: _config?.mass,
-            tension: _config?.tension,
-            friction: _config?.friction,
-            immediate: _config?.immediate,
-            delay: _config?.delay,
-            onRest: _config?.onRest,
-          },
-        });
-      }
+      // if (isDefined(_config?.duration)) {
+      //   // duration based animation
+      //   animation = new TimingAnimation({
+      //     initialPosition: _value,
+      //     config: {
+      //       duration: _config?.duration,
+      //       easing: _config?.easing,
+      //       immediate: _config?.immediate,
+      //       delay: _config?.delay,
+      //       onRest: _config?.onRest,
+      //     },
+      //   });
+      // } else {
+      //   // spring based animation
+      //   animation = new SpringAnimation({
+      //     initialPosition: _value,
+      //     config: {
+      //       mass: _config?.mass,
+      //       tension: _config?.tension,
+      //       friction: _config?.friction,
+      //       immediate: _config?.immediate,
+      //       delay: _config?.delay,
+      //       onRest: _config?.onRest,
+      //     },
+      //   });
+      // }
 
       return [
         ...acc,
         {
           propertyType,
           property: styleProp,
-          animation,
+          // animation,
           animatable: true,
           ...value,
         },
@@ -225,6 +227,8 @@ export function makeAnimatedComponent(
 
       return [...animatableStyles, ...animatableProps];
     }, [props]);
+
+    console.log("ANIMATIONS", animations);
 
     // Update non-animated style if style changes
     React.useEffect(() => {
