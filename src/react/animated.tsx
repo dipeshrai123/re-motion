@@ -2,177 +2,20 @@ import * as React from "react";
 
 import { SpringAnimation } from "../animation/SpringAnimation";
 import { TimingAnimation } from "../animation/TimingAnimation";
-import {
-  ExtrapolateConfig,
-  interpolateNumbers,
-} from "../interpolation/Interpolation";
-import { tags, unitlessStyleProps } from "./Tags";
-import {
-  TransitionValue,
-  AssignValue,
-  UseTransitionConfig,
-} from "./useTransition";
+import { interpolateNumbers } from "../interpolation/Interpolation";
+import { tags } from "./Tags";
+import { AssignValue, UseTransitionConfig } from "./useTransition";
 import { ResultType } from "../animation/Animation";
 import { styleTrasformKeys, getTransform } from "./TransformStyles";
 import { combineRefs } from "./combineRefs";
-
-type PropertyType = "style" | "props";
-
-type AnimationObject = {
-  propertyType: PropertyType;
-  property: string;
-  animatable: boolean;
-  isInterpolation: boolean;
-  interpolationConfig: {
-    inputRange: Array<number>;
-    outputRange: Array<number | string>;
-    extrapolateConfig?: ExtrapolateConfig;
-  };
-} & TransitionValue;
-
-/**
- * isDefined to check the value is defined or not
- * @param value - any
- * @returns - boolean
- */
-const isDefined = (value: any) => {
-  return value !== null && value !== undefined;
-};
-
-/**
- * isSubscriber to check the value is TransitionValue or not
- * @param value - any
- * @returns - boolean
- */
-export const isSubscriber = (value: any) => {
-  return (
-    typeof value === "object" &&
-    Object.prototype.hasOwnProperty.call(value, "_subscribe")
-  );
-};
-
-// get clean props object without any subscribers
-const getCleanProps = (props: any) => {
-  const cleanProps = { ...props };
-  if (cleanProps.style) {
-    delete cleanProps.style;
-  }
-
-  Object.keys(cleanProps).forEach((prop: string) => {
-    if (isSubscriber(cleanProps[prop])) {
-      delete cleanProps[prop];
-    }
-  });
-
-  return cleanProps;
-};
-
-/**
- * getCssValue() function to get css value with unit or without unit
- * it is only for style property - it cannot be used with transform keys
- * @param property - style property
- * @param value - style value
- * @returns - value with unit or without unit
- */
-function getCssValue(property: string, value: number | string) {
-  let cssValue;
-  if (typeof value === "number") {
-    if (unitlessStyleProps.indexOf(property) !== -1) {
-      cssValue = value;
-    } else {
-      cssValue = value + "px";
-    }
-  } else {
-    cssValue = value;
-  }
-
-  return cssValue;
-}
-
-/**
- * getNonAnimatableStyle function returns the non-animatable style object
- * @param style - CSSProperties
- * @returns - non-animatable CSSProperties
- */
-function getNonAnimatableStyle(
-  style: React.CSSProperties,
-  transformObjectRef: React.MutableRefObject<any>
-) {
-  const stylesWithoutTransforms = Object.keys(style).reduce(
-    (resultObject, styleProp) => {
-      const value = style[styleProp as keyof React.CSSProperties];
-
-      // skips all the subscribers here
-      // only get non-animatable styles
-      if (isSubscriber(value)) {
-        return resultObject;
-      } else if (styleTrasformKeys.indexOf(styleProp) !== -1) {
-        // if not subscriber, then check styleTransformKeys
-        // add it to transformPropertiesObjectRef
-        transformObjectRef.current[styleProp] = value;
-        return resultObject;
-      }
-
-      return { ...resultObject, [styleProp]: value };
-    },
-    {}
-  );
-
-  const transformStyle: any = {};
-  if (Object.keys(transformObjectRef.current).length > 0) {
-    transformStyle.transform = getTransform(transformObjectRef.current);
-  }
-
-  // combined transform and non-transform styles
-  const combinedStyle = {
-    ...transformStyle,
-    ...stylesWithoutTransforms,
-  };
-
-  return combinedStyle;
-}
-
-/**
- * Function to get the array of animatable objects
- * @param propertyType - which property type "props" or "style"
- */
-function getAnimatableObject(
-  propertyType: PropertyType,
-  propertiesObject: object
-) {
-  return Object.keys(propertiesObject).reduce(function (acc, styleProp) {
-    const value = propertiesObject[styleProp] as TransitionValue;
-
-    if (isSubscriber(value)) {
-      const { _value } = value;
-
-      // string cannot be interpolated by default ignore it.
-      if (typeof _value === "string") {
-        return [
-          ...acc,
-          {
-            propertyType,
-            property: styleProp,
-            animatable: false,
-            ...value,
-          },
-        ];
-      } else {
-        return [
-          ...acc,
-          {
-            propertyType,
-            property: styleProp,
-            animatable: true,
-            ...value,
-          },
-        ];
-      }
-    }
-
-    return acc;
-  }, []) as Array<AnimationObject>;
-}
+import { isDefined } from "./functions/isDefined";
+import { getCleanProps } from "./functions/getCleanProps";
+import {
+  getAnimatableObject,
+  AnimationObject,
+} from "./functions/getAnimatableObject";
+import { getCssValue } from "./functions/getCssValue";
+import { getNonAnimatableStyle } from "./functions/getNonAnimatableStyle";
 
 /**
  * Animation Types : For now spring and timing based animations
