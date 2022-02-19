@@ -1,4 +1,4 @@
-import { unitlessStyleProps } from "./Tags";
+import { unitlessStyleProps } from "../Tags";
 
 /**
  * getCssValue() function to get css value with unit or without unit

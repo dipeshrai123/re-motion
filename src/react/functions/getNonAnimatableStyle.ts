@@ -1,4 +1,4 @@
-import { styleTrasformKeys, getTransform } from "./TransformStyles";
+import { styleTrasformKeys, getTransform } from "../TransformStyles";
 import { isSubscriber } from "./isSubscriber";
 
 /**
