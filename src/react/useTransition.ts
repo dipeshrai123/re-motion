@@ -14,7 +14,7 @@ export interface UseTransitionConfig {
   immediate?: boolean;
   delay?: number;
   onChange?: (value: number) => void;
-  onRest?: (value: any) => void;
+  onRest?: (value: ResultType) => void;
 }
 
 /**
