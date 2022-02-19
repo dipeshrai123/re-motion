@@ -41,10 +41,6 @@ export function makeAnimatedComponent(
       [property: string]: any;
     }>({});
 
-    // store animations here
-    const animation = React.useRef<any>(null);
-    const previousAnimation = React.useRef<any>(null);
-
     // generates the array of animation object
     const animations = React.useMemo<Array<AnimationObject>>(() => {
       const animatableStyles = getAnimatableObject(
@@ -101,6 +97,10 @@ export function makeAnimatedComponent(
           property,
           animatable,
         } = props;
+
+        // store animations here
+        let animation: any = null;
+        let previousAnimation: any = null;
 
         if (!ref.current) {
           return;
@@ -194,18 +194,18 @@ export function makeAnimatedComponent(
           const animationConfig = config ?? _config;
 
           if (type === "spring") {
-            animation.current = new SpringAnimation({
+            animation = new SpringAnimation({
               initialPosition: value,
               config: animationConfig,
             });
           } else if (type === "timing") {
-            animation.current = new TimingAnimation({
+            animation = new TimingAnimation({
               initialPosition: value,
               config: animationConfig,
             });
           }
 
-          return animation.current;
+          return animation;
         };
 
         const onUpdate = (
@@ -216,26 +216,26 @@ export function makeAnimatedComponent(
 
           if (animatable) {
             // animatable
-            if (previousAnimation.current._toValue !== toValue) {
+            if (previousAnimation._toValue !== toValue) {
               /**
                * stopping animation here would affect in whole
                * animation pattern, requestAnimationFrame instance
                * is created on frequent calls like mousemove
                * it flushes current running requestAnimationFrame
                */
-              animation.current.stop();
+              animation.stop();
 
               // define the animation based on config
-              previousAnimation.current = defineAnimation(
-                previousAnimation.current._position,
+              previousAnimation = defineAnimation(
+                previousAnimation._position,
                 config
               );
 
               // animatable
-              animation.current.start({
+              animation.start({
                 toValue,
                 onFrame,
-                previousAnimation: previousAnimation.current,
+                previousAnimation: previousAnimation,
                 onEnd: callback,
                 immediate: config?.immediate,
               });
@@ -255,7 +255,7 @@ export function makeAnimatedComponent(
         // called initially to paint the frame with initial value '_value'
         onFrame(_value as number);
         // define type of animation to paint the first frame with initial value '_value'
-        previousAnimation.current = defineAnimation(_value as number);
+        previousAnimation = defineAnimation(_value as number);
 
         const subscribe = _subscribe(onUpdate);
         subscribers.push(subscribe);
