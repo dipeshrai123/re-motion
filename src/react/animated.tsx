@@ -7,7 +7,11 @@ import {
   interpolateNumbers,
 } from "../interpolation/Interpolation";
 import { tags, unitlessStyleProps } from "./Tags";
-import { TransitionValue, AssignValue } from "./useTransition";
+import {
+  TransitionValue,
+  AssignValue,
+  UseTransitionConfig,
+} from "./useTransition";
 import { ResultType } from "../animation/Animation";
 import { styleTrasformKeys, getTransform } from "./TransformStyles";
 import { combineRefs } from "./combineRefs";
@@ -128,6 +132,10 @@ function getNonAnimatableStyle(
   return combinedStyle;
 }
 
+/**
+ * Function to get the array of animatable objects
+ * @param propertyType - which property type "props" or "style"
+ */
 function getAnimatableObject(
   propertyType: PropertyType,
   propertiesObject: object
@@ -149,23 +157,32 @@ function getAnimatableObject(
             ...value,
           },
         ];
+      } else {
+        return [
+          ...acc,
+          {
+            propertyType,
+            property: styleProp,
+            animatable: true,
+            ...value,
+          },
+        ];
       }
-
-      return [
-        ...acc,
-        {
-          propertyType,
-          property: styleProp,
-          animatable: true,
-          ...value,
-        },
-      ];
     }
 
     return acc;
   }, []) as Array<AnimationObject>;
 }
 
+/**
+ * Animation Types : For now spring and timing based animations
+ */
+type AnimationTypes = "spring" | "timing";
+
+/**
+ * Higher order component to make any component animatable
+ * @param WrapperComponent
+ */
 export function makeAnimatedComponent(
   WrapperComponent: React.ComponentType | keyof JSX.IntrinsicElements
 ) {
@@ -313,24 +330,35 @@ export function makeAnimatedComponent(
         };
 
         /**
-         * Defines the animation when set
+         * Function to define dynamic animations
+         * "spring" or "timing" based animations are
+         * determined by the config duration
          */
-        const defineAnimation = (type: "spring" | "timing", value: number) => {
+        const defineAnimation = (
+          value: number,
+          config?: UseTransitionConfig
+        ) => {
+          // define the type of animation
+          let type: AnimationTypes = "spring";
+          if (!isDefined(config?.duration)) {
+            if (isDefined(_config?.duration)) {
+              type = "timing";
+            }
+          } else {
+            type = "timing";
+          }
+
+          const animationConfig = config ?? _config;
+
           if (type === "spring") {
             animation.current = new SpringAnimation({
               initialPosition: value,
-              config: {
-                mass: 1,
-                tension: 200,
-                friction: 25,
-              },
+              config: animationConfig,
             });
           } else if (type === "timing") {
             animation.current = new TimingAnimation({
               initialPosition: value,
-              config: {
-                duration: 2000,
-              },
+              config: animationConfig,
             });
           }
 
@@ -341,7 +369,7 @@ export function makeAnimatedComponent(
           value: AssignValue,
           callback?: (value: ResultType) => void
         ) => {
-          const { toValue, immediate, duration } = value;
+          const { toValue, config } = value;
 
           if (animatable) {
             // animatable
@@ -356,8 +384,8 @@ export function makeAnimatedComponent(
 
               // define the animation based on config
               previousAnimation.current = defineAnimation(
-                isDefined(duration) ? "timing" : "spring",
-                previousAnimation.current._position
+                previousAnimation.current._position,
+                config
               );
 
               // animatable
@@ -366,7 +394,7 @@ export function makeAnimatedComponent(
                 onFrame,
                 previousAnimation: previousAnimation.current,
                 onEnd: callback,
-                immediate,
+                immediate: config?.immediate,
               });
             }
           } else {
@@ -383,7 +411,8 @@ export function makeAnimatedComponent(
 
         // called initially to paint the frame with initial value '_value'
         onFrame(_value as number);
-        previousAnimation.current = defineAnimation("spring", _value as number);
+        // define type of animation to paint the first frame with initial value '_value'
+        previousAnimation.current = defineAnimation(_value as number);
 
         const subscribe = _subscribe(onUpdate);
         subscribers.push(subscribe);

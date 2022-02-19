@@ -31,7 +31,7 @@ export class TimingAnimation extends Animation {
     config,
   }: {
     initialPosition: number;
-    config: Omit<UseTransitionConfig, "mass" | "friction" | "tension">;
+    config?: Omit<UseTransitionConfig, "mass" | "friction" | "tension">;
   }) {
     super();
 
