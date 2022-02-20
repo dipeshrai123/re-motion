@@ -173,7 +173,7 @@ export function makeAnimatedComponent(
         };
 
         /**
-         * Function to define dynamic animations
+         * Function to initialize dynamic animations according to config
          * "spring" or "timing" based animations are
          * determined by the config duration
          */
@@ -204,8 +204,6 @@ export function makeAnimatedComponent(
               config: animationConfig,
             });
           }
-
-          return animation;
         };
 
         const onUpdate = (
@@ -215,6 +213,8 @@ export function makeAnimatedComponent(
           const { toValue, config } = value;
 
           if (animatable) {
+            previousAnimation = animation;
+
             // animatable
             if (previousAnimation._toValue !== toValue) {
               /**
@@ -225,11 +225,7 @@ export function makeAnimatedComponent(
                */
               animation.stop();
 
-              // define the animation based on config
-              previousAnimation = defineAnimation(
-                previousAnimation._position,
-                config
-              );
+              defineAnimation(previousAnimation._position, config);
 
               // animatable
               animation.start({
@@ -255,7 +251,7 @@ export function makeAnimatedComponent(
         // called initially to paint the frame with initial value '_value'
         onFrame(_value as number);
         // define type of animation to paint the first frame with initial value '_value'
-        previousAnimation = defineAnimation(_value as number);
+        defineAnimation(_value as number);
 
         const subscribe = _subscribe(onUpdate);
         subscribers.push(subscribe);
