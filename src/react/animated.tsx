@@ -180,17 +180,19 @@ export function makeAnimatedComponent(
           value: number,
           config?: UseTransitionConfig
         ) => {
-          // define the type of animation
-          let type: AnimationTypes = "spring";
-          if (!isDefined(config?.duration)) {
-            if (isDefined(_config?.duration)) {
-              type = "timing";
-            }
-          } else {
-            type = "timing";
-          }
+          const animationConfig: UseTransitionConfig | undefined =
+            config ?? _config;
 
-          const animationConfig = config ?? _config;
+          let type: AnimationTypes;
+          /**
+           * Here duration key determines the type of animation
+           * spring config are overridden by duration
+           */
+          if (isDefined(animationConfig?.duration)) {
+            type = "timing";
+          } else {
+            type = "spring";
+          }
 
           if (type === "spring") {
             animation = new SpringAnimation({
