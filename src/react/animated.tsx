@@ -8,14 +8,14 @@ import { AssignValue, UseTransitionConfig } from "./useTransition";
 import { ResultType } from "../animation/Animation";
 import { styleTrasformKeys, getTransform } from "./TransformStyles";
 import { combineRefs } from "./combineRefs";
-import { isDefined } from "./functions/isDefined";
-import { getCleanProps } from "./functions/getCleanProps";
 import {
+  isDefined,
+  getCleanProps,
   getAnimatableObject,
   AnimationObject,
-} from "./functions/getAnimatableObject";
-import { getCssValue } from "./functions/getCssValue";
-import { getNonAnimatableStyle } from "./functions/getNonAnimatableStyle";
+  getNonAnimatableStyle,
+  getCssValue,
+} from "./functions";
 
 /**
  * Animation Types : For now spring and timing based animations
