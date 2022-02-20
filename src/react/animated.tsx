@@ -100,7 +100,6 @@ export function makeAnimatedComponent(
 
         // store animations here
         let animation: any = null;
-        let previousAnimation: any = null;
 
         if (!ref.current) {
           return;
@@ -213,7 +212,7 @@ export function makeAnimatedComponent(
           const { toValue, config } = value;
 
           if (animatable) {
-            previousAnimation = animation;
+            const previousAnimation = animation;
 
             // animatable
             if (previousAnimation._toValue !== toValue) {
@@ -225,13 +224,14 @@ export function makeAnimatedComponent(
                */
               animation.stop();
 
+              // re-define animation here
               defineAnimation(previousAnimation._position, config);
 
-              // animatable
+              // start animations here by start api
               animation.start({
                 toValue,
                 onFrame,
-                previousAnimation: previousAnimation,
+                previousAnimation,
                 onEnd: callback,
                 immediate: config?.immediate,
               });
