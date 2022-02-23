@@ -252,8 +252,11 @@ export function makeAnimatedComponent(
 
         // called initially to paint the frame with initial value '_value'
         onFrame(_value as number);
-        // define type of animation to paint the first frame with initial value '_value'
-        defineAnimation(_value as number);
+
+        if (animatable) {
+          // define type of animation to paint the first frame with initial value '_value'
+          defineAnimation(_value as number);
+        }
 
         const subscribe = _subscribe(onUpdate);
         subscribers.push(subscribe);
