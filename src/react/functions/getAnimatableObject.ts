@@ -32,11 +32,6 @@ export function getAnimatableObject(
     if (isSubscriber(value)) {
       const { _value } = value;
 
-      /**
-       * TODO: string could be interpolated if it matches the template
-       * interpolate the interpolatable strings from 0 to 1
-       */
-
       return [
         ...acc,
         {
