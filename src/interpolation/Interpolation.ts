@@ -191,14 +191,27 @@ const _getParsedStringArray = (str: any) => {
   });
 };
 
-const _isStringMatched = (str1: string, str2: string) => {
+/**
+ * Function returns if the template of two strings are matched
+ * i.e. they can be interpolated
+ * @param str1 - first string
+ * @param str2 - second string
+ * @returns boolean indicating two strings matched or not
+ */
+export const stringMatched = (str1: string, str2: string) => {
   return (
     _getTemplateString(str1).trim().replace(/\s/g, "").length ===
     _getTemplateString(str2).trim().replace(/\s/g, "").length
   );
 };
 
-const _colorProcessedString = (str: any) => {
+/**
+ * Function which proccess the
+ * hexadecimal colors to its proper formats
+ * @param str - string
+ * @returns hex color string
+ */
+export const getProcessedColor = (str: any) => {
   return str.replace(HEX_NAME_COLOR, function (match: any) {
     if (match.indexOf("#") !== -1) {
       return rgbaToHex(hexToRgba(match));
@@ -268,12 +281,12 @@ export function interpolateNumbers(
     } else {
       const [inputMin, inputMax, outputMin, outputMax] = narrowedInput;
 
-      const processedOutputMin = _colorProcessedString(outputMin);
-      const processedOutputMax = _colorProcessedString(outputMax);
+      const processedOutputMin = getProcessedColor(outputMin);
+      const processedOutputMax = getProcessedColor(outputMax);
 
       let templateString = _getTemplateString(processedOutputMin);
 
-      if (_isStringMatched(processedOutputMin, processedOutputMax)) {
+      if (stringMatched(processedOutputMin, processedOutputMax)) {
         const outputMinParsed = _getParsedStringArray(processedOutputMin);
         const outputMaxParsed = _getParsedStringArray(processedOutputMax);
 

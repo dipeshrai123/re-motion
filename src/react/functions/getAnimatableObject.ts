@@ -8,6 +8,8 @@ export type AnimationObject = {
   propertyType: PropertyType;
   property: string;
   animatable: boolean;
+
+  // from interpolateTransitionValue
   isInterpolation: boolean;
   interpolationConfig: {
     inputRange: Array<number>;
@@ -30,28 +32,20 @@ export function getAnimatableObject(
     if (isSubscriber(value)) {
       const { _value } = value;
 
-      // string cannot be interpolated by default ignore it.
-      if (typeof _value === "string") {
-        return [
-          ...acc,
-          {
-            propertyType,
-            property: styleProp,
-            animatable: false,
-            ...value,
-          },
-        ];
-      } else {
-        return [
-          ...acc,
-          {
-            propertyType,
-            property: styleProp,
-            animatable: true,
-            ...value,
-          },
-        ];
-      }
+      /**
+       * TODO: string could be interpolated if it matches the template
+       * interpolate the interpolatable strings from 0 to 1
+       */
+
+      return [
+        ...acc,
+        {
+          propertyType,
+          property: styleProp,
+          animatable: !(typeof _value === "string"), // strings are non animatable
+          ...value,
+        },
+      ];
     }
 
     return acc;
