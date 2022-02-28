@@ -226,8 +226,12 @@ export function makeAnimatedComponent(
       return [...animatableStyles, ...animatableProps];
     }, [props]);
 
-    // Update non-animated style if style changes
-    React.useEffect(() => {
+    /**
+     * Update non-animated style if style changes...
+     * here useLayoutEffect is used so that the changes is reflected
+     * as soon as possible
+     */
+    React.useLayoutEffect(() => {
       if (!props.style) {
         return;
       }
