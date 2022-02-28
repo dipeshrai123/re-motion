@@ -251,7 +251,7 @@ export function makeAnimatedComponent(
       });
     }, [props.style]);
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
       const subscribers: any = [];
 
       // set all subscribers here
