@@ -1,9 +1,11 @@
 /**
- * Base Animation class
+ * Result on debounce
  */
-
 export type ResultType = { finished: boolean; value: number };
 
+/**
+ * Base Animation class
+ */
 export class Animation {
   _active: boolean;
   _onEnd: any;

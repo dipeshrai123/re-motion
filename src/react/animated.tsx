@@ -2,201 +2,30 @@ import * as React from "react";
 
 import { SpringAnimation } from "../animation/SpringAnimation";
 import { TimingAnimation } from "../animation/TimingAnimation";
-import {
-  ExtrapolateConfig,
-  interpolateNumbers,
-} from "../interpolation/Interpolation";
-import { tags, unitlessStyleProps } from "./Tags";
-import { TransitionValue, AssignValue } from "./useTransition";
+import { interpolateNumbers } from "../interpolation/Interpolation";
+import { tags } from "./Tags";
+import { AssignValue, UseTransitionConfig } from "./useTransition";
 import { ResultType } from "../animation/Animation";
 import { styleTrasformKeys, getTransform } from "./TransformStyles";
 import { combineRefs } from "./combineRefs";
-
-type PropertyType = "style" | "props";
-
-type AnimationObject = {
-  propertyType: PropertyType;
-  property: string;
-  animatable: boolean;
-  animation: any;
-  isInterpolation: boolean;
-  interpolationConfig: {
-    inputRange: Array<number>;
-    outputRange: Array<number | string>;
-    extrapolateConfig?: ExtrapolateConfig;
-  };
-} & TransitionValue;
+import {
+  isDefined,
+  getCleanProps,
+  getAnimatableObject,
+  AnimationObject,
+  getNonAnimatableStyle,
+  getCssValue,
+} from "./functions";
 
 /**
- * isDefined to check the value is defined or not
- * @param value - any
- * @returns - boolean
+ * Animation Types : For now spring and timing based animations
  */
-const isDefined = (value: any) => {
-  return value !== null && value !== undefined;
-};
+type AnimationTypes = "spring" | "timing";
 
 /**
- * isSubscriber to check the value is TransitionValue or not
- * @param value - any
- * @returns - boolean
+ * Higher order component to make any component animatable
+ * @param WrapperComponent
  */
-export const isSubscriber = (value: any) => {
-  return (
-    typeof value === "object" &&
-    Object.prototype.hasOwnProperty.call(value, "_subscribe")
-  );
-};
-
-// get clean props object without any subscribers
-const getCleanProps = (props: any) => {
-  const cleanProps = { ...props };
-  if (cleanProps.style) {
-    delete cleanProps.style;
-  }
-
-  Object.keys(cleanProps).forEach((prop: string) => {
-    if (isSubscriber(cleanProps[prop])) {
-      delete cleanProps[prop];
-    }
-  });
-
-  return cleanProps;
-};
-
-/**
- * getCssValue() function to get css value with unit or without unit
- * it is only for style property - it cannot be used with transform keys
- * @param property - style property
- * @param value - style value
- * @returns - value with unit or without unit
- */
-function getCssValue(property: string, value: number | string) {
-  let cssValue;
-  if (typeof value === "number") {
-    if (unitlessStyleProps.indexOf(property) !== -1) {
-      cssValue = value;
-    } else {
-      cssValue = value + "px";
-    }
-  } else {
-    cssValue = value;
-  }
-
-  return cssValue;
-}
-
-/**
- * getNonAnimatableStyle function returns the non-animatable style object
- * @param style - CSSProperties
- * @returns - non-animatable CSSProperties
- */
-function getNonAnimatableStyle(
-  style: React.CSSProperties,
-  transformObjectRef: React.MutableRefObject<any>
-) {
-  const stylesWithoutTransforms = Object.keys(style).reduce(
-    (resultObject, styleProp) => {
-      const value = style[styleProp as keyof React.CSSProperties];
-
-      // skips all the subscribers here
-      // only get non-animatable styles
-      if (isSubscriber(value)) {
-        return resultObject;
-      } else if (styleTrasformKeys.indexOf(styleProp) !== -1) {
-        // if not subscriber, then check styleTransformKeys
-        // add it to transformPropertiesObjectRef
-        transformObjectRef.current[styleProp] = value;
-        return resultObject;
-      }
-
-      return { ...resultObject, [styleProp]: value };
-    },
-    {}
-  );
-
-  const transformStyle: any = {};
-  if (Object.keys(transformObjectRef.current).length > 0) {
-    transformStyle.transform = getTransform(transformObjectRef.current);
-  }
-
-  // combined transform and non-transform styles
-  const combinedStyle = {
-    ...transformStyle,
-    ...stylesWithoutTransforms,
-  };
-
-  return combinedStyle;
-}
-
-function getAnimatableObject(
-  propertyType: PropertyType,
-  propertiesObject: object
-) {
-  return Object.keys(propertiesObject).reduce(function (acc, styleProp) {
-    const value = propertiesObject[styleProp] as TransitionValue;
-
-    if (isSubscriber(value)) {
-      const { _value, _config } = value;
-
-      // string cannot be interpolated by default ignore it.
-      if (typeof _value === "string") {
-        return [
-          ...acc,
-          {
-            propertyType,
-            property: styleProp,
-            animatable: false,
-            ...value,
-          },
-        ];
-      }
-
-      let animation: any;
-
-      if (isDefined(_config?.duration)) {
-        // duration based animation
-        animation = new TimingAnimation({
-          initialPosition: _value,
-          config: {
-            duration: _config?.duration,
-            easing: _config?.easing,
-            immediate: _config?.immediate,
-            delay: _config?.delay,
-            onRest: _config?.onRest,
-          },
-        });
-      } else {
-        // spring based animation
-        animation = new SpringAnimation({
-          initialPosition: _value,
-          config: {
-            mass: _config?.mass,
-            tension: _config?.tension,
-            friction: _config?.friction,
-            immediate: _config?.immediate,
-            delay: _config?.delay,
-            onRest: _config?.onRest,
-          },
-        });
-      }
-
-      return [
-        ...acc,
-        {
-          propertyType,
-          property: styleProp,
-          animation,
-          animatable: true,
-          ...value,
-        },
-      ];
-    }
-
-    return acc;
-  }, []) as Array<AnimationObject>;
-}
-
 export function makeAnimatedComponent(
   WrapperComponent: React.ComponentType | keyof JSX.IntrinsicElements
 ) {
@@ -268,11 +97,13 @@ export function makeAnimatedComponent(
           _value,
           _config,
           _currentValue,
-          animation,
           propertyType,
           property,
           animatable,
         } = props;
+
+        // store animations here
+        let animation: any = null;
 
         if (!ref.current) {
           return;
@@ -344,32 +175,73 @@ export function makeAnimatedComponent(
           }
         };
 
+        /**
+         * Function to initialize dynamic animations according to config
+         * "spring" or "timing" based animations are
+         * determined by the config duration
+         */
+        const defineAnimation = (
+          value: number,
+          config?: UseTransitionConfig
+        ) => {
+          const animationConfig: UseTransitionConfig | undefined =
+            config ?? _config;
+
+          let type: AnimationTypes;
+          /**
+           * Here duration key determines the type of animation
+           * spring config are overridden by duration
+           */
+          if (isDefined(animationConfig?.duration)) {
+            type = "timing";
+          } else {
+            type = "spring";
+          }
+
+          if (type === "spring") {
+            animation = new SpringAnimation({
+              initialPosition: value,
+              config: animationConfig,
+            });
+          } else if (type === "timing") {
+            animation = new TimingAnimation({
+              initialPosition: value,
+              config: animationConfig,
+            });
+          }
+        };
+
         const onUpdate = (
           value: AssignValue,
           callback?: (value: ResultType) => void
         ) => {
-          const { toValue, immediate, duration } = value;
+          const { toValue, config } = value;
 
           if (animatable) {
             const previousAnimation = animation;
 
-            /**
-             * stopping animation here would affect in whole
-             * animation pattern, requestAnimationFrame instance
-             * is created on frequent calls like mousemove
-             * it flushes current running requestAnimationFrame
-             */
-            animation.stop();
-
             // animatable
-            animation.start({
-              toValue,
-              onFrame,
-              previousAnimation,
-              onEnd: callback,
-              immediate,
-              duration,
-            });
+            if (previousAnimation._toValue !== toValue) {
+              /**
+               * stopping animation here would affect in whole
+               * animation pattern, requestAnimationFrame instance
+               * is created on frequent calls like mousemove
+               * it flushes current running requestAnimationFrame
+               */
+              animation.stop();
+
+              // re-define animation here
+              defineAnimation(previousAnimation._position, config);
+
+              // start animations here by start api
+              animation.start({
+                toValue,
+                onFrame,
+                previousAnimation,
+                onEnd: callback,
+                immediate: config?.immediate,
+              });
+            }
           } else {
             // non-animatable
             if (typeof toValue === typeof _value) {
@@ -384,6 +256,11 @@ export function makeAnimatedComponent(
 
         // called initially to paint the frame with initial value '_value'
         onFrame(_value as number);
+
+        if (animatable) {
+          // define type of animation to paint the first frame with initial value '_value'
+          defineAnimation(_value as number);
+        }
 
         const subscribe = _subscribe(onUpdate);
         subscribers.push(subscribe);
