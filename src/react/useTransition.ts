@@ -14,8 +14,16 @@ export interface UseTransitionConfig {
   immediate?: boolean;
   delay?: number;
   onChange?: (value: number) => void;
-  onRest?: (value: any) => void;
+  onRest?: (value: ResultType) => void;
 }
+
+/**
+ * Assign value object to set animation
+ */
+export type AssignValue = {
+  toValue: number | string;
+  config?: UseTransitionConfig;
+};
 
 export type SubscriptionValue = (
   updatedValue: AssignValue,
@@ -26,20 +34,11 @@ export type SubscriptionValue = (
  * useTransition returns TransitionValue object
  */
 export type TransitionValue = {
-  _subscribe: (onUpdate: SubscriptionValue) => void;
-  _value: number | string;
-  _currentValue: React.MutableRefObject<number | string>;
-  get: () => number | string;
-  _config?: UseTransitionConfig;
-};
-
-/**
- * Assign value object to set animation
- */
-export type AssignValue = {
-  toValue: number | string;
-  immediate?: boolean;
-  duration?: number; // only for time-based animation
+  _subscribe: (onUpdate: SubscriptionValue) => void; // defines the subscription for any animatable key
+  _value: number | string; // initial value
+  _currentValue: React.MutableRefObject<number | string>; // current updated value
+  get: () => number | string; // function to get the current value
+  _config?: UseTransitionConfig; // animation config
 };
 
 /**

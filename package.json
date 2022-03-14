@@ -1,6 +1,10 @@
 {
   "name": "@raidipesh78/re-motion",
+<<<<<<< HEAD
   "version": "1.0.8",
+=======
+  "version": "1.6.0-alpha.2",
+>>>>>>> a326e5e578cb88e460a7609e1b85550e70c3e980
   "description": "Powerful React animation library",
   "main": "dist/index.js",
   "peerDependencies": {

@@ -15,7 +15,7 @@ export class SpringAnimation extends Animation {
   _initialVelocity?: number;
   _lastVelocity: number;
   _startPosition: number;
-  _lastPosition: number;
+  _position: number;
   _fromValue: number;
   _toValue: any;
   _mass: number;
@@ -46,7 +46,7 @@ export class SpringAnimation extends Animation {
     this._lastVelocity = 0;
 
     this._startPosition = initialPosition;
-    this._lastPosition = this._startPosition;
+    this._position = this._startPosition;
     this._mass = config?.mass ?? 1;
     this._tension = config?.tension ?? 170;
     this._friction = config?.friction ?? 26;
@@ -58,10 +58,10 @@ export class SpringAnimation extends Animation {
   }
 
   onUpdate() {
-    var position = this._lastPosition;
+    var position = this._position;
     var velocity = this._lastVelocity;
 
-    var tempPosition = this._lastPosition;
+    var tempPosition = this._position;
     var tempVelocity = this._lastVelocity;
 
     var MAX_STEPS = 64;
@@ -112,7 +112,7 @@ export class SpringAnimation extends Animation {
     }
 
     this._lastTime = now;
-    this._lastPosition = position;
+    this._position = position;
     this._lastVelocity = velocity;
 
     this._onFrame(position);
@@ -139,7 +139,7 @@ export class SpringAnimation extends Animation {
     if (isOvershooting || (isVelocity && isDisplacement)) {
       if (this._tension !== 0) {
         this._lastVelocity = 0;
-        this._lastPosition = this._toValue;
+        this._position = this._toValue;
 
         this._onFrame(this._toValue);
       }
@@ -158,13 +158,13 @@ export class SpringAnimation extends Animation {
   stop() {
     this._active = false;
     CancelAnimationFrame.current(this._animationFrame);
-    this._debounceOnEnd({ finished: false, value: this._lastPosition });
+    this._debounceOnEnd({ finished: false, value: this._position });
   }
 
   // Set value
   set(toValue: number) {
     this.stop();
-    this._lastPosition = toValue;
+    this._position = toValue;
     this._lastTime = 0;
     this._lastVelocity = 0;
     this._onFrame(toValue);
