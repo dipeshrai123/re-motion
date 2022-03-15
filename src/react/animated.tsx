@@ -239,6 +239,9 @@ export function makeAnimatedComponent(
                 onFrame,
                 previousAnimation,
                 onEnd: callback,
+                /**
+                 * TODO: is it necessary to add immediate config here???
+                 */
                 immediate: config?.immediate,
               });
             }

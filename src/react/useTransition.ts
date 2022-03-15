@@ -1,6 +1,6 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { ResultType } from "../animation/Animation";
+import { ResultType } from '../animation/Animation';
 
 /**
  * UseTransitionConfig for useTransition config
@@ -84,17 +84,21 @@ export const useTransition = (
       };
     }, [initialValue, config]),
     (updatedValue: AssignValue, callback?: (result: ResultType) => void) => {
-      if (typeof updatedValue === "function") {
+      if (typeof updatedValue === 'function') {
         // for multi stage transition
         updatedValue((nextValue) => {
           const multiStagePromise = new Promise(function (resolve) {
-            subscriptions.current.forEach((updater) =>
-              updater(nextValue, (result: ResultType) => {
-                resolve(nextValue);
+            subscriptions.current.forEach((updater) => {
+              updater(nextValue, function (result) {
+                if (result.finished) {
+                  resolve(nextValue);
+                }
 
-                if (callback) callback(result);
-              })
-            );
+                if (callback) {
+                  callback(result);
+                }
+              });
+            });
           });
 
           return multiStagePromise;

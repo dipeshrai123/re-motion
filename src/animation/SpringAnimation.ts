@@ -198,17 +198,7 @@ export class SpringAnimation extends Animation {
       } else {
         this._active = true;
         this._toValue = toValue;
-
-        // overriding this._onEnd if passed onEnd on start method
-        if (onEnd !== undefined) {
-          this._onEnd = onEnd;
-        } else {
-          // re-assign this._onEnd with onRest from config,
-          // because the this._onEnd is nullified on debounce end.
-          if (this._onRest !== undefined) {
-            this._onEnd = this._onRest;
-          }
-        }
+        this._onEnd = onEnd;
 
         const now = Date.now();
 
