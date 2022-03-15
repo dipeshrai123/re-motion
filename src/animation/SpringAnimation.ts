@@ -1,9 +1,9 @@
-import { Animation, ResultType } from "./Animation";
+import { Animation, ResultType } from './Animation';
 import {
   RequestAnimationFrame,
   CancelAnimationFrame,
-} from "./RequestAnimationFrame";
-import { UseTransitionConfig } from "../react/useTransition";
+} from './RequestAnimationFrame';
+import { UseTransitionConfig } from '../react/useTransition';
 
 /**
  * SpringAnimation class implements physics based spring animation
@@ -29,13 +29,14 @@ export class SpringAnimation extends Animation {
   _immediate: boolean;
   _delay: number;
   _onRest?: (value: ResultType) => void;
+  _timeout: any;
 
   constructor({
     initialPosition,
     config,
   }: {
     initialPosition: number;
-    config?: Omit<UseTransitionConfig, "duration" | "easing">;
+    config?: Omit<UseTransitionConfig, 'duration' | 'easing'>;
   }) {
     super();
 
@@ -157,6 +158,7 @@ export class SpringAnimation extends Animation {
 
   stop() {
     this._active = false;
+    clearTimeout(this._timeout);
     CancelAnimationFrame.current(this._animationFrame);
     this._debounceOnEnd({ finished: false, value: this._position });
   }
@@ -223,7 +225,7 @@ export class SpringAnimation extends Animation {
     };
 
     if (this._delay !== 0) {
-      setTimeout(() => onStart(), this._delay);
+      this._timeout = setTimeout(() => onStart(), this._delay);
     } else {
       onStart();
     }

@@ -17,15 +17,17 @@ export interface UseTransitionConfig {
   onRest?: (value: ResultType) => void;
 }
 
+export type UpdateValue = {
+  toValue: number | string;
+  config?: UseTransitionConfig;
+};
+
 /**
  * Assign value object to set animation
  */
 export type AssignValue =
-  | {
-      toValue: number | string;
-      config?: UseTransitionConfig;
-    }
-  | (() => void);
+  | UpdateValue
+  | ((next: (updateValue: UpdateValue) => Promise<any>) => void);
 
 export type SubscriptionValue = (
   updatedValue: AssignValue,
@@ -83,13 +85,23 @@ export const useTransition = (
     }, [initialValue, config]),
     (updatedValue: AssignValue, callback?: (result: ResultType) => void) => {
       if (typeof updatedValue === 'function') {
-        /**
-         * TODO: For multistage transition
-         */
+        // for multi stage transition
+        updatedValue((nextValue) => {
+          const multiStagePromise = new Promise(function (resolve) {
+            subscriptions.current.forEach((updater) =>
+              updater(nextValue, callback)
+            );
+
+            resolve(nextValue);
+          });
+
+          return multiStagePromise;
+        });
 
         return;
       }
 
+      // single stage transition
       subscriptions.current.forEach((updater) =>
         updater(updatedValue, callback)
       );

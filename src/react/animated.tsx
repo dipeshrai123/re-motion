@@ -4,7 +4,7 @@ import { SpringAnimation } from '../animation/SpringAnimation';
 import { TimingAnimation } from '../animation/TimingAnimation';
 import { interpolateNumbers } from '../interpolation/Interpolation';
 import { tags } from './Tags';
-import { AssignValue, UseTransitionConfig } from './useTransition';
+import { UpdateValue, UseTransitionConfig } from './useTransition';
 import { ResultType } from '../animation/Animation';
 import { styleTrasformKeys, getTransform } from './TransformStyles';
 import { combineRefs } from './combineRefs';
@@ -212,48 +212,44 @@ export function makeAnimatedComponent(
         };
 
         const onUpdate = (
-          value: AssignValue,
+          value: UpdateValue,
           callback?: (value: ResultType) => void
         ) => {
-          if (typeof value !== 'function') {
-            const { toValue, config } = value;
+          const { toValue, config } = value;
 
-            if (animatable) {
-              const previousAnimation = animation;
+          if (animatable) {
+            const previousAnimation = animation;
 
-              // animatable
-              if (previousAnimation._toValue !== toValue) {
-                /**
-                 * stopping animation here would affect in whole
-                 * animation pattern, requestAnimationFrame instance
-                 * is created on frequent calls like mousemove
-                 * it flushes current running requestAnimationFrame
-                 */
-                animation.stop();
+            // animatable
+            if (previousAnimation._toValue !== toValue) {
+              /**
+               * stopping animation here would affect in whole
+               * animation pattern, requestAnimationFrame instance
+               * is created on frequent calls like mousemove
+               * it flushes current running requestAnimationFrame
+               */
+              animation.stop();
 
-                // re-define animation here
-                defineAnimation(previousAnimation._position, config);
+              // re-define animation here
+              defineAnimation(previousAnimation._position, config);
 
-                // start animations here by start api
-                animation.start({
-                  toValue,
-                  onFrame,
-                  previousAnimation,
-                  onEnd: callback,
-                  immediate: config?.immediate,
-                });
+              // start animations here by start api
+              animation.start({
+                toValue,
+                onFrame,
+                previousAnimation,
+                onEnd: callback,
+                immediate: config?.immediate,
+              });
+            }
+          } else {
+            // non-animatable
+            if (typeof toValue === typeof _value) {
+              if (ref.current) {
+                ref.current.style[property] = getCssValue(property, toValue);
               }
             } else {
-              // non-animatable
-              if (typeof toValue === typeof _value) {
-                if (ref.current) {
-                  ref.current.style[property] = getCssValue(property, toValue);
-                }
-              } else {
-                throw new Error(
-                  'Cannot set different types of animation values'
-                );
-              }
+              throw new Error('Cannot set different types of animation values');
             }
           }
         };
