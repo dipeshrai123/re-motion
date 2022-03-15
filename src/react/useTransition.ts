@@ -56,10 +56,10 @@ export type UseTransitionReturn = [TransitionValue, SubscriptionValue];
  * @param config
  * @returns [value, setValue]
  */
-export const useTransition = (
+export function useTransition(
   initialValue: number | string,
   config?: UseTransitionConfig
-): UseTransitionReturn => {
+): UseTransitionReturn {
   const subscriptions = React.useRef<Array<SubscriptionValue>>([]);
   const _currentValue = React.useRef<number | string>(initialValue);
 
@@ -113,4 +113,4 @@ export const useTransition = (
       );
     },
   ];
-};
+}
