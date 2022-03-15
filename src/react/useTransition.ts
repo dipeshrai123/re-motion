@@ -1,6 +1,6 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { ResultType } from "../animation/Animation";
+import { ResultType } from '../animation/Animation';
 
 /**
  * UseTransitionConfig for useTransition config
@@ -20,10 +20,12 @@ export interface UseTransitionConfig {
 /**
  * Assign value object to set animation
  */
-export type AssignValue = {
-  toValue: number | string;
-  config?: UseTransitionConfig;
-};
+export type AssignValue =
+  | {
+      toValue: number | string;
+      config?: UseTransitionConfig;
+    }
+  | (() => void);
 
 export type SubscriptionValue = (
   updatedValue: AssignValue,
@@ -80,6 +82,14 @@ export const useTransition = (
       };
     }, [initialValue, config]),
     (updatedValue: AssignValue, callback?: (result: ResultType) => void) => {
+      if (typeof updatedValue === 'function') {
+        /**
+         * TODO: For multistage transition
+         */
+
+        return;
+      }
+
       subscriptions.current.forEach((updater) =>
         updater(updatedValue, callback)
       );

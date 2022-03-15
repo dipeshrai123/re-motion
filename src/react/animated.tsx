@@ -1,13 +1,13 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { SpringAnimation } from "../animation/SpringAnimation";
-import { TimingAnimation } from "../animation/TimingAnimation";
-import { interpolateNumbers } from "../interpolation/Interpolation";
-import { tags } from "./Tags";
-import { AssignValue, UseTransitionConfig } from "./useTransition";
-import { ResultType } from "../animation/Animation";
-import { styleTrasformKeys, getTransform } from "./TransformStyles";
-import { combineRefs } from "./combineRefs";
+import { SpringAnimation } from '../animation/SpringAnimation';
+import { TimingAnimation } from '../animation/TimingAnimation';
+import { interpolateNumbers } from '../interpolation/Interpolation';
+import { tags } from './Tags';
+import { AssignValue, UseTransitionConfig } from './useTransition';
+import { ResultType } from '../animation/Animation';
+import { styleTrasformKeys, getTransform } from './TransformStyles';
+import { combineRefs } from './combineRefs';
 import {
   isDefined,
   getCleanProps,
@@ -15,12 +15,12 @@ import {
   AnimationObject,
   getNonAnimatableStyle,
   getCssValue,
-} from "./functions";
+} from './functions';
 
 /**
  * Animation Types : For now spring and timing based animations
  */
-type AnimationTypes = "spring" | "timing";
+type AnimationTypes = 'spring' | 'timing';
 
 /**
  * Higher order component to make any component animatable
@@ -44,11 +44,11 @@ export function makeAnimatedComponent(
     // generates the array of animation object
     const animations = React.useMemo<Array<AnimationObject>>(() => {
       const animatableStyles = getAnimatableObject(
-        "style",
+        'style',
         props.style ?? Object.create({})
       );
       const animatableProps = getAnimatableObject(
-        "props",
+        'props',
         props ?? Object.create({})
       );
 
@@ -122,14 +122,14 @@ export function makeAnimatedComponent(
         // to apply animation values to a ref node
         const applyAnimationValues = (value: any) => {
           if (ref.current) {
-            if (propertyType === "style") {
+            if (propertyType === 'style') {
               // set animation to style
               if (isTransform) {
                 ref.current.style.transform = getTransformValue(value);
               } else {
                 ref.current.style[property] = getCssValue(property, value);
               }
-            } else if (propertyType === "props") {
+            } else if (propertyType === 'props') {
               // set animation to property
               ref.current.setAttribute(property, value);
             }
@@ -193,17 +193,17 @@ export function makeAnimatedComponent(
            * spring config are overridden by duration
            */
           if (isDefined(animationConfig?.duration)) {
-            type = "timing";
+            type = 'timing';
           } else {
-            type = "spring";
+            type = 'spring';
           }
 
-          if (type === "spring") {
+          if (type === 'spring') {
             animation = new SpringAnimation({
               initialPosition: value,
               config: animationConfig,
             });
-          } else if (type === "timing") {
+          } else if (type === 'timing') {
             animation = new TimingAnimation({
               initialPosition: value,
               config: animationConfig,
@@ -215,41 +215,45 @@ export function makeAnimatedComponent(
           value: AssignValue,
           callback?: (value: ResultType) => void
         ) => {
-          const { toValue, config } = value;
+          if (typeof value !== 'function') {
+            const { toValue, config } = value;
 
-          if (animatable) {
-            const previousAnimation = animation;
+            if (animatable) {
+              const previousAnimation = animation;
 
-            // animatable
-            if (previousAnimation._toValue !== toValue) {
-              /**
-               * stopping animation here would affect in whole
-               * animation pattern, requestAnimationFrame instance
-               * is created on frequent calls like mousemove
-               * it flushes current running requestAnimationFrame
-               */
-              animation.stop();
+              // animatable
+              if (previousAnimation._toValue !== toValue) {
+                /**
+                 * stopping animation here would affect in whole
+                 * animation pattern, requestAnimationFrame instance
+                 * is created on frequent calls like mousemove
+                 * it flushes current running requestAnimationFrame
+                 */
+                animation.stop();
 
-              // re-define animation here
-              defineAnimation(previousAnimation._position, config);
+                // re-define animation here
+                defineAnimation(previousAnimation._position, config);
 
-              // start animations here by start api
-              animation.start({
-                toValue,
-                onFrame,
-                previousAnimation,
-                onEnd: callback,
-                immediate: config?.immediate,
-              });
-            }
-          } else {
-            // non-animatable
-            if (typeof toValue === typeof _value) {
-              if (ref.current) {
-                ref.current.style[property] = getCssValue(property, toValue);
+                // start animations here by start api
+                animation.start({
+                  toValue,
+                  onFrame,
+                  previousAnimation,
+                  onEnd: callback,
+                  immediate: config?.immediate,
+                });
               }
             } else {
-              throw new Error("Cannot set different types of animation values");
+              // non-animatable
+              if (typeof toValue === typeof _value) {
+                if (ref.current) {
+                  ref.current.style[property] = getCssValue(property, toValue);
+                }
+              } else {
+                throw new Error(
+                  'Cannot set different types of animation values'
+                );
+              }
             }
           }
         };
