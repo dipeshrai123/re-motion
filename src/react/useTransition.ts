@@ -1,6 +1,6 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { ResultType } from "../animation/Animation";
+import { ResultType } from '../animation/Animation';
 
 /**
  * UseTransitionConfig for useTransition config
@@ -15,15 +15,20 @@ export interface UseTransitionConfig {
   delay?: number;
   onChange?: (value: number) => void;
   onRest?: (value: ResultType) => void;
+  onStart?: (value: number) => void;
 }
+
+export type UpdateValue = {
+  toValue: number | string;
+  config?: UseTransitionConfig;
+};
 
 /**
  * Assign value object to set animation
  */
-export type AssignValue = {
-  toValue: number | string;
-  config?: UseTransitionConfig;
-};
+export type AssignValue =
+  | UpdateValue
+  | ((next: (updateValue: UpdateValue) => Promise<any>) => void);
 
 export type SubscriptionValue = (
   updatedValue: AssignValue,
@@ -34,7 +39,7 @@ export type SubscriptionValue = (
  * useTransition returns TransitionValue object
  */
 export type TransitionValue = {
-  _subscribe: (onUpdate: SubscriptionValue) => void; // defines the subscription for any animatable key
+  _subscribe: (onUpdate: SubscriptionValue, property: string) => void; // defines the subscription for any animatable key
   _value: number | string; // initial value
   _currentValue: React.MutableRefObject<number | string>; // current updated value
   get: () => number | string; // function to get the current value
@@ -52,23 +57,22 @@ export type UseTransitionReturn = [TransitionValue, SubscriptionValue];
  * @param config
  * @returns [value, setValue]
  */
-export const useTransition = (
+export function useTransition(
   initialValue: number | string,
   config?: UseTransitionConfig
-): UseTransitionReturn => {
-  const subscriptions = React.useRef<Array<SubscriptionValue>>([]);
+): UseTransitionReturn {
+  // using map instead of array to reduce the duplication of subscriptions
+  const subscriptions = React.useRef<Map<string, SubscriptionValue>>(new Map());
   const _currentValue = React.useRef<number | string>(initialValue);
 
   return [
     React.useMemo(() => {
       return {
-        _subscribe: function (onUpdate: SubscriptionValue) {
-          subscriptions.current.push(onUpdate);
+        _subscribe: function (onUpdate: SubscriptionValue, property: string) {
+          subscriptions.current.set(property, onUpdate);
 
           return () => {
-            subscriptions.current = subscriptions.current.filter(
-              (x) => x !== onUpdate
-            );
+            subscriptions.current.delete(property);
           };
         },
         _value: initialValue,
@@ -80,9 +84,39 @@ export const useTransition = (
       };
     }, [initialValue, config]),
     (updatedValue: AssignValue, callback?: (result: ResultType) => void) => {
-      subscriptions.current.forEach((updater) =>
-        updater(updatedValue, callback)
-      );
+      if (typeof updatedValue === 'function') {
+        // for multi stage transition
+        updatedValue((nextValue) => {
+          const multiStagePromise = new Promise(function (resolve) {
+            for (const subscriptionKey of subscriptions.current.keys()) {
+              const updater = subscriptions.current.get(subscriptionKey);
+
+              if (updater) {
+                updater(nextValue, function (result) {
+                  if (result.finished) {
+                    resolve(nextValue);
+                  }
+
+                  if (callback) {
+                    callback(result);
+                  }
+                });
+              }
+            }
+          });
+
+          return multiStagePromise;
+        });
+
+        return;
+      }
+
+      // single stage transition
+      for (const subscriptionKey of subscriptions.current.keys()) {
+        const updater = subscriptions.current.get(subscriptionKey);
+
+        updater && updater(updatedValue, callback);
+      }
     },
   ];
-};
+}

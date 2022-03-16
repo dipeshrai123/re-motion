@@ -1,10 +1,10 @@
-import { Animation, ResultType } from "./Animation";
+import { Animation, ResultType } from './Animation';
 import {
   RequestAnimationFrame,
   CancelAnimationFrame,
-} from "./RequestAnimationFrame";
-import { UseTransitionConfig } from "../react/useTransition";
-import { Easing } from "../easing/Easing";
+} from './RequestAnimationFrame';
+import { UseTransitionConfig } from '../react/useTransition';
+import { Easing } from '../easing/Easing';
 
 /**
  * TimingAnimation class implements duration based spring animation
@@ -21,7 +21,6 @@ export class TimingAnimation extends Animation {
   _position: number;
 
   // Modifiers
-  _immediate: boolean;
   _delay: number;
   _tempDuration: number;
   _onRest?: (value: ResultType) => void;
@@ -31,7 +30,7 @@ export class TimingAnimation extends Animation {
     config,
   }: {
     initialPosition: number;
-    config?: Omit<UseTransitionConfig, "mass" | "friction" | "tension">;
+    config?: Omit<UseTransitionConfig, 'mass' | 'friction' | 'tension'>;
   }) {
     super();
 
@@ -39,10 +38,14 @@ export class TimingAnimation extends Animation {
     this._position = this._fromValue;
     this._easing = config?.easing ?? Easing.linear;
     this._duration = config?.duration ?? 500;
-    this._tempDuration = config?.duration ?? 500;
+    this._tempDuration = this._duration;
 
     // Modifiers
-    this._immediate = config?.immediate ?? false;
+    // here immediate acts like duration: 0
+    if (config?.immediate) {
+      this._duration = 0;
+    }
+
     this._delay = config?.delay ?? 0;
     this._onRest = config?.onRest;
   }
@@ -93,63 +96,27 @@ export class TimingAnimation extends Animation {
     toValue,
     onFrame,
     onEnd,
-    immediate,
-    duration,
   }: {
     toValue: number;
     onFrame: (value: number) => void;
     onEnd?: (result: ResultType) => void;
-    immediate?: boolean;
-    duration?: number;
   }) {
     const onStart: any = () => {
       this._onFrame = onFrame;
+      this._active = true;
+      this._onEnd = onEnd;
 
-      // set immediate here
-      if (immediate !== undefined) {
-        this._immediate = immediate;
-      }
+      this._fromValue = this._position; // animate from lastly animated position to new toValue
+      this._toValue = toValue;
 
-      if (duration !== undefined) {
-        this._duration = duration;
-      } else {
-        this._duration = this._tempDuration;
-      }
-
-      if (this._immediate) {
-        this.set(toValue);
-      } else {
-        this._active = true;
-
-        // overriding this._onEnd if passed onEnd on start method
-        if (onEnd !== undefined) {
-          this._onEnd = onEnd;
-        } else {
-          // re-assign this._onEnd with onRest from config,
-          // because the this._onEnd is nullified on debounce end.
-          if (this._onRest !== undefined) {
-            this._onEnd = this._onRest;
-          }
-        }
-
-        // animate from lastly animated position to new toValue
-        this._fromValue = this._position;
-        this._toValue = toValue;
-
-        if (this._duration === 0) {
-          this._onFrame(this._toValue);
-          this._debounceOnEnd({ finished: true, value: this._toValue });
-        } else {
-          this._startTime = Date.now();
-          this._animationFrame = RequestAnimationFrame.current(
-            this.onUpdate.bind(this)
-          );
-        }
-      }
+      this._startTime = Date.now();
+      this._animationFrame = RequestAnimationFrame.current(
+        this.onUpdate.bind(this)
+      );
     };
 
     if (this._delay !== 0) {
-      setTimeout(() => onStart(), this._delay);
+      this._timeout = setTimeout(() => onStart(), this._delay);
     } else {
       onStart();
     }

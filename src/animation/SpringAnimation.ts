@@ -1,9 +1,9 @@
-import { Animation, ResultType } from "./Animation";
+import { Animation, ResultType } from './Animation';
 import {
   RequestAnimationFrame,
   CancelAnimationFrame,
-} from "./RequestAnimationFrame";
-import { UseTransitionConfig } from "../react/useTransition";
+} from './RequestAnimationFrame';
+import { UseTransitionConfig } from '../react/useTransition';
 
 /**
  * SpringAnimation class implements physics based spring animation
@@ -24,9 +24,9 @@ export class SpringAnimation extends Animation {
   _lastTime: number;
   _onFrame: (value: number) => void;
   _animationFrame: any;
+  _timeout: any;
 
   // Modifiers
-  _immediate: boolean;
   _delay: number;
   _onRest?: (value: ResultType) => void;
 
@@ -35,7 +35,7 @@ export class SpringAnimation extends Animation {
     config,
   }: {
     initialPosition: number;
-    config?: Omit<UseTransitionConfig, "duration" | "easing">;
+    config?: Omit<UseTransitionConfig, 'duration' | 'easing'>;
   }) {
     super();
 
@@ -52,7 +52,6 @@ export class SpringAnimation extends Animation {
     this._friction = config?.friction ?? 26;
 
     // Modifiers
-    this._immediate = config?.immediate ?? false;
     this._delay = config?.delay ?? 0;
     this._onRest = config?.onRest;
   }
@@ -157,6 +156,7 @@ export class SpringAnimation extends Animation {
 
   stop() {
     this._active = false;
+    clearTimeout(this._timeout);
     CancelAnimationFrame.current(this._animationFrame);
     this._debounceOnEnd({ finished: false, value: this._position });
   }
@@ -175,55 +175,33 @@ export class SpringAnimation extends Animation {
     onFrame,
     previousAnimation,
     onEnd,
-    immediate,
   }: {
     toValue: number;
     onFrame: (value: number) => void;
     previousAnimation?: SpringAnimation;
     onEnd?: (result: ResultType) => void;
-    immediate?: boolean;
   }) {
     const onStart: any = () => {
       this._onFrame = onFrame;
+      this._active = true;
+      this._toValue = toValue;
+      this._onEnd = onEnd;
 
-      // set immediate here
-      if (immediate !== undefined) {
-        this._immediate = immediate;
-      }
+      const now = Date.now();
 
-      if (this._immediate) {
-        this.set(toValue);
+      if (previousAnimation instanceof SpringAnimation) {
+        this._lastVelocity =
+          previousAnimation._lastVelocity || this._lastVelocity || 0;
+        this._lastTime = previousAnimation._lastTime || now;
       } else {
-        this._active = true;
-        this._toValue = toValue;
-
-        // overriding this._onEnd if passed onEnd on start method
-        if (onEnd !== undefined) {
-          this._onEnd = onEnd;
-        } else {
-          // re-assign this._onEnd with onRest from config,
-          // because the this._onEnd is nullified on debounce end.
-          if (this._onRest !== undefined) {
-            this._onEnd = this._onRest;
-          }
-        }
-
-        const now = Date.now();
-
-        if (previousAnimation instanceof SpringAnimation) {
-          this._lastVelocity =
-            previousAnimation._lastVelocity || this._lastVelocity || 0;
-          this._lastTime = previousAnimation._lastTime || now;
-        } else {
-          this._lastTime = now;
-        }
-
-        this.onUpdate();
+        this._lastTime = now;
       }
+
+      this.onUpdate();
     };
 
     if (this._delay !== 0) {
-      setTimeout(() => onStart(), this._delay);
+      this._timeout = setTimeout(() => onStart(), this._delay);
     } else {
       onStart();
     }

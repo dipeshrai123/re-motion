@@ -1,13 +1,13 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { SpringAnimation } from "../animation/SpringAnimation";
-import { TimingAnimation } from "../animation/TimingAnimation";
-import { interpolateNumbers } from "../interpolation/Interpolation";
-import { tags } from "./Tags";
-import { AssignValue, UseTransitionConfig } from "./useTransition";
-import { ResultType } from "../animation/Animation";
-import { styleTrasformKeys, getTransform } from "./TransformStyles";
-import { combineRefs } from "./combineRefs";
+import { SpringAnimation } from '../animation/SpringAnimation';
+import { TimingAnimation } from '../animation/TimingAnimation';
+import { interpolateNumbers } from '../interpolation/Interpolation';
+import { tags } from './Tags';
+import { UpdateValue, UseTransitionConfig } from './useTransition';
+import { ResultType } from '../animation/Animation';
+import { styleTrasformKeys, getTransform } from './TransformStyles';
+import { combineRefs } from './combineRefs';
 import {
   isDefined,
   getCleanProps,
@@ -15,12 +15,12 @@ import {
   AnimationObject,
   getNonAnimatableStyle,
   getCssValue,
-} from "./functions";
+} from './functions';
 
 /**
  * Animation Types : For now spring and timing based animations
  */
-type AnimationTypes = "spring" | "timing";
+type AnimationTypes = 'spring' | 'timing';
 
 /**
  * Higher order component to make any component animatable
@@ -44,11 +44,11 @@ export function makeAnimatedComponent(
     // generates the array of animation object
     const animations = React.useMemo<Array<AnimationObject>>(() => {
       const animatableStyles = getAnimatableObject(
-        "style",
+        'style',
         props.style ?? Object.create({})
       );
       const animatableProps = getAnimatableObject(
-        "props",
+        'props',
         props ?? Object.create({})
       );
 
@@ -122,14 +122,14 @@ export function makeAnimatedComponent(
         // to apply animation values to a ref node
         const applyAnimationValues = (value: any) => {
           if (ref.current) {
-            if (propertyType === "style") {
+            if (propertyType === 'style') {
               // set animation to style
               if (isTransform) {
                 ref.current.style.transform = getTransformValue(value);
               } else {
                 ref.current.style[property] = getCssValue(property, value);
               }
-            } else if (propertyType === "props") {
+            } else if (propertyType === 'props') {
               // set animation to property
               ref.current.setAttribute(property, value);
             }
@@ -192,18 +192,21 @@ export function makeAnimatedComponent(
            * Here duration key determines the type of animation
            * spring config are overridden by duration
            */
-          if (isDefined(animationConfig?.duration)) {
-            type = "timing";
+          if (
+            isDefined(animationConfig?.duration) ||
+            animationConfig?.immediate
+          ) {
+            type = 'timing';
           } else {
-            type = "spring";
+            type = 'spring';
           }
 
-          if (type === "spring") {
+          if (type === 'spring') {
             animation = new SpringAnimation({
               initialPosition: value,
               config: animationConfig,
             });
-          } else if (type === "timing") {
+          } else if (type === 'timing') {
             animation = new TimingAnimation({
               initialPosition: value,
               config: animationConfig,
@@ -212,7 +215,7 @@ export function makeAnimatedComponent(
         };
 
         const onUpdate = (
-          value: AssignValue,
+          value: UpdateValue,
           callback?: (value: ResultType) => void
         ) => {
           const { toValue, config } = value;
@@ -230,8 +233,12 @@ export function makeAnimatedComponent(
                */
               animation.stop();
 
-              // re-define animation here
+              // re-define animation here with different configuration
+              // used for dynamic animation
               defineAnimation(previousAnimation._position, config);
+
+              // invoke onStart function
+              config?.onStart && config.onStart(previousAnimation._position);
 
               // start animations here by start api
               animation.start({
@@ -239,7 +246,6 @@ export function makeAnimatedComponent(
                 onFrame,
                 previousAnimation,
                 onEnd: callback,
-                immediate: config?.immediate,
               });
             }
           } else {
@@ -249,7 +255,7 @@ export function makeAnimatedComponent(
                 ref.current.style[property] = getCssValue(property, toValue);
               }
             } else {
-              throw new Error("Cannot set different types of animation values");
+              throw new Error('Cannot set different types of animation values');
             }
           }
         };
@@ -262,7 +268,7 @@ export function makeAnimatedComponent(
           defineAnimation(_value as number);
         }
 
-        const subscribe = _subscribe(onUpdate);
+        const subscribe = _subscribe(onUpdate, property);
         subscribers.push(subscribe);
       });
 
