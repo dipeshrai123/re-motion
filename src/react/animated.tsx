@@ -230,7 +230,8 @@ export function makeAnimatedComponent(
                */
               animation.stop();
 
-              // re-define animation here
+              // re-define animation here with different configuration
+              // used for dynamic animation
               defineAnimation(previousAnimation._position, config);
 
               // start animations here by start api
@@ -239,10 +240,6 @@ export function makeAnimatedComponent(
                 onFrame,
                 previousAnimation,
                 onEnd: callback,
-                /**
-                 * TODO: is it necessary to add immediate config here???
-                 */
-                immediate: config?.immediate,
               });
             }
           } else {

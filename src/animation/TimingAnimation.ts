@@ -93,48 +93,28 @@ export class TimingAnimation extends Animation {
     toValue,
     onFrame,
     onEnd,
-    immediate,
-    duration,
   }: {
     toValue: number;
     onFrame: (value: number) => void;
     onEnd?: (result: ResultType) => void;
     immediate?: boolean;
-    duration?: number;
   }) {
     const onStart: any = () => {
       this._onFrame = onFrame;
-
-      // set immediate here
-      if (immediate !== undefined) {
-        this._immediate = immediate;
-      }
-
-      if (duration !== undefined) {
-        this._duration = duration;
-      } else {
-        this._duration = this._tempDuration;
-      }
 
       if (this._immediate) {
         this.set(toValue);
       } else {
         this._active = true;
         this._onEnd = onEnd;
+
+        this._fromValue = this._position; // animate from lastly animated position to new toValue
         this._toValue = toValue;
 
-        // animate from lastly animated position to new toValue
-        this._fromValue = this._position;
-
-        if (this._duration === 0) {
-          this._onFrame(this._toValue);
-          this._debounceOnEnd({ finished: true, value: this._toValue });
-        } else {
-          this._startTime = Date.now();
-          this._animationFrame = RequestAnimationFrame.current(
-            this.onUpdate.bind(this)
-          );
-        }
+        this._startTime = Date.now();
+        this._animationFrame = RequestAnimationFrame.current(
+          this.onUpdate.bind(this)
+        );
       }
     };
 

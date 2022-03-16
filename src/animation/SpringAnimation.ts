@@ -177,7 +177,6 @@ export class SpringAnimation extends Animation {
     onFrame,
     previousAnimation,
     onEnd,
-    immediate,
   }: {
     toValue: number;
     onFrame: (value: number) => void;
@@ -187,11 +186,6 @@ export class SpringAnimation extends Animation {
   }) {
     const onStart: any = () => {
       this._onFrame = onFrame;
-
-      // set immediate here
-      if (immediate !== undefined) {
-        this._immediate = immediate;
-      }
 
       if (this._immediate) {
         this.set(toValue);
