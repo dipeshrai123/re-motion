@@ -237,6 +237,9 @@ export function makeAnimatedComponent(
               // used for dynamic animation
               defineAnimation(previousAnimation._position, config);
 
+              // invoke onStart function
+              config?.onStart && config.onStart(previousAnimation._position);
+
               // start animations here by start api
               animation.start({
                 toValue,

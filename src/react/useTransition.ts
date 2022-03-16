@@ -64,10 +64,17 @@ export function useTransition(
   const subscriptions = React.useRef<Array<SubscriptionValue>>([]);
   const _currentValue = React.useRef<number | string>(initialValue);
 
+  const clearSubscriptions = () => {
+    subscriptions.current = [];
+  };
+
   return [
     React.useMemo(() => {
       return {
         _subscribe: function (onUpdate: SubscriptionValue) {
+          // clear the subcriptions from previous render
+          clearSubscriptions();
+
           subscriptions.current.push(onUpdate);
 
           return () => {

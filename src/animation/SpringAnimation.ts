@@ -54,7 +54,6 @@ export class SpringAnimation extends Animation {
     // Modifiers
     this._delay = config?.delay ?? 0;
     this._onRest = config?.onRest;
-    this._onStart = config?.onStart;
   }
 
   onUpdate() {
@@ -171,15 +170,6 @@ export class SpringAnimation extends Animation {
     this._onFrame(toValue);
   }
 
-  // onStart callback
-  // called only at start of animation
-  onStart() {
-    const onStartCallback = this._onStart;
-    this._onStart = null;
-
-    onStartCallback && onStartCallback(this._position);
-  }
-
   start({
     toValue,
     onFrame,
@@ -196,9 +186,6 @@ export class SpringAnimation extends Animation {
       this._active = true;
       this._toValue = toValue;
       this._onEnd = onEnd;
-
-      // callback
-      this.onStart();
 
       const now = Date.now();
 
