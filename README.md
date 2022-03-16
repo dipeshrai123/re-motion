@@ -26,13 +26,13 @@ yarn add @raidipesh78/re-motion
 import { useTransition, animated } from "@raidipesh78/re-motion";
 
 export default function App() {
-  const [x, setX] = useTransition(0);
+	const [x, setX] = useTransition(0);
 
-  const animate = () => {
-	setX({ toValue: 100 }); // set to new value to animate
-  }
+	const animate = () => {
+		setX({ toValue: 100 }); // set to new value to animate
+	}
 
-  return (...);
+	return (...);
 }
 ```
 
@@ -66,31 +66,31 @@ Different animation configuration can be set while setting the Transition Value 
 import { useTransition, animated } from "@raidipesh78/re-motion";
 
 export default function App() {
-  const [x, setX] = useTransition(0);
+	const [x, setX] = useTransition(0);
 
-  const animateRight = () => {
-    setX({
-	  toValue: 200,
-	  // here is timing configuration
-	  config: {
-		duration: 2000,
-	  }
-	});
-  }
+	const animateRight = () => {
+		setX({
+			toValue: 200,
+			// here is timing configuration
+			config: {
+				duration: 2000,
+			},
+		});
+	};
 
-  const animateLeft = () => {
-	setX({
-	  toValue: 0,
-	  // here is spring configuration
-	  config: {
-	    mass: 1,
-		friction: 10,
-		tension: 260
-	  }
-	});
-  }
+	const animateLeft = () => {
+		setX({
+			toValue: 0,
+			// here is spring configuration
+			config: {
+				mass: 1,
+				friction: 10,
+				tension: 260,
+			},
+		});
+	};
 
-  return (...);
+	return (...);
 }
 ```
 
@@ -100,29 +100,29 @@ export default function App() {
 import { useMount, animated } from "@raidipesh78/re-motion";
 
 export default function App() {
-  const [open, setOpen] = useState(false);
+	const [open, setOpen] = useState(false);
 
-  const mount = useMount(open, {
-	from: 0,
-	enter: 1,
-	exit: 0,
-	// exit config
-	exitConfig: {
-	  mass: 1,
-	  friction: 5,
-	  tension: 300,
-	},
-	// enter config
-	enterConfig: {
-	  duration: 100,
-	},
-  });
+	const mount = useMount(open, {
+		from: 0,
+		enter: 1,
+		exit: 0,
+		// exit config
+		exitConfig: {
+			mass: 1,
+			friction: 5,
+			tension: 300,
+		},
+		// enter config
+		enterConfig: {
+			duration: 100,
+		},
+	});
 
-  const animate = () => {
-	setOpen((prev) => !prev);
-  };
+	const animate = () => {
+		setOpen((prev) => !prev);
+	};
 
-  return (...);
+	return (...);
 }
 ```
 
