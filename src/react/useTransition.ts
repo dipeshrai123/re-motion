@@ -39,7 +39,7 @@ export type SubscriptionValue = (
  * useTransition returns TransitionValue object
  */
 export type TransitionValue = {
-  _subscribe: (onUpdate: SubscriptionValue) => void; // defines the subscription for any animatable key
+  _subscribe: (onUpdate: SubscriptionValue, property: string) => void; // defines the subscription for any animatable key
   _value: number | string; // initial value
   _currentValue: React.MutableRefObject<number | string>; // current updated value
   get: () => number | string; // function to get the current value
@@ -61,26 +61,18 @@ export function useTransition(
   initialValue: number | string,
   config?: UseTransitionConfig
 ): UseTransitionReturn {
-  const subscriptions = React.useRef<Array<SubscriptionValue>>([]);
+  // using map instead of array to reduce the duplication of subscriptions
+  const subscriptions = React.useRef<Map<string, SubscriptionValue>>(new Map());
   const _currentValue = React.useRef<number | string>(initialValue);
-
-  const clearSubscriptions = () => {
-    subscriptions.current = [];
-  };
 
   return [
     React.useMemo(() => {
       return {
-        _subscribe: function (onUpdate: SubscriptionValue) {
-          // clear the subcriptions from previous render
-          clearSubscriptions();
-
-          subscriptions.current.push(onUpdate);
+        _subscribe: function (onUpdate: SubscriptionValue, property: string) {
+          subscriptions.current.set(property, onUpdate);
 
           return () => {
-            subscriptions.current = subscriptions.current.filter(
-              (x) => x !== onUpdate
-            );
+            subscriptions.current.delete(property);
           };
         },
         _value: initialValue,
@@ -96,17 +88,21 @@ export function useTransition(
         // for multi stage transition
         updatedValue((nextValue) => {
           const multiStagePromise = new Promise(function (resolve) {
-            subscriptions.current.forEach((updater) => {
-              updater(nextValue, function (result) {
-                if (result.finished) {
-                  resolve(nextValue);
-                }
+            for (const subscriptionKey of subscriptions.current.keys()) {
+              const updater = subscriptions.current.get(subscriptionKey);
 
-                if (callback) {
-                  callback(result);
-                }
-              });
-            });
+              if (updater) {
+                updater(nextValue, function (result) {
+                  if (result.finished) {
+                    resolve(nextValue);
+                  }
+
+                  if (callback) {
+                    callback(result);
+                  }
+                });
+              }
+            }
           });
 
           return multiStagePromise;
@@ -116,9 +112,11 @@ export function useTransition(
       }
 
       // single stage transition
-      subscriptions.current.forEach((updater) =>
-        updater(updatedValue, callback)
-      );
+      for (const subscriptionKey of subscriptions.current.keys()) {
+        const updater = subscriptions.current.get(subscriptionKey);
+
+        updater && updater(updatedValue, callback);
+      }
     },
   ];
 }

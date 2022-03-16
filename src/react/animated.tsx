@@ -268,7 +268,7 @@ export function makeAnimatedComponent(
           defineAnimation(_value as number);
         }
 
-        const subscribe = _subscribe(onUpdate);
+        const subscribe = _subscribe(onUpdate, property);
         subscribers.push(subscribe);
       });
 
