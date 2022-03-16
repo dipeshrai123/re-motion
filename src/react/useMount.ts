@@ -71,11 +71,8 @@ export function useMount(state: boolean, config: UseMountConfig) {
   }, [mounted, initial]);
 
   return function (
-    callback: (
-      { value }: { value: TransitionValue },
-      mounted: boolean
-    ) => React.ReactNode
+    callback: (animation: TransitionValue, mounted: boolean) => React.ReactNode
   ) {
-    return callback({ value: animation }, mounted);
+    return callback(animation, mounted);
   };
 }
