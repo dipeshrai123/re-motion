@@ -5,16 +5,13 @@ import {
   UseTransitionConfig,
 } from './useTransition';
 
-export interface InnerUseMountConfig extends UseTransitionConfig {
-  enterDuration?: number;
-  exitDuration?: number;
-}
-
 export interface UseMountConfig {
   from: number;
   enter: number;
   exit: number;
-  config?: InnerUseMountConfig;
+  enterConfig?: UseTransitionConfig; // animation config on enter
+  exitConfig?: UseTransitionConfig; // animation config on exit
+  config?: UseTransitionConfig;
 }
 
 /**
@@ -26,11 +23,15 @@ export interface UseMountConfig {
 export function useMount(state: boolean, config: UseMountConfig) {
   const [initial, setInitial] = React.useState(true);
   const [mounted, setMounted] = React.useState(state);
-  const { from, enter, exit, config: _config } = React.useRef(config).current;
-  const [animation, setAnimation] = useTransition(from, _config);
-
-  const enterDuration = config.config?.enterDuration ?? config.config?.duration;
-  const exitDuration = config.config?.exitDuration ?? config.config?.duration;
+  const {
+    from,
+    enter,
+    exit,
+    config: innerConfig,
+    enterConfig,
+    exitConfig,
+  } = React.useRef(config).current;
+  const [animation, setAnimation] = useTransition(from, innerConfig);
 
   React.useEffect(() => {
     if (state) {
@@ -41,9 +42,7 @@ export function useMount(state: boolean, config: UseMountConfig) {
       setAnimation(
         {
           toValue: exit,
-          config: {
-            duration: exitDuration,
-          },
+          config: exitConfig,
         },
         function ({ finished }) {
           if (finished) {
@@ -59,9 +58,7 @@ export function useMount(state: boolean, config: UseMountConfig) {
       setAnimation(
         {
           toValue: enter,
-          config: {
-            duration: enterDuration,
-          },
+          config: enterConfig,
         },
         function () {
           return;

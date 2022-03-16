@@ -7,13 +7,13 @@
 Install with npm:
 
 ```bash
-	npm i @raidipesh78/re-motion
+npm i @raidipesh78/re-motion
 ```
 
 Install with yarn:
 
 ```bash
-	yarn add @raidipesh78/re-motion
+yarn add @raidipesh78/re-motion
 ```
 
 ### Features
@@ -32,9 +32,7 @@ export default function App() {
 		setX({ toValue: 100 }); // set to new value to animate
 	}
 
-	return (
-		...
-	);
+	return (...);
 }
 ```
 
@@ -62,7 +60,7 @@ export default function App() {
 
 Different animation configuration can be set while setting the Transition Value to new value
 
-**Example**
+**Example** - Dynamic animation with **useTransition** hook
 
 ```jsx
 import { useTransition, animated } from "@raidipesh78/re-motion";
@@ -71,12 +69,58 @@ export default function App() {
 	const [x, setX] = useTransition(0);
 
 	const animateRight = () => {
-		setX({ toValue: 200, config: { duration: 2000 }); // here is timing configuration
-	}
+		setX({
+			toValue: 200,
+			// here is timing configuration
+			config: {
+				duration: 2000,
+			},
+		});
+	};
 
 	const animateLeft = () => {
-		setX({ toValue: 0, config: { mass: 1, friction: 10, tension: 260 }); // here is spring configuration
-	}
+		setX({
+			toValue: 0,
+			// here is spring configuration
+			config: {
+				mass: 1,
+				friction: 10,
+				tension: 260,
+			},
+		});
+	};
+
+	return (...);
+}
+```
+
+**Example** - Dynamic animation with **useMount** hook
+
+```jsx
+import { useMount, animated } from "@raidipesh78/re-motion";
+
+export default function App() {
+	const [open, setOpen] = useState(false);
+
+	const mount = useMount(open, {
+		from: 0,
+		enter: 1,
+		exit: 0,
+		// exit config
+		exitConfig: {
+			mass: 1,
+			friction: 5,
+			tension: 300,
+		},
+		// enter config
+		enterConfig: {
+			duration: 100,
+		},
+	});
+
+	const animate = () => {
+		setOpen((prev) => !prev);
+	};
 
 	return (...);
 }
@@ -93,7 +137,7 @@ const [x, setX] = useTransition(0);
 
 setX(async (next) => {
   await next({ toValue: 100 });
-  delay(1000);
+  await delay(1000);
   await next({ toValue: 500 });
 });
 ```
