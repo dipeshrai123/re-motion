@@ -194,7 +194,7 @@ export function makeAnimatedComponent(
            */
           if (
             isDefined(animationConfig?.duration) ||
-            isDefined(animationConfig?.immediate)
+            animationConfig?.immediate
           ) {
             type = 'timing';
           } else {

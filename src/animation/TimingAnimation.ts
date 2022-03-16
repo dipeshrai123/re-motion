@@ -21,7 +21,6 @@ export class TimingAnimation extends Animation {
   _position: number;
 
   // Modifiers
-  _immediate: boolean;
   _delay: number;
   _tempDuration: number;
   _onRest?: (value: ResultType) => void;
@@ -39,10 +38,15 @@ export class TimingAnimation extends Animation {
     this._position = this._fromValue;
     this._easing = config?.easing ?? Easing.linear;
     this._duration = config?.duration ?? 500;
-    this._tempDuration = config?.duration ?? 500;
+    this._tempDuration = this._duration;
 
     // Modifiers
-    this._immediate = config?.immediate ?? false;
+
+    // here immediate acts like duration: 0
+    if (config?.immediate) {
+      this._duration = 0;
+    }
+
     this._delay = config?.delay ?? 0;
     this._onRest = config?.onRest;
   }
@@ -97,25 +101,19 @@ export class TimingAnimation extends Animation {
     toValue: number;
     onFrame: (value: number) => void;
     onEnd?: (result: ResultType) => void;
-    immediate?: boolean;
   }) {
     const onStart: any = () => {
       this._onFrame = onFrame;
+      this._active = true;
+      this._onEnd = onEnd;
 
-      if (this._immediate) {
-        this.set(toValue);
-      } else {
-        this._active = true;
-        this._onEnd = onEnd;
+      this._fromValue = this._position; // animate from lastly animated position to new toValue
+      this._toValue = toValue;
 
-        this._fromValue = this._position; // animate from lastly animated position to new toValue
-        this._toValue = toValue;
-
-        this._startTime = Date.now();
-        this._animationFrame = RequestAnimationFrame.current(
-          this.onUpdate.bind(this)
-        );
-      }
+      this._startTime = Date.now();
+      this._animationFrame = RequestAnimationFrame.current(
+        this.onUpdate.bind(this)
+      );
     };
 
     if (this._delay !== 0) {
