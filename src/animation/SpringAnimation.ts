@@ -26,7 +26,6 @@ export class SpringAnimation extends Animation {
   _animationFrame: any;
 
   // Modifiers
-  _immediate: boolean;
   _delay: number;
   _onRest?: (value: ResultType) => void;
   _timeout: any;
@@ -53,7 +52,6 @@ export class SpringAnimation extends Animation {
     this._friction = config?.friction ?? 26;
 
     // Modifiers
-    this._immediate = config?.immediate ?? false;
     this._delay = config?.delay ?? 0;
     this._onRest = config?.onRest;
   }
@@ -186,26 +184,21 @@ export class SpringAnimation extends Animation {
   }) {
     const onStart: any = () => {
       this._onFrame = onFrame;
+      this._active = true;
+      this._toValue = toValue;
+      this._onEnd = onEnd;
 
-      if (this._immediate) {
-        this.set(toValue);
+      const now = Date.now();
+
+      if (previousAnimation instanceof SpringAnimation) {
+        this._lastVelocity =
+          previousAnimation._lastVelocity || this._lastVelocity || 0;
+        this._lastTime = previousAnimation._lastTime || now;
       } else {
-        this._active = true;
-        this._toValue = toValue;
-        this._onEnd = onEnd;
-
-        const now = Date.now();
-
-        if (previousAnimation instanceof SpringAnimation) {
-          this._lastVelocity =
-            previousAnimation._lastVelocity || this._lastVelocity || 0;
-          this._lastTime = previousAnimation._lastTime || now;
-        } else {
-          this._lastTime = now;
-        }
-
-        this.onUpdate();
+        this._lastTime = now;
       }
+
+      this.onUpdate();
     };
 
     if (this._delay !== 0) {

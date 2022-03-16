@@ -30,8 +30,7 @@ export function useMount(state: boolean, config: UseMountConfig) {
   const [animation, setAnimation] = useTransition(from, _config);
 
   const enterDuration = config.config?.enterDuration ?? config.config?.duration;
-  const exitDuration =
-    config.config?.exitDuration ?? config.config?.exitDuration;
+  const exitDuration = config.config?.exitDuration ?? config.config?.duration;
 
   React.useEffect(() => {
     if (state) {

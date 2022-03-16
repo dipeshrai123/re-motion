@@ -192,7 +192,10 @@ export function makeAnimatedComponent(
            * Here duration key determines the type of animation
            * spring config are overridden by duration
            */
-          if (isDefined(animationConfig?.duration)) {
+          if (
+            isDefined(animationConfig?.duration) ||
+            isDefined(animationConfig?.immediate)
+          ) {
             type = 'timing';
           } else {
             type = 'spring';
