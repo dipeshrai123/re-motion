@@ -5,7 +5,7 @@ import { TimingAnimation } from '../animation/TimingAnimation';
 import { interpolateNumbers } from '../interpolation/Interpolation';
 import { tags } from './Tags';
 import { UpdateValue, UseTransitionConfig } from './useTransition';
-import { ResultType } from '../animation/Animation';
+import { ResultType } from '../animation/Types';
 import { styleTrasformKeys, getTransform } from './TransformStyles';
 import { combineRefs } from './combineRefs';
 import {

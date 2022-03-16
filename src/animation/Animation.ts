@@ -1,7 +1,4 @@
-/**
- * Result on debounce
- */
-export type ResultType = { finished: boolean; value: number };
+import { ResultType } from './Types';
 
 /**
  * Base Animation class

@@ -4,10 +4,10 @@ import {
   COLOR_NUMBER_REGEX,
   HEX_NAME_COLOR,
   colorNames,
-} from "./Colors";
-import { TransitionValue } from "../react/useTransition";
+} from './Colors';
+import { TransitionValue } from '../react/useTransition';
 
-type ExtrapolateType = "identity" | "extend" | "clamp";
+type ExtrapolateType = 'identity' | 'extend' | 'clamp';
 
 const _internalInterpolate = (
   val: number,
@@ -20,21 +20,21 @@ const _internalInterpolate = (
 
   // EXTRAPOLATE
   if (result < inputMin) {
-    if (extrapolateLeft === "identity") {
+    if (extrapolateLeft === 'identity') {
       return result;
-    } else if (extrapolateLeft === "clamp") {
+    } else if (extrapolateLeft === 'clamp') {
       result = inputMin;
-    } else if (extrapolateLeft === "extend") {
+    } else if (extrapolateLeft === 'extend') {
       // noop
     }
   }
 
   if (result > inputMax) {
-    if (extrapolateRight === "identity") {
+    if (extrapolateRight === 'identity') {
       return result;
-    } else if (extrapolateRight === "clamp") {
+    } else if (extrapolateRight === 'clamp') {
       result = inputMax;
-    } else if (extrapolateRight === "extend") {
+    } else if (extrapolateRight === 'extend') {
       // noop
     }
   }
@@ -111,29 +111,29 @@ const _getColorInterpolate = (value: number, narrowedInput: Array<string>) => {
   const red = _internalInterpolate(
     value,
     [inputMin, inputMax, outputMinProcessed.r, outputMaxProcessed.r],
-    "clamp",
-    "clamp"
+    'clamp',
+    'clamp'
   );
 
   const green = _internalInterpolate(
     value,
     [inputMin, inputMax, outputMinProcessed.g, outputMaxProcessed.g],
-    "clamp",
-    "clamp"
+    'clamp',
+    'clamp'
   );
 
   const blue = _internalInterpolate(
     value,
     [inputMin, inputMax, outputMinProcessed.b, outputMaxProcessed.b],
-    "clamp",
-    "clamp"
+    'clamp',
+    'clamp'
   );
 
   const alpha = _internalInterpolate(
     value,
     [inputMin, inputMax, outputMinProcessed.a, outputMaxProcessed.a],
-    "clamp",
-    "clamp"
+    'clamp',
+    'clamp'
   );
 
   return rgbaToHex({ r: red, g: green, b: blue, a: alpha });
@@ -149,7 +149,7 @@ const _getArrayInterpolate = (
 
   if (outputMin.length === outputMax.length) {
     return outputMin.map((val: any, index: number) => {
-      if (typeof val === "string") {
+      if (typeof val === 'string') {
         // IF IT IS STRING THEN IT MUST BE HEX COLOR
         return _getColorInterpolate(value, [
           inputMin,
@@ -173,17 +173,17 @@ const _getArrayInterpolate = (
 
 const _getTemplateString = (str: string) => {
   return str.replace(COLOR_NUMBER_REGEX, function (match) {
-    if (match.indexOf(" ") === 0) {
-      return " $";
+    if (match.indexOf(' ') === 0) {
+      return ' $';
     }
 
-    return "$";
+    return '$';
   });
 };
 
 const _getParsedStringArray = (str: any) => {
   return str.match(COLOR_NUMBER_REGEX).map((v: string) => {
-    if (v.indexOf("#") !== -1) {
+    if (v.indexOf('#') !== -1) {
       return v;
     } else {
       return Number(v);
@@ -198,10 +198,10 @@ const _getParsedStringArray = (str: any) => {
  * @param str2 - second string
  * @returns boolean indicating two strings matched or not
  */
-export const stringMatched = (str1: string, str2: string) => {
+const stringMatched = (str1: string, str2: string) => {
   return (
-    _getTemplateString(str1).trim().replace(/\s/g, "").length ===
-    _getTemplateString(str2).trim().replace(/\s/g, "").length
+    _getTemplateString(str1).trim().replace(/\s/g, '').length ===
+    _getTemplateString(str2).trim().replace(/\s/g, '').length
   );
 };
 
@@ -211,14 +211,14 @@ export const stringMatched = (str1: string, str2: string) => {
  * @param str - string
  * @returns hex color string
  */
-export const getProcessedColor = (str: any) => {
+const getProcessedColor = (str: any) => {
   return str.replace(HEX_NAME_COLOR, function (match: any) {
-    if (match.indexOf("#") !== -1) {
+    if (match.indexOf('#') !== -1) {
       return rgbaToHex(hexToRgba(match));
     } else if (Object.prototype.hasOwnProperty.call(colorNames, match)) {
       return colorNames[match];
     } else {
-      throw new Error("String cannot be parsed!");
+      throw new Error('String cannot be parsed!');
     }
   });
 };
@@ -249,14 +249,14 @@ export function interpolateNumbers(
 
   const narrowedInput = _getNarrowedInputArray(value, inputRange, outputRange);
 
-  let _extrapolateLeft: ExtrapolateType = "extend";
+  let _extrapolateLeft: ExtrapolateType = 'extend';
   if (extrapolateLeft !== undefined) {
     _extrapolateLeft = extrapolateLeft;
   } else if (extrapolate !== undefined) {
     _extrapolateLeft = extrapolate;
   }
 
-  let _extrapolateRight: ExtrapolateType = "extend";
+  let _extrapolateRight: ExtrapolateType = 'extend';
   if (extrapolateRight !== undefined) {
     _extrapolateRight = extrapolateRight;
   } else if (extrapolate !== undefined) {
@@ -264,7 +264,7 @@ export function interpolateNumbers(
   }
 
   if (outputRange.length) {
-    if (typeof outputRange[0] === "number") {
+    if (typeof outputRange[0] === 'number') {
       return _internalInterpolate(
         value,
         narrowedInput,
@@ -297,14 +297,14 @@ export function interpolateNumbers(
           _extrapolateRight
         );
 
-        for (const v of result) templateString = templateString.replace("$", v);
+        for (const v of result) templateString = templateString.replace('$', v);
         return templateString;
       } else {
         throw new Error("Output range doesn't match string format!");
       }
     }
   } else {
-    throw new Error("Output range cannot be Empty");
+    throw new Error('Output range cannot be Empty');
   }
 }
 

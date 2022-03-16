@@ -1,4 +1,4 @@
-import { isSubscriber } from "./isSubscriber";
+import { isTransitionValue } from './isTransitionValue';
 
 /**
  * Function to get clean props object without any subscribers
@@ -10,7 +10,7 @@ export const getCleanProps = (props: any) => {
   }
 
   Object.keys(cleanProps).forEach((prop: string) => {
-    if (isSubscriber(cleanProps[prop])) {
+    if (isTransitionValue(cleanProps[prop])) {
       delete cleanProps[prop];
     }
   });

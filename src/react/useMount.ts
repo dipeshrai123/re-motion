@@ -10,7 +10,7 @@ export interface InnerUseMountConfig extends UseTransitionConfig {
   exitDuration?: number;
 }
 
-interface UseMountConfig {
+export interface UseMountConfig {
   from: number;
   enter: number;
   exit: number;
