@@ -1,4 +1,5 @@
-import { Animation, ResultType } from './Animation';
+import { Animation } from './Animation';
+import { ResultType } from './Types';
 import {
   RequestAnimationFrame,
   CancelAnimationFrame,

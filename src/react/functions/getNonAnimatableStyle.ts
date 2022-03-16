@@ -1,5 +1,5 @@
-import { styleTrasformKeys, getTransform } from "../TransformStyles";
-import { isSubscriber } from "./isSubscriber";
+import { styleTrasformKeys, getTransform } from '../TransformStyles';
+import { isTransitionValue } from './isTransitionValue';
 
 /**
  * getNonAnimatableStyle function returns the non-animatable style object
@@ -16,7 +16,7 @@ export function getNonAnimatableStyle(
 
       // skips all the subscribers here
       // only get non-animatable styles
-      if (isSubscriber(value)) {
+      if (isTransitionValue(value)) {
         return resultObject;
       } else if (styleTrasformKeys.indexOf(styleProp) !== -1) {
         // if not subscriber, then check styleTransformKeys

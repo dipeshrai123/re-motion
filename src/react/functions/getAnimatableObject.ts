@@ -1,8 +1,8 @@
-import { ExtrapolateConfig } from "../../interpolation/Interpolation";
-import { TransitionValue } from "../useTransition";
-import { isSubscriber } from "./isSubscriber";
+import { ExtrapolateConfig } from '../../interpolation/Interpolation';
+import { TransitionValue } from '../useTransition';
+import { isTransitionValue } from './isTransitionValue';
 
-type PropertyType = "style" | "props";
+type PropertyType = 'style' | 'props';
 
 export type AnimationObject = {
   propertyType: PropertyType;
@@ -29,7 +29,7 @@ export function getAnimatableObject(
   return Object.keys(propertiesObject).reduce(function (acc, styleProp) {
     const value = propertiesObject[styleProp] as TransitionValue;
 
-    if (isSubscriber(value)) {
+    if (isTransitionValue(value)) {
       const { _value } = value;
 
       return [
@@ -37,7 +37,7 @@ export function getAnimatableObject(
         {
           propertyType,
           property: styleProp,
-          animatable: !(typeof _value === "string"), // strings are non animatable
+          animatable: !(typeof _value === 'string'), // strings are non animatable
           ...value,
         },
       ];
