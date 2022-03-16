@@ -15,6 +15,7 @@ export interface UseTransitionConfig {
   delay?: number;
   onChange?: (value: number) => void;
   onRest?: (value: ResultType) => void;
+  onStart?: (value: number) => void;
 }
 
 export type UpdateValue = {

@@ -15,6 +15,7 @@ export class Animation {
    * so that _onRest function is not fired, so we have to duplicate it
    */
   _onRest?: any;
+  _onStart?: any;
 
   _debounceOnEnd(result: ResultType) {
     const onEnd = this._onEnd;
@@ -27,4 +28,6 @@ export class Animation {
   }
 
   stop() {}
+
+  onStart() {}
 }

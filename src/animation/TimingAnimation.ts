@@ -93,6 +93,15 @@ export class TimingAnimation extends Animation {
     this._onFrame(toValue);
   }
 
+  // onStart callback
+  // called only at start of animation
+  onStart() {
+    const onStartCallback = this._onStart;
+    this._onStart = null;
+
+    onStartCallback && onStartCallback(this._position);
+  }
+
   start({
     toValue,
     onFrame,
@@ -109,6 +118,9 @@ export class TimingAnimation extends Animation {
 
       this._fromValue = this._position; // animate from lastly animated position to new toValue
       this._toValue = toValue;
+
+      // callback
+      this.onStart();
 
       this._startTime = Date.now();
       this._animationFrame = RequestAnimationFrame.current(
