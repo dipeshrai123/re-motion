@@ -30,6 +30,7 @@ export class SpringAnimation extends Animation {
   // Modifiers
   _delay: number;
   _onRest?: (value: ResultType) => void;
+  _onChange?: (value: number) => void;
 
   constructor({
     initialPosition,
@@ -51,10 +52,18 @@ export class SpringAnimation extends Animation {
     this._mass = config?.mass ?? 1;
     this._tension = config?.tension ?? 170;
     this._friction = config?.friction ?? 26;
-
-    // Modifiers
     this._delay = config?.delay ?? 0;
+
     this._onRest = config?.onRest;
+    this._onChange = config?.onChange;
+  }
+
+  onChange(value: number) {
+    this._onFrame(value);
+
+    if (this._onChange) {
+      this._onChange(value);
+    }
   }
 
   onUpdate() {
@@ -115,7 +124,7 @@ export class SpringAnimation extends Animation {
     this._position = position;
     this._lastVelocity = velocity;
 
-    this._onFrame(position);
+    this.onChange(position);
 
     if (!this._active) {
       return;
@@ -141,7 +150,7 @@ export class SpringAnimation extends Animation {
         this._lastVelocity = 0;
         this._position = this._toValue;
 
-        this._onFrame(this._toValue);
+        this.onChange(this._toValue);
       }
 
       this._lastTime = 0; // reset time
@@ -168,7 +177,7 @@ export class SpringAnimation extends Animation {
     this._position = toValue;
     this._lastTime = 0;
     this._lastVelocity = 0;
-    this._onFrame(toValue);
+    this.onChange(toValue);
   }
 
   start({
