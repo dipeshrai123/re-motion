@@ -13,7 +13,7 @@ export interface UseTransitionConfig {
   easing?: (t: number) => number;
   immediate?: boolean;
   delay?: number;
-  restVelocity?: number;
+  restDistance?: number; // minimum distance the animation should stop
   onChange?: (value: number) => void;
   onRest?: (value: ResultType) => void;
   onStart?: (value: number) => void;
