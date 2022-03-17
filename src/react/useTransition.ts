@@ -13,6 +13,7 @@ export interface UseTransitionConfig {
   easing?: (t: number) => number;
   immediate?: boolean;
   delay?: number;
+  restVelocity?: number;
   onChange?: (value: number) => void;
   onRest?: (value: ResultType) => void;
   onStart?: (value: number) => void;

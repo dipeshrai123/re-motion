@@ -41,13 +41,13 @@ export class SpringAnimation extends Animation {
     super();
 
     this._overshootClamping = false;
-    this._restDisplacementThreshold = 0.001;
-    this._restSpeedThreshold = 0.001;
     this._initialVelocity = 0;
     this._lastVelocity = 0;
-
     this._startPosition = initialPosition;
     this._position = this._startPosition;
+
+    this._restDisplacementThreshold = config?.restVelocity ?? 0.5;
+    this._restSpeedThreshold = config?.restVelocity ?? 0.5;
     this._mass = config?.mass ?? 1;
     this._tension = config?.tension ?? 170;
     this._friction = config?.friction ?? 26;
