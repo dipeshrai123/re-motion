@@ -13,6 +13,7 @@ export interface UseTransitionConfig {
   easing?: (t: number) => number;
   immediate?: boolean;
   delay?: number;
+  restDistance?: number; // minimum distance the animation should stop
   onChange?: (value: number) => void;
   onRest?: (value: ResultType) => void;
   onStart?: (value: number) => void;
@@ -62,6 +63,7 @@ export function useTransition(
   config?: UseTransitionConfig
 ): UseTransitionReturn {
   // using map instead of array to reduce the duplication of subscriptions
+  const _isInitial = React.useRef<boolean>(true);
   const subscriptions = React.useRef<Map<string, SubscriptionValue>>(new Map());
   const _currentValue = React.useRef<number | string>(initialValue);
 
@@ -124,9 +126,16 @@ export function useTransition(
     }
   };
 
-  // trigger animation on argument change
+  /**
+   * trigger animation on argument change
+   * doesn't fire the setValue method on initial render
+   */
   React.useEffect(() => {
-    setValue({ toValue: initialValue, config });
+    if (!_isInitial.current) {
+      setValue({ toValue: initialValue, config });
+    }
+
+    _isInitial.current = false;
   }, [initialValue]);
 
   return [value, setValue];

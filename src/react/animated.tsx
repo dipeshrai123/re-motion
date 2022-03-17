@@ -83,14 +83,6 @@ export function makeAnimatedComponent(
     React.useLayoutEffect(() => {
       const subscribers: any = [];
 
-      // set all subscribers here
-      // TODO: check if it can be interpolated or not
-      // always give interpolatable strings value from 0 to 1 in animation
-
-      // for duplicate values onFrame
-      let previousValue: any;
-      let updatedValue: any;
-
       animations.forEach((props: AnimationObject) => {
         const {
           _subscribe,
@@ -136,14 +128,8 @@ export function makeAnimatedComponent(
           }
         };
 
-        // set previous value
-        previousValue = _value;
-
         const onFrame = (value: number) => {
           _currentValue.current = value;
-
-          // get new value
-          updatedValue = value;
 
           // for interpolation we check isInterpolation boolean
           // which is injected from interpolate function
@@ -164,14 +150,6 @@ export function makeAnimatedComponent(
             // if it is TransitionValue, we dont have to interpolate it
             // just apply animation value
             applyAnimationValues(value);
-          }
-
-          // Handeling duplicate listener value updates
-          if (_config?.onChange) {
-            if (previousValue !== updatedValue) {
-              _config.onChange(value);
-              previousValue = updatedValue;
-            }
           }
         };
 

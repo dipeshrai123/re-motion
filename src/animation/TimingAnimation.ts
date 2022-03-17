@@ -19,12 +19,14 @@ export class TimingAnimation extends Animation {
   _onFrame: (value: number) => void;
   _animationFrame: any;
   _timeout: any;
+  _lastPosition: number;
   _position: number;
 
   // Modifiers
   _delay: number;
   _tempDuration: number;
   _onRest?: (value: ResultType) => void;
+  _onChange?: (value: number) => void;
 
   constructor({
     initialPosition,
@@ -49,6 +51,19 @@ export class TimingAnimation extends Animation {
 
     this._delay = config?.delay ?? 0;
     this._onRest = config?.onRest;
+    this._onChange = config?.onChange;
+  }
+
+  onChange(value: number) {
+    this._onFrame(value);
+
+    if (this._lastPosition !== value) {
+      if (this._onChange) {
+        this._onChange(value);
+      }
+    }
+
+    this._lastPosition = value;
   }
 
   onUpdate() {
@@ -56,11 +71,11 @@ export class TimingAnimation extends Animation {
     if (now >= this._startTime + this._duration) {
       if (this._duration === 0) {
         this._position = this._toValue;
-        this._onFrame(this._position);
+        this.onChange(this._position);
       } else {
         this._position =
           this._fromValue + this._easing(1) * (this._toValue - this._fromValue);
-        this._onFrame(this._position);
+        this.onChange(this._position);
       }
       this._debounceOnEnd({ finished: true, value: this._position });
       return;
@@ -70,7 +85,7 @@ export class TimingAnimation extends Animation {
       this._fromValue +
       this._easing((now - this._startTime) / this._duration) *
         (this._toValue - this._fromValue);
-    this._onFrame(this._position);
+    this.onChange(this._position);
 
     if (this._active) {
       this._animationFrame = RequestAnimationFrame.current(
@@ -90,7 +105,7 @@ export class TimingAnimation extends Animation {
   set(toValue: number) {
     this.stop();
     this._position = toValue;
-    this._onFrame(toValue);
+    this.onChange(toValue);
   }
 
   start({
