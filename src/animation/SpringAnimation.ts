@@ -46,8 +46,8 @@ export class SpringAnimation extends Animation {
     this._startPosition = initialPosition;
     this._position = this._startPosition;
 
-    this._restDisplacementThreshold = config?.restVelocity ?? 0.5;
-    this._restSpeedThreshold = config?.restVelocity ?? 0.5;
+    this._restDisplacementThreshold = config?.restVelocity ?? 0.24;
+    this._restSpeedThreshold = config?.restVelocity ?? 0.24;
     this._mass = config?.mass ?? 1;
     this._tension = config?.tension ?? 170;
     this._friction = config?.friction ?? 26;
