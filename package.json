@@ -1,6 +1,6 @@
 {
   "name": "@raidipesh78/re-motion",
-  "version": "2.0.0-alpha.8",
+  "version": "2.0.0-alpha.9",
   "description": "Powerful React animation library",
   "main": "dist/index.js",
   "peerDependencies": {
@@ -8,12 +8,14 @@
     "react-dom": ">=16.13.1"
   },
   "devDependencies": {
+    "@types/jest": "^27.4.1",
     "@types/node": "^16.11.6",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/resize-observer-browser": "^0.1.6",
     "babel-core": "^6.26.3",
     "babel-runtime": "^6.26.0",
+    "jest": "^27.5.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "rollup": "^2.59.0",
