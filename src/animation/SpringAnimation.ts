@@ -16,6 +16,7 @@ export class SpringAnimation extends Animation {
   _initialVelocity?: number;
   _lastVelocity: number;
   _startPosition: number;
+  _lastPosition: number;
   _position: number;
   _fromValue: number;
   _toValue: any;
@@ -61,9 +62,13 @@ export class SpringAnimation extends Animation {
   onChange(value: number) {
     this._onFrame(value);
 
-    if (this._onChange) {
-      this._onChange(value);
+    if (this._lastPosition !== value) {
+      if (this._onChange) {
+        this._onChange(value);
+      }
     }
+
+    this._lastPosition = value;
   }
 
   onUpdate() {
