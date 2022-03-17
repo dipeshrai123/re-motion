@@ -65,58 +65,69 @@ export function useTransition(
   const subscriptions = React.useRef<Map<string, SubscriptionValue>>(new Map());
   const _currentValue = React.useRef<number | string>(initialValue);
 
-  return [
-    React.useMemo(() => {
-      return {
-        _subscribe: function (onUpdate: SubscriptionValue, property: string) {
-          subscriptions.current.set(property, onUpdate);
+  // subscriber value
+  const value = React.useMemo(() => {
+    return {
+      _subscribe: function (onUpdate: SubscriptionValue, property: string) {
+        subscriptions.current.set(property, onUpdate);
 
-          return () => {
-            subscriptions.current.delete(property);
-          };
-        },
-        _value: initialValue,
-        _config: config,
-        _currentValue,
-        get: function () {
-          return _currentValue.current;
-        },
-      };
-    }, [initialValue, config]),
-    (updatedValue: AssignValue, callback?: (result: ResultType) => void) => {
-      if (typeof updatedValue === 'function') {
-        // for multi stage transition
-        updatedValue((nextValue) => {
-          const multiStagePromise = new Promise(function (resolve) {
-            for (const subscriptionKey of subscriptions.current.keys()) {
-              const updater = subscriptions.current.get(subscriptionKey);
+        return () => {
+          subscriptions.current.delete(property);
+        };
+      },
+      _value: initialValue,
+      _config: config,
+      _currentValue,
+      get: function () {
+        return _currentValue.current;
+      },
+    };
+  }, [initialValue, config]);
 
-              if (updater) {
-                updater(nextValue, function (result) {
-                  if (result.finished) {
-                    resolve(nextValue);
-                  }
+  // trigger animation method
+  const setValue = (
+    updatedValue: AssignValue,
+    callback?: (result: ResultType) => void
+  ) => {
+    if (typeof updatedValue === 'function') {
+      // for multi stage transition
+      updatedValue((nextValue) => {
+        const multiStagePromise = new Promise(function (resolve) {
+          for (const subscriptionKey of subscriptions.current.keys()) {
+            const updater = subscriptions.current.get(subscriptionKey);
 
-                  if (callback) {
-                    callback(result);
-                  }
-                });
-              }
+            if (updater) {
+              updater(nextValue, function (result) {
+                if (result.finished) {
+                  resolve(nextValue);
+                }
+
+                if (callback) {
+                  callback(result);
+                }
+              });
             }
-          });
-
-          return multiStagePromise;
+          }
         });
 
-        return;
-      }
+        return multiStagePromise;
+      });
 
-      // single stage transition
-      for (const subscriptionKey of subscriptions.current.keys()) {
-        const updater = subscriptions.current.get(subscriptionKey);
+      return;
+    }
 
-        updater && updater(updatedValue, callback);
-      }
-    },
-  ];
+    // single stage transition
+    for (const subscriptionKey of subscriptions.current.keys()) {
+      const updater = subscriptions.current.get(subscriptionKey);
+
+      updater && updater(updatedValue, callback);
+    }
+  };
+
+  // trigger animation on argument change
+  React.useEffect(() => {
+    setValue({ toValue: initialValue, config });
+  }, [initialValue]);
+
+  return [value, setValue];
 }
