@@ -117,10 +117,6 @@ export class SpringAnimation extends Animation {
 
     this.onChange(this._position);
 
-    if (!this._active) {
-      return;
-    }
-
     const isOvershooting = () => {
       if (this._overshootClamping && this._tension !== 0) {
         return this._position < this._toValue
@@ -156,6 +152,8 @@ export class SpringAnimation extends Animation {
       this._lastTime = 0;
 
       this._debounceOnEnd({ finished: true, value: this._toValue });
+
+      return;
     }
 
     this._animationFrame = RequestAnimationFrame.current(
@@ -206,7 +204,9 @@ export class SpringAnimation extends Animation {
         this._lastTime = now;
       }
 
-      this.onUpdate();
+      this._animationFrame = RequestAnimationFrame.current(
+        this.onUpdate.bind(this)
+      );
     };
 
     if (this._delay !== 0) {
