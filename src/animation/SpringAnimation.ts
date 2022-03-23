@@ -72,96 +72,90 @@ export class SpringAnimation extends Animation {
   }
 
   onUpdate() {
-    var position = this._position;
-    var velocity = this._lastVelocity;
-
-    var tempPosition = this._position;
-    var tempVelocity = this._lastVelocity;
-
-    var MAX_STEPS = 64;
     var now = Date.now();
-    if (now > this._lastTime + MAX_STEPS) {
-      now = this._lastTime + MAX_STEPS;
-    }
 
-    var TIMESTEP_MSEC = 1;
-    var numSteps = Math.floor((now - this._lastTime) / TIMESTEP_MSEC);
-
-    for (var i = 0; i < numSteps; ++i) {
-      var step = TIMESTEP_MSEC / 1000;
-
-      var aVelocity = velocity;
-      var aAcceleration =
-        this._tension * (this._toValue - tempPosition) -
-        this._friction * tempVelocity;
-
-      var bVelocity = tempVelocity;
-      var bAcceleration =
-        this._tension * (this._toValue - tempPosition) -
-        this._friction * tempVelocity;
-      tempPosition = position + (bVelocity * step) / 2;
-      tempVelocity = velocity + (bAcceleration * step) / 2;
-
-      var cVelocity = tempVelocity;
-      var cAcceleration =
-        this._tension * (this._toValue - tempPosition) -
-        this._friction * tempVelocity;
-      tempPosition = position + (cVelocity * step) / 2;
-      tempVelocity = velocity + (cAcceleration * step) / 2;
-
-      var dVelocity = tempVelocity;
-      var dAcceleration =
-        this._tension * (this._toValue - tempPosition) -
-        this._friction * tempVelocity;
-      tempPosition = position + (cVelocity * step) / 2;
-      tempVelocity = velocity + (cAcceleration * step) / 2;
-
-      var dxdt = (aVelocity + 2 * (bVelocity + cVelocity) + dVelocity) / 6;
-      var dvdt =
-        (aAcceleration + 2 * (bAcceleration + cAcceleration) + dAcceleration) /
-        6;
-
-      position += dxdt * step;
-      velocity += dvdt * step;
-    }
-
+    const deltaTime = Math.min(now - this._lastTime, 64);
     this._lastTime = now;
-    this._position = position;
-    this._lastVelocity = velocity;
 
-    this.onChange(position);
+    const c = this._friction;
+    const m = this._mass;
+    const k = this._tension;
+
+    const v0 = -this._lastVelocity;
+    const x0 = this._toValue - this._position;
+
+    const zeta = c / (2 * Math.sqrt(k * m)); // damping ratio
+    const omega0 = Math.sqrt(k / m); // undamped angular frequency of the oscillator (rad/ms)
+    const omega1 = omega0 * Math.sqrt(1 - zeta ** 2); // exponential decay
+
+    const t = deltaTime / 1000;
+
+    const sin1 = Math.sin(omega1 * t);
+    const cos1 = Math.cos(omega1 * t);
+
+    // under damped
+    const underDampedEnvelope = Math.exp(-zeta * omega0 * t);
+    const underDampedFrag1 =
+      underDampedEnvelope *
+      (sin1 * ((v0 + zeta * omega0 * x0) / omega1) + x0 * cos1);
+
+    const underDampedPosition = this._toValue - underDampedFrag1;
+    // This looks crazy -- it's actually just the derivative of the oscillation function
+    const underDampedVelocity =
+      zeta * omega0 * underDampedFrag1 -
+      underDampedEnvelope *
+        (cos1 * (v0 + zeta * omega0 * x0) - omega1 * x0 * sin1);
+
+    // critically damped
+    const criticallyDampedEnvelope = Math.exp(-omega0 * t);
+    const criticallyDampedPosition =
+      this._toValue - criticallyDampedEnvelope * (x0 + (v0 + omega0 * x0) * t);
+
+    const criticallyDampedVelocity =
+      criticallyDampedEnvelope *
+      (v0 * (t * omega0 - 1) + t * x0 * omega0 * omega0);
+
+    this.onChange(this._position);
 
     if (!this._active) {
       return;
     }
 
-    var isOvershooting = false;
-    if (this._overshootClamping && this._tension !== 0) {
-      if (this._startPosition < this._toValue) {
-        isOvershooting = position > this._toValue;
+    const isOvershooting = () => {
+      if (this._overshootClamping && this._tension !== 0) {
+        return this._position < this._toValue
+          ? this._position > this._toValue
+          : this._position < this._toValue;
       } else {
-        isOvershooting = position < this._toValue;
+        return false;
       }
-    }
-    var isVelocity = Math.abs(velocity) <= this._restSpeedThreshold;
-    var isDisplacement = true;
-    if (this._tension !== 0) {
-      isDisplacement =
-        Math.abs(this._toValue - position) <= this._restDisplacementThreshold;
+    };
+
+    const isVelocity = Math.abs(this._lastVelocity) < this._restSpeedThreshold;
+    const isDisplacement =
+      this._tension === 0 ||
+      Math.abs(this._toValue - this._position) <
+        this._restDisplacementThreshold;
+
+    if (zeta < 1) {
+      this._position = underDampedPosition;
+      this._lastVelocity = underDampedVelocity;
+    } else {
+      this._position = criticallyDampedPosition;
+      this._lastVelocity = criticallyDampedVelocity;
     }
 
-    if (isOvershooting || (isVelocity && isDisplacement)) {
+    if (isOvershooting() || (isVelocity && isDisplacement)) {
       if (this._tension !== 0) {
         this._lastVelocity = 0;
         this._position = this._toValue;
 
-        this.onChange(this._toValue);
+        this.onChange(this._position);
       }
-
-      this._lastTime = 0; // reset time
+      // clear lastTimestamp to avoid using stale value by the next spring animation that starts after this one
+      this._lastTime = 0;
 
       this._debounceOnEnd({ finished: true, value: this._toValue });
-      return;
     }
 
     this._animationFrame = RequestAnimationFrame.current(
