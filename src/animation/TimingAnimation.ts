@@ -77,6 +77,7 @@ export class TimingAnimation extends Animation {
 
       this.onChange(this._position);
 
+      this._debounceOnEnd({ finished: true, value: this._position });
       return;
     }
 
