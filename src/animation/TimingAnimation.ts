@@ -67,31 +67,30 @@ export class TimingAnimation extends Animation {
   }
 
   onUpdate() {
-    var now = Date.now();
-    if (now >= this._startTime + this._duration) {
-      if (this._duration === 0) {
-        this._position = this._toValue;
-        this.onChange(this._position);
-      } else {
-        this._position =
-          this._fromValue + this._easing(1) * (this._toValue - this._fromValue);
-        this.onChange(this._position);
-      }
+    const now = Date.now();
+
+    const runTime = now - this._startTime;
+
+    if (runTime >= this._duration) {
+      this._startTime = 0;
+      this._position = this._toValue;
+
+      this.onChange(this._position);
+
       this._debounceOnEnd({ finished: true, value: this._position });
       return;
     }
 
+    const progress = this._easing(runTime / this._duration);
+
     this._position =
-      this._fromValue +
-      this._easing((now - this._startTime) / this._duration) *
-        (this._toValue - this._fromValue);
+      this._fromValue + (this._toValue - this._fromValue) * progress;
+
     this.onChange(this._position);
 
-    if (this._active) {
-      this._animationFrame = RequestAnimationFrame.current(
-        this.onUpdate.bind(this)
-      );
-    }
+    this._animationFrame = RequestAnimationFrame.current(
+      this.onUpdate.bind(this)
+    );
   }
 
   stop() {
@@ -111,21 +110,34 @@ export class TimingAnimation extends Animation {
   start({
     toValue,
     onFrame,
+    previousAnimation,
     onEnd,
   }: {
     toValue: number;
     onFrame: (value: number) => void;
+    previousAnimation?: TimingAnimation;
     onEnd?: (result: ResultType) => void;
   }) {
     const onStart: any = () => {
       this._onFrame = onFrame;
       this._active = true;
       this._onEnd = onEnd;
-
-      this._fromValue = this._position; // animate from lastly animated position to new toValue
       this._toValue = toValue;
 
-      this._startTime = Date.now();
+      if (
+        previousAnimation &&
+        previousAnimation instanceof TimingAnimation &&
+        previousAnimation._toValue === toValue &&
+        previousAnimation._startTime
+      ) {
+        this._startTime = previousAnimation._startTime;
+        this._fromValue = previousAnimation._fromValue;
+      } else {
+        const now = Date.now();
+        this._startTime = now;
+        this._fromValue = this._position;
+      }
+
       this._animationFrame = RequestAnimationFrame.current(
         this.onUpdate.bind(this)
       );
