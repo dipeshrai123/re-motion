@@ -21,7 +21,7 @@ export interface UseMountConfig {
  * @returns mount function with a callback with argument ( TransitionNode, mounted )
  */
 export function useMount(state: boolean, config: UseMountConfig) {
-  const [initial, setInitial] = React.useState(true);
+  const initial = React.useRef(true);
   const [mounted, setMounted] = React.useState(state);
   const {
     from,
@@ -35,37 +35,36 @@ export function useMount(state: boolean, config: UseMountConfig) {
 
   React.useEffect(() => {
     if (state) {
-      setInitial(true);
+      initial.current = true;
       setMounted(true);
     } else {
-      setInitial(false);
-      setAnimation(
-        {
-          toValue: exit,
-          config: exitConfig,
+      initial.current = false;
+      setAnimation({
+        toValue: exit,
+        config: {
+          ...exitConfig,
+          onRest: (result) => {
+            const { finished } = result;
+
+            if (finished) {
+              setMounted(false);
+            }
+
+            enterConfig?.onRest && enterConfig?.onRest(result);
+          },
         },
-        function ({ finished }) {
-          if (finished) {
-            setMounted(false);
-          }
-        }
-      );
+      });
     }
   }, [state]);
 
   React.useEffect(() => {
-    if (mounted && initial) {
-      setAnimation(
-        {
-          toValue: enter,
-          config: enterConfig,
-        },
-        function () {
-          return;
-        }
-      );
+    if (mounted && initial.current) {
+      setAnimation({
+        toValue: enter,
+        config: enterConfig,
+      });
     }
-  }, [mounted, initial]);
+  }, [mounted, initial.current]);
 
   return function (
     callback: (animation: TransitionValue, mounted: boolean) => React.ReactNode
