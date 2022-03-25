@@ -4,7 +4,11 @@ import { SpringAnimation } from '../animation/SpringAnimation';
 import { TimingAnimation } from '../animation/TimingAnimation';
 import { interpolateNumbers } from '../interpolation/Interpolation';
 import { tags } from './Tags';
-import { UpdateValue, UseTransitionConfig } from './useTransition';
+import {
+  UpdateValue,
+  UseTransitionConfig,
+  TransitionValue,
+} from './useTransition';
 import { ResultType } from '../animation/Types';
 import { styleTrasformKeys, getTransform } from './TransformStyles';
 import { combineRefs } from './combineRefs';
@@ -23,34 +27,44 @@ import {
 type AnimationTypes = 'spring' | 'timing';
 
 export type AnimatedCSSProperties = {
-  [key in keyof React.CSSProperties]: any;
+  [key in keyof React.CSSProperties]:
+    | React.CSSProperties[key]
+    | TransitionValue;
 } & {
-  [key in typeof styleTrasformKeys[number]]?: any;
+  [key in typeof styleTrasformKeys[number]]?: number | string | TransitionValue;
 };
 
-export type AnimatedHTMLAttributes = {
-  [property in keyof React.AllHTMLAttributes<any>]: any;
+export type AnimatedHTMLAttributes<T> = {
+  [property in keyof React.HTMLAttributes<T>]:
+    | React.HTMLAttributes<T>[property]
+    | TransitionValue;
 };
 
-export type AnimatedSVGAttributes = {
-  [property in keyof React.SVGAttributes<any>]: any;
+export type AnimatedSVGAttributes<T> = {
+  [property in keyof React.SVGAttributes<T>]:
+    | React.SVGAttributes<T>[property]
+    | TransitionValue;
 };
 
-export type AnimatedProps = Omit<
-  AnimatedHTMLAttributes & AnimatedSVGAttributes,
+export type AnimatedProps<T> = Omit<
+  AnimatedHTMLAttributes<T> & AnimatedSVGAttributes<T>,
   'style'
 > & {
   style?: AnimatedCSSProperties;
 };
 
+type WrappedComponentOrTag =
+  | React.ComponentType<any>
+  | keyof JSX.IntrinsicElements;
+
 /**
  * Higher order component to make any component animatable
  * @param WrapperComponent
  */
-export function makeAnimatedComponent(
-  WrapperComponent: React.ComponentType<any> | keyof JSX.IntrinsicElements
+export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
+  WrapperComponent: C
 ) {
-  function Wrapper(props: AnimatedProps, forwardRef: any) {
+  function Wrapper(props: AnimatedProps<C>, forwardRef: any) {
     const ref = React.useRef<any>(null);
 
     // for transforms, we add all the transform keys in transformPropertiesObjectRef and
@@ -87,7 +101,7 @@ export function makeAnimatedComponent(
       }
 
       const nonAnimatableStyle = getNonAnimatableStyle(
-        props.style,
+        props.style as React.CSSProperties,
         transformPropertiesObjectRef
       );
 
@@ -288,7 +302,9 @@ export function makeAnimatedComponent(
 }
 
 export const animated: {
-  [element in typeof tags[number]]: React.ComponentType<AnimatedProps>;
+  [element in keyof JSX.IntrinsicElements]: React.ComponentType<
+    AnimatedProps<element>
+  >;
 } = {} as any;
 tags.forEach((element) => {
   animated[element] = makeAnimatedComponent(
