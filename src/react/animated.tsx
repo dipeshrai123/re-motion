@@ -301,11 +301,13 @@ export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
   return React.forwardRef(Wrapper);
 }
 
-export const animated: {
+type WithAnimated = {
   [element in keyof JSX.IntrinsicElements]: React.ComponentType<
     AnimatedProps<element>
   >;
-} = {} as any;
+};
+
+export const animated: WithAnimated = {} as any;
 tags.forEach((element) => {
   animated[element] = makeAnimatedComponent(
     element as keyof JSX.IntrinsicElements
