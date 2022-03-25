@@ -39,21 +39,17 @@ export function useMount(state: boolean, config: UseMountConfig) {
       setMounted(true);
     } else {
       initial.current = false;
-      setAnimation({
-        toValue: exit,
-        config: {
-          ...exitConfig,
-          onRest: (result) => {
-            const { finished } = result;
-
-            if (finished) {
-              setMounted(false);
-            }
-
-            enterConfig?.onRest && enterConfig?.onRest(result);
-          },
+      setAnimation(
+        {
+          toValue: exit,
+          config: exitConfig,
         },
-      });
+        function ({ finished }) {
+          if (finished) {
+            setMounted(false);
+          }
+        }
+      );
     }
   }, [state]);
 

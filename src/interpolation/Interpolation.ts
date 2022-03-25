@@ -6,6 +6,7 @@ import {
   colorNames,
 } from './Colors';
 import { TransitionValue } from '../react/useTransition';
+import { isTransitionValue } from '../react/functions';
 
 type ExtrapolateType = 'identity' | 'extend' | 'clamp';
 
@@ -331,4 +332,37 @@ export const interpolateTransitionValue = (
       extrapolateConfig,
     },
   };
+};
+
+/**
+ * interpolate function to interpolate both transition
+ * as well as numerical value
+ * @param value
+ * @param inputRange
+ * @param outputRange
+ * @param extrapolateConfig
+ */
+export const interpolate = (
+  value: number | TransitionValue,
+  inputRange: Array<number>,
+  outputRange: Array<number | string>,
+  extrapolateConfig?: ExtrapolateConfig
+) => {
+  if (isTransitionValue(value)) {
+    return interpolateTransitionValue(
+      value as TransitionValue,
+      inputRange,
+      outputRange,
+      extrapolateConfig
+    );
+  } else if (typeof value === 'number') {
+    return interpolateNumbers(
+      value,
+      inputRange,
+      outputRange,
+      extrapolateConfig
+    );
+  } else {
+    throw new Error(`'${typeof value}' cannot be interpolated!`);
+  }
 };

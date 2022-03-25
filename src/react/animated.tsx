@@ -4,7 +4,11 @@ import { SpringAnimation } from '../animation/SpringAnimation';
 import { TimingAnimation } from '../animation/TimingAnimation';
 import { interpolateNumbers } from '../interpolation/Interpolation';
 import { tags } from './Tags';
-import { UpdateValue, UseTransitionConfig } from './useTransition';
+import {
+  UpdateValue,
+  UseTransitionConfig,
+  TransitionValue,
+} from './useTransition';
 import { ResultType } from '../animation/Types';
 import { styleTrasformKeys, getTransform } from './TransformStyles';
 import { combineRefs } from './combineRefs';
@@ -22,14 +26,45 @@ import {
  */
 type AnimationTypes = 'spring' | 'timing';
 
+export type AnimatedCSSProperties = {
+  [key in keyof React.CSSProperties]:
+    | React.CSSProperties[key]
+    | TransitionValue;
+} & {
+  [key in typeof styleTrasformKeys[number]]?: number | string | TransitionValue;
+};
+
+export type AnimatedHTMLAttributes<T> = {
+  [property in keyof React.HTMLAttributes<T>]:
+    | React.HTMLAttributes<T>[property]
+    | TransitionValue;
+};
+
+export type AnimatedSVGAttributes<T> = {
+  [property in keyof React.SVGAttributes<T>]:
+    | React.SVGAttributes<T>[property]
+    | TransitionValue;
+};
+
+export type AnimatedProps<T> = Omit<
+  AnimatedHTMLAttributes<T> & AnimatedSVGAttributes<T>,
+  'style'
+> & {
+  style?: AnimatedCSSProperties;
+};
+
+type WrappedComponentOrTag =
+  | React.ComponentType<any>
+  | keyof JSX.IntrinsicElements;
+
 /**
  * Higher order component to make any component animatable
  * @param WrapperComponent
  */
-export function makeAnimatedComponent(
-  WrapperComponent: React.ComponentType | keyof JSX.IntrinsicElements
+export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
+  WrapperComponent: C
 ) {
-  function Wrapper(props: any, forwardRef: any) {
+  function Wrapper(props: AnimatedProps<C>, forwardRef: any) {
     const ref = React.useRef<any>(null);
 
     // for transforms, we add all the transform keys in transformPropertiesObjectRef and
@@ -66,7 +101,7 @@ export function makeAnimatedComponent(
       }
 
       const nonAnimatableStyle = getNonAnimatableStyle(
-        props.style,
+        props.style as React.CSSProperties,
         transformPropertiesObjectRef
       );
 
@@ -102,7 +137,7 @@ export function makeAnimatedComponent(
         }
 
         // whether or not the property is one of transform keys
-        const isTransform = styleTrasformKeys.indexOf(property) !== -1;
+        const isTransform = styleTrasformKeys.indexOf(property as any) !== -1;
 
         // called every frame to update new transform values
         // getTransform function returns the valid transform string
@@ -266,7 +301,13 @@ export function makeAnimatedComponent(
   return React.forwardRef(Wrapper);
 }
 
-export const animated: any = {};
+type WithAnimated = {
+  [element in keyof JSX.IntrinsicElements]: React.ComponentType<
+    AnimatedProps<element>
+  >;
+};
+
+export const animated: WithAnimated = {} as any;
 tags.forEach((element) => {
   animated[element] = makeAnimatedComponent(
     element as keyof JSX.IntrinsicElements

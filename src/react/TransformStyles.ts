@@ -2,23 +2,23 @@
  * style keys which can be accepted by animated component
  */
 export const styleTrasformKeys = [
-  "perspective",
-  "translate",
-  "translateX",
-  "translateY",
-  "translateZ",
-  "scale",
-  "scaleX",
-  "scaleY",
-  "scaleZ",
-  "rotate",
-  "rotateX",
-  "rotateY",
-  "rotateZ",
-  "skew",
-  "skewX",
-  "skewY",
-];
+  'perspective',
+  'translate',
+  'translateX',
+  'translateY',
+  'translateZ',
+  'scale',
+  'scaleX',
+  'scaleY',
+  'scaleZ',
+  'rotate',
+  'rotateX',
+  'rotateY',
+  'rotateZ',
+  'skew',
+  'skewX',
+  'skewY',
+] as const;
 
 function splitCSSValueAndUnit(value: string) {
   const valueMatch = value.match(/(-)?(\d+.)?\d+/g);
@@ -45,17 +45,17 @@ function getValueUnit(property: string, value: string) {
   }
 
   if (
-    property.indexOf("translate") !== -1 ||
-    property.indexOf("perspective") !== -1
+    property.indexOf('translate') !== -1 ||
+    property.indexOf('perspective') !== -1
   ) {
-    unit = "px";
-  } else if (property.indexOf("scale") !== -1) {
-    unit = "";
+    unit = 'px';
+  } else if (property.indexOf('scale') !== -1) {
+    unit = '';
   } else if (
-    property.indexOf("rotate") !== -1 ||
-    property.indexOf("skew") !== -1
+    property.indexOf('rotate') !== -1 ||
+    property.indexOf('skew') !== -1
   ) {
-    unit = "deg";
+    unit = 'deg';
   }
 
   return { value, unit };
@@ -65,18 +65,18 @@ function getTransformValueWithUnits(property: string, value: string) {
   const valueUnit = getValueUnit(property, value);
 
   if (
-    property.indexOf("X") !== -1 ||
-    property.indexOf("Y") !== -1 ||
-    property.indexOf("Z") !== -1 ||
-    property.indexOf("perspective") !== -1 ||
-    property.indexOf("rotate") !== -1 ||
-    property.indexOf("skew") !== -1
+    property.indexOf('X') !== -1 ||
+    property.indexOf('Y') !== -1 ||
+    property.indexOf('Z') !== -1 ||
+    property.indexOf('perspective') !== -1 ||
+    property.indexOf('rotate') !== -1 ||
+    property.indexOf('skew') !== -1
   ) {
     // axis value
     return `${property}(${valueUnit.value}${valueUnit.unit})`;
   } else if (
-    property.indexOf("translate") !== -1 ||
-    property.indexOf("scale") !== -1
+    property.indexOf('translate') !== -1 ||
+    property.indexOf('scale') !== -1
   ) {
     // two parameter value
     return `${property}(${valueUnit.value}${valueUnit.unit}, ${valueUnit.value}${valueUnit.unit})`;
@@ -99,6 +99,6 @@ export function getTransform(style: any) {
     })
     .reduce(function (transform: string, value: number) {
       return (transform += ` ${value}`);
-    }, "")
+    }, '')
     .trim();
 }
