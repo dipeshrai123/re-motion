@@ -22,13 +22,24 @@ import {
  */
 type AnimationTypes = 'spring' | 'timing';
 
-type AnimatedCSSProperties = {
+export type AnimatedCSSProperties = {
   [key in keyof React.CSSProperties]: any;
 } & {
   [key in typeof styleTrasformKeys[number]]?: any;
 };
 
-type AnimatedProps = Omit<React.AllHTMLAttributes<any>, 'style'> & {
+export type AnimatedHTMLAttributes = {
+  [property in keyof React.AllHTMLAttributes<any>]: any;
+};
+
+export type AnimatedSVGAttributes = {
+  [property in keyof React.SVGAttributes<any>]: any;
+};
+
+export type AnimatedProps = Omit<
+  AnimatedHTMLAttributes & AnimatedSVGAttributes,
+  'style'
+> & {
   style?: AnimatedCSSProperties;
 };
 
