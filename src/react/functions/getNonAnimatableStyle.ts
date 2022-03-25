@@ -18,7 +18,7 @@ export function getNonAnimatableStyle(
       // only get non-animatable styles
       if (isTransitionValue(value)) {
         return resultObject;
-      } else if (styleTrasformKeys.indexOf(styleProp) !== -1) {
+      } else if (styleTrasformKeys.indexOf(styleProp as any) !== -1) {
         // if not subscriber, then check styleTransformKeys
         // add it to transformPropertiesObjectRef
         transformObjectRef.current[styleProp] = value;

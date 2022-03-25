@@ -22,14 +22,24 @@ import {
  */
 type AnimationTypes = 'spring' | 'timing';
 
+type AnimatedCSSProperties = {
+  [key in keyof React.CSSProperties]: any;
+} & {
+  [key in typeof styleTrasformKeys[number]]?: any;
+};
+
+type WrapperProps = Omit<React.AllHTMLAttributes<any>, 'style'> & {
+  style?: AnimatedCSSProperties;
+};
+
 /**
  * Higher order component to make any component animatable
  * @param WrapperComponent
  */
 export function makeAnimatedComponent(
-  WrapperComponent: React.ComponentType | keyof JSX.IntrinsicElements
+  WrapperComponent: React.ComponentType<any> | keyof JSX.IntrinsicElements
 ) {
-  function Wrapper(props: any, forwardRef: any) {
+  function Wrapper(props: WrapperProps, forwardRef: any) {
     const ref = React.useRef<any>(null);
 
     // for transforms, we add all the transform keys in transformPropertiesObjectRef and
@@ -102,7 +112,7 @@ export function makeAnimatedComponent(
         }
 
         // whether or not the property is one of transform keys
-        const isTransform = styleTrasformKeys.indexOf(property) !== -1;
+        const isTransform = styleTrasformKeys.indexOf(property as any) !== -1;
 
         // called every frame to update new transform values
         // getTransform function returns the valid transform string
@@ -266,7 +276,9 @@ export function makeAnimatedComponent(
   return React.forwardRef(Wrapper);
 }
 
-export const animated: any = {};
+export const animated: {
+  [element in typeof tags[number]]: React.ComponentType<WrapperProps>;
+} = {} as any;
 tags.forEach((element) => {
   animated[element] = makeAnimatedComponent(
     element as keyof JSX.IntrinsicElements
