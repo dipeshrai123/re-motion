@@ -28,7 +28,7 @@ type AnimatedCSSProperties = {
   [key in typeof styleTrasformKeys[number]]?: any;
 };
 
-type WrapperProps = Omit<React.AllHTMLAttributes<any>, 'style'> & {
+type AnimatedProps = Omit<React.AllHTMLAttributes<any>, 'style'> & {
   style?: AnimatedCSSProperties;
 };
 
@@ -39,7 +39,7 @@ type WrapperProps = Omit<React.AllHTMLAttributes<any>, 'style'> & {
 export function makeAnimatedComponent(
   WrapperComponent: React.ComponentType<any> | keyof JSX.IntrinsicElements
 ) {
-  function Wrapper(props: WrapperProps, forwardRef: any) {
+  function Wrapper(props: AnimatedProps, forwardRef: any) {
     const ref = React.useRef<any>(null);
 
     // for transforms, we add all the transform keys in transformPropertiesObjectRef and
@@ -277,7 +277,7 @@ export function makeAnimatedComponent(
 }
 
 export const animated: {
-  [element in typeof tags[number]]: React.ComponentType<WrapperProps>;
+  [element in typeof tags[number]]: React.ComponentType<AnimatedProps>;
 } = {} as any;
 tags.forEach((element) => {
   animated[element] = makeAnimatedComponent(
