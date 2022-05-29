@@ -40,7 +40,11 @@ export type SubscriptionValue = (
  * useTransition returns TransitionValue object
  */
 export type TransitionValue = {
-  _subscribe: (onUpdate: SubscriptionValue, property: string) => void; // defines the subscription for any animatable key
+  _subscribe: (
+    onUpdate: SubscriptionValue,
+    property: string,
+    uuid: number
+  ) => void; // defines the subscription for any animatable key
   _value: number | string; // initial value
   _currentValue: React.MutableRefObject<number | string>; // current updated value
   get: () => number | string; // function to get the current value
@@ -64,17 +68,23 @@ export function useTransition(
 ): UseTransitionReturn {
   // using map instead of array to reduce the duplication of subscriptions
   const _isInitial = React.useRef<boolean>(true);
-  const subscriptions = React.useRef<Map<string, SubscriptionValue>>(new Map());
+  const subscriptions = React.useRef<
+    Map<{ uuid: number; property: string }, SubscriptionValue>
+  >(new Map());
   const _currentValue = React.useRef<number | string>(initialValue);
 
   // subscriber value
   const value = React.useMemo(() => {
     return {
-      _subscribe: function (onUpdate: SubscriptionValue, property: string) {
-        subscriptions.current.set(property, onUpdate);
+      _subscribe: function (
+        onUpdate: SubscriptionValue,
+        property: string,
+        uuid: number
+      ) {
+        subscriptions.current.set({ uuid, property }, onUpdate);
 
         return () => {
-          subscriptions.current.delete(property);
+          subscriptions.current.delete({ uuid, property });
         };
       },
       _value: initialValue,
