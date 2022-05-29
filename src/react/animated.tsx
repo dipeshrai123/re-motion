@@ -29,21 +29,21 @@ type AnimationTypes = 'spring' | 'timing';
 export type AnimatedCSSProperties = {
   [key in keyof React.CSSProperties]:
     | React.CSSProperties[key]
-    | TransitionValue;
+    | any;
 } & {
-  [key in typeof styleTrasformKeys[number]]?: number | string | TransitionValue;
+  [key in typeof styleTrasformKeys[number]]?: number | string | TransitionValue | any;
 };
 
 export type AnimatedHTMLAttributes<T> = {
   [property in keyof React.HTMLAttributes<T>]:
     | React.HTMLAttributes<T>[property]
-    | TransitionValue;
+    | TransitionValue | any;
 };
 
 export type AnimatedSVGAttributes<T> = {
   [property in keyof React.SVGAttributes<T>]:
     | React.SVGAttributes<T>[property]
-    | TransitionValue;
+    | TransitionValue | any;
 };
 
 export type AnimatedProps<T> = Omit<
@@ -281,7 +281,7 @@ export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
           defineAnimation(_value as number);
         }
 
-        const subscribe = _subscribe(onUpdate, property);
+        const subscribe = _subscribe(onUpdate, property, Date.now());
         subscribers.push(subscribe);
       });
 
