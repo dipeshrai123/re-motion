@@ -281,7 +281,7 @@ export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
           defineAnimation(_value as number);
         }
 
-        const subscribe = _subscribe(onUpdate, property);
+        const subscribe = _subscribe(onUpdate, property, Date.now());
         subscribers.push(subscribe);
       });
 
