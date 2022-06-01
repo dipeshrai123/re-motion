@@ -198,7 +198,7 @@ export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
           config?: UseTransitionConfig
         ) => {
           const animationConfig: UseTransitionConfig | undefined =
-            config ?? _config;
+            {..._config, ...config};
 
           let type: AnimationTypes;
           /**
