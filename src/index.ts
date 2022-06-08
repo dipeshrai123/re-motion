@@ -5,3 +5,4 @@ export * from './react/functions/isTransitionValue';
 export * from './animation/Types';
 export * from './easing/Easing';
 export * from './interpolation/Interpolation';
+export * from './animation/TransitionValue';

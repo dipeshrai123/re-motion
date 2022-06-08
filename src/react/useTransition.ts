@@ -39,7 +39,7 @@ export type SubscriptionValue = (
 /**
  * useTransition returns TransitionValue object
  */
-export type TransitionValue = {
+export type FluidValue = {
   _subscribe: (
     onUpdate: SubscriptionValue,
     property: string,
@@ -54,7 +54,7 @@ export type TransitionValue = {
 /**
  * useTransition return type
  */
-export type UseTransitionReturn = [TransitionValue, SubscriptionValue];
+export type UseTransitionReturn = [FluidValue, SubscriptionValue];
 
 /**
  * useTransition() hook for time and spring based animations

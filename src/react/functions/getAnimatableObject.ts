@@ -1,5 +1,5 @@
 import { ExtrapolateConfig } from '../../interpolation/Interpolation';
-import { TransitionValue } from '../useTransition';
+import { FluidValue } from '../useTransition';
 import { isTransitionValue } from './isTransitionValue';
 
 type PropertyType = 'style' | 'props';
@@ -16,7 +16,7 @@ export type AnimationObject = {
     outputRange: Array<number | string>;
     extrapolateConfig?: ExtrapolateConfig;
   };
-} & TransitionValue;
+} & FluidValue;
 
 /**
  * Function to get the array of animatable objects
@@ -27,7 +27,7 @@ export function getAnimatableObject(
   propertiesObject: object
 ) {
   return Object.keys(propertiesObject).reduce(function (acc, styleProp) {
-    const value = propertiesObject[styleProp] as TransitionValue;
+    const value = propertiesObject[styleProp] as FluidValue;
 
     if (isTransitionValue(value)) {
       const { _value } = value;

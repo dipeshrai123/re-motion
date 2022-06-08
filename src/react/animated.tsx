@@ -4,11 +4,7 @@ import { SpringAnimation } from '../animation/SpringAnimation';
 import { TimingAnimation } from '../animation/TimingAnimation';
 import { interpolateNumbers } from '../interpolation/Interpolation';
 import { tags } from './Tags';
-import {
-  UpdateValue,
-  UseTransitionConfig,
-  TransitionValue,
-} from './useTransition';
+import { UpdateValue, UseTransitionConfig, FluidValue } from './useTransition';
 import { ResultType } from '../animation/Types';
 import { styleTrasformKeys, getTransform } from './TransformStyles';
 import { combineRefs } from './combineRefs';
@@ -27,23 +23,27 @@ import {
 type AnimationTypes = 'spring' | 'timing';
 
 export type AnimatedCSSProperties = {
-  [key in keyof React.CSSProperties]:
-    | React.CSSProperties[key]
-    | any;
+  [key in keyof React.CSSProperties]: React.CSSProperties[key] | any;
 } & {
-  [key in typeof styleTrasformKeys[number]]?: number | string | TransitionValue | any;
+  [key in typeof styleTrasformKeys[number]]?:
+    | number
+    | string
+    | FluidValue
+    | any;
 };
 
 export type AnimatedHTMLAttributes<T> = {
   [property in keyof React.HTMLAttributes<T>]:
     | React.HTMLAttributes<T>[property]
-    | TransitionValue | any;
+    | FluidValue
+    | any;
 };
 
 export type AnimatedSVGAttributes<T> = {
   [property in keyof React.SVGAttributes<T>]:
     | React.SVGAttributes<T>[property]
-    | TransitionValue | any;
+    | FluidValue
+    | any;
 };
 
 export type AnimatedProps<T> = Omit<
@@ -182,7 +182,7 @@ export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
             // apply animation to ref node
             applyAnimationValues(interpolatedValue);
           } else {
-            // if it is TransitionValue, we dont have to interpolate it
+            // if it is FluidValue, we dont have to interpolate it
             // just apply animation value
             applyAnimationValues(value);
           }

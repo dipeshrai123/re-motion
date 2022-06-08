@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
   useTransition,
-  TransitionValue,
+  FluidValue,
   UseTransitionConfig,
 } from './useTransition';
 
@@ -63,7 +63,7 @@ export function useMount(state: boolean, config: UseMountConfig) {
   }, [mounted, initial.current]);
 
   return function (
-    callback: (animation: TransitionValue, mounted: boolean) => React.ReactNode
+    callback: (animation: FluidValue, mounted: boolean) => React.ReactNode
   ) {
     return callback(animation, mounted);
   };

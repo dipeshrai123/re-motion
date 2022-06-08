@@ -5,7 +5,7 @@ import {
   HEX_NAME_COLOR,
   colorNames,
 } from './Colors';
-import { TransitionValue } from '../react/useTransition';
+import { FluidValue } from '../react/useTransition';
 import { isTransitionValue } from '../react/functions';
 
 type ExtrapolateType = 'identity' | 'extend' | 'clamp';
@@ -318,7 +318,7 @@ export function interpolateNumbers(
  * @returns TransitionValue
  */
 export const interpolateTransitionValue = (
-  value: TransitionValue,
+  value: FluidValue,
   inputRange: Array<number>,
   outputRange: Array<number | string>,
   extrapolateConfig?: ExtrapolateConfig
@@ -343,14 +343,14 @@ export const interpolateTransitionValue = (
  * @param extrapolateConfig
  */
 export const interpolate = (
-  value: number | TransitionValue,
+  value: number | FluidValue,
   inputRange: Array<number>,
   outputRange: Array<number | string>,
   extrapolateConfig?: ExtrapolateConfig
 ) => {
   if (isTransitionValue(value)) {
     return interpolateTransitionValue(
-      value as TransitionValue,
+      value as FluidValue,
       inputRange,
       outputRange,
       extrapolateConfig
