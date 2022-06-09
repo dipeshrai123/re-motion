@@ -1,52 +1,52 @@
-import {
+import type {
+  Fn,
+  Length,
+  ResultType,
+  SubscribeFn,
+  TransitionValueConfig,
+  OnUpdateFn,
   AssignValue,
-  SubscriptionValue,
-  UseTransitionConfig,
-} from '../react/useTransition';
-import { ResultType } from './Types';
+} from '../types';
 
 export class TransitionValue {
-  subscriptions: Map<{ uuid: number; property: string }, SubscriptionValue>;
+  public _subscribe: SubscribeFn;
+  public _value: Length;
+  public _config?: TransitionValueConfig;
+  public _currentValue: { current: Length };
+  public _subscriptions: Map<{ uuid: number; property: string }, OnUpdateFn>;
 
-  _subscribe: (
-    onUpdate: SubscriptionValue,
-    property: string,
-    uuid: number
-  ) => void;
-  _value: number | string;
-  _config?: UseTransitionConfig;
-  _currentValue: any;
-  get: () => number | string;
+  public get: () => Length;
 
-  constructor(initialValue: number | string, config?: UseTransitionConfig) {
-    this.subscriptions = new Map();
-    this._currentValue = { current: initialValue };
-
+  constructor(initialValue: Length, config?: TransitionValueConfig) {
+    this._subscriptions = new Map();
     this._subscribe = (
-      onUpdate: SubscriptionValue,
+      onUpdate: OnUpdateFn,
       property: string,
       uuid: number
     ) => {
-      this.subscriptions.set({ uuid, property }, onUpdate);
+      this._subscriptions.set({ uuid, property }, onUpdate);
 
       return () => {
-        this.subscriptions.delete({ uuid, property });
+        this._subscriptions.delete({ uuid, property });
       };
     };
     this._value = initialValue;
+    this._currentValue = { current: initialValue };
     this._config = config;
-    this.get = () => {
-      return this._currentValue.current;
-    };
+    this.get = () => this._currentValue.current;
   }
 
-  setValue(updatedValue: AssignValue, callback?: (result: ResultType) => void) {
+  /**
+   * Animates from initial value to updated value, determines the transition type `multistage`
+   * or `singlestage` according to updatedValue
+   */
+  setValue(updatedValue: AssignValue, callback?: Fn<ResultType, void>) {
+    /** Multistage transition */
     if (typeof updatedValue === 'function') {
-      // for multi stage transition
       updatedValue((nextValue) => {
         const multiStagePromise = new Promise((resolve) => {
-          for (const subscriptionKey of this.subscriptions.keys()) {
-            const updater = this.subscriptions.get(subscriptionKey);
+          for (const subscriptionKey of this._subscriptions.keys()) {
+            const updater = this._subscriptions.get(subscriptionKey);
 
             if (updater) {
               updater(nextValue, function (result) {
@@ -68,9 +68,9 @@ export class TransitionValue {
       return;
     }
 
-    // single stage transition
-    for (const subscriptionKey of this.subscriptions.keys()) {
-      const updater = this.subscriptions.get(subscriptionKey);
+    /** Singlestage transition */
+    for (const subscriptionKey of this._subscriptions.keys()) {
+      const updater = this._subscriptions.get(subscriptionKey);
 
       updater && updater(updatedValue, callback);
     }

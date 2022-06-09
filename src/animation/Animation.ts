@@ -1,4 +1,4 @@
-import { ResultType } from './Types';
+import { ResultType } from '../types';
 
 /**
  * Base Animation class

@@ -4,8 +4,12 @@ import { SpringAnimation } from '../animation/SpringAnimation';
 import { TimingAnimation } from '../animation/TimingAnimation';
 import { interpolateNumbers } from '../interpolation/Interpolation';
 import { tags } from './Tags';
-import { UpdateValue, UseTransitionConfig, FluidValue } from './useTransition';
-import { ResultType } from '../animation/Types';
+import {
+  ResultType,
+  TransitionValueConfig,
+  UpdateValue,
+  FluidValue,
+} from '../types';
 import { styleTrasformKeys, getTransform } from './TransformStyles';
 import { combineRefs } from './combineRefs';
 import {
@@ -195,9 +199,9 @@ export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
          */
         const defineAnimation = (
           value: number,
-          config?: UseTransitionConfig
+          config?: TransitionValueConfig
         ) => {
-          const animationConfig: UseTransitionConfig | undefined =
+          const animationConfig: TransitionValueConfig | undefined =
             config ?? _config;
 
           let type: AnimationTypes;

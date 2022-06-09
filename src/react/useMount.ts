@@ -1,17 +1,14 @@
-import * as React from 'react';
-import {
-  useTransition,
-  FluidValue,
-  UseTransitionConfig,
-} from './useTransition';
+import React from 'react';
+import { useTransition } from './useTransition';
+import type { FluidValue, TransitionValueConfig } from '../types';
 
 export interface UseMountConfig {
   from: number;
   enter: number;
   exit: number;
-  enterConfig?: UseTransitionConfig; // animation config on enter
-  exitConfig?: UseTransitionConfig; // animation config on exit
-  config?: UseTransitionConfig;
+  enterConfig?: TransitionValueConfig; // animation config on enter
+  exitConfig?: TransitionValueConfig; // animation config on exit
+  config?: TransitionValueConfig;
 }
 
 /**

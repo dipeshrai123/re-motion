@@ -1,75 +1,27 @@
-import * as React from 'react';
+import React from 'react';
 
-import { ResultType } from '../animation/Types';
-
-/**
- * UseTransitionConfig for useTransition config
- */
-export interface UseTransitionConfig {
-  mass?: number;
-  tension?: number;
-  friction?: number;
-  duration?: number;
-  easing?: (t: number) => number;
-  immediate?: boolean;
-  delay?: number;
-  restDistance?: number; // minimum distance the animation should stop
-  onChange?: (value: number) => void;
-  onRest?: (value: ResultType) => void;
-  onStart?: (value: number) => void;
-}
-
-export type UpdateValue = {
-  toValue: number | string;
-  config?: UseTransitionConfig;
-};
+import type {
+  ResultType,
+  TransitionValueConfig,
+  FluidValue,
+  OnUpdateFn,
+  AssignValue,
+} from '../types';
 
 /**
- * Assign value object to set animation
- */
-export type AssignValue =
-  | UpdateValue
-  | ((next: (updateValue: UpdateValue) => Promise<any>) => void);
-
-export type SubscriptionValue = (
-  updatedValue: AssignValue,
-  callback?: (result: ResultType) => void
-) => void;
-
-/**
- * useTransition returns TransitionValue object
- */
-export type FluidValue = {
-  _subscribe: (
-    onUpdate: SubscriptionValue,
-    property: string,
-    uuid: number
-  ) => void; // defines the subscription for any animatable key
-  _value: number | string; // initial value
-  _currentValue: React.MutableRefObject<number | string>; // current updated value
-  get: () => number | string; // function to get the current value
-  _config?: UseTransitionConfig; // animation config
-};
-
-/**
- * useTransition return type
- */
-export type UseTransitionReturn = [FluidValue, SubscriptionValue];
-
-/**
- * useTransition() hook for time and spring based animations
- * @param initialValue numbers are animatable and strings are non-animatable
- * @param config
- * @returns [value, setValue]
+ * Transition hook
+ *
+ * @param initialValue - initial value
+ * @param config - the config object for `TransitionValue`
  */
 export function useTransition(
   initialValue: number | string,
-  config?: UseTransitionConfig
-): UseTransitionReturn {
+  config?: TransitionValueConfig
+): [FluidValue, OnUpdateFn] {
   // using map instead of array to reduce the duplication of subscriptions
   const _isInitial = React.useRef<boolean>(true);
   const subscriptions = React.useRef<
-    Map<{ uuid: number; property: string }, SubscriptionValue>
+    Map<{ uuid: number; property: string }, OnUpdateFn>
   >(new Map());
   const _currentValue = React.useRef<number | string>(initialValue);
 
@@ -77,7 +29,7 @@ export function useTransition(
   const value = React.useMemo(() => {
     return {
       _subscribe: function (
-        onUpdate: SubscriptionValue,
+        onUpdate: OnUpdateFn,
         property: string,
         uuid: number
       ) {
