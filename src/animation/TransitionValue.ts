@@ -5,7 +5,7 @@ import {
 } from '../react/useTransition';
 import { ResultType } from './Types';
 
-export class Value {
+export class TransitionValue {
   subscriptions: Map<{ uuid: number; property: string }, SubscriptionValue>;
 
   _subscribe: (
