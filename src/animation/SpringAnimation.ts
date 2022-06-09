@@ -1,13 +1,12 @@
 import { Animation } from './Animation';
-import { ResultType } from './Types';
 import {
   RequestAnimationFrame,
   CancelAnimationFrame,
 } from './RequestAnimationFrame';
-import { UseTransitionConfig } from '../react/useTransition';
+import type { TransitionValueConfig, ResultType } from '../types';
 
 /**
- * SpringAnimation class implements physics based spring animation
+ * Class implementing spring based animation
  */
 export class SpringAnimation extends Animation {
   _overshootClamping: boolean;
@@ -38,7 +37,7 @@ export class SpringAnimation extends Animation {
     config,
   }: {
     initialPosition: number;
-    config?: Omit<UseTransitionConfig, 'duration' | 'easing'>;
+    config?: Omit<TransitionValueConfig, 'duration' | 'easing'>;
   }) {
     super();
 
