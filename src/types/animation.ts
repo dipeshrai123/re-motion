@@ -1,7 +1,4 @@
-/**
- * Generic function type
- */
-export type Fn<T, U> = (value: T) => U;
+import type { Fn } from './common';
 
 /**
  * Base unit which is accepted by `TransitionValue`
