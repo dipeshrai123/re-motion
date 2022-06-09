@@ -6,16 +6,18 @@ export interface UseMountConfig {
   from: number;
   enter: number;
   exit: number;
-  enterConfig?: TransitionValueConfig; // animation config on enter
-  exitConfig?: TransitionValueConfig; // animation config on exit
+  enterConfig?: TransitionValueConfig;
+  exitConfig?: TransitionValueConfig;
   config?: TransitionValueConfig;
 }
 
 /**
- * useMount handles mounting and unmounting of a component
- * @param state - boolean
- * @param config - useTransitionConfig
- * @returns mount function with a callback with argument ( TransitionNode, mounted )
+ * Mount hook
+ * applies mounting and unmounting of a component according to state change
+ * applying transitions
+ *
+ * @param state - boolean indicating mount state of a component
+ * @param config - the config object `UseMountConfig`
  */
 export function useMount(state: boolean, config: UseMountConfig) {
   const initial = React.useRef(true);
