@@ -201,8 +201,10 @@ export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
           value: number,
           config?: TransitionValueConfig
         ) => {
-          const animationConfig: TransitionValueConfig | undefined =
-            config ?? _config;
+          const animationConfig: TransitionValueConfig | undefined = {
+            ..._config,
+            ...config,
+          };
 
           let type: AnimationTypes;
           /**
