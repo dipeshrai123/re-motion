@@ -1,14 +1,13 @@
 import { Animation } from './Animation';
-import { ResultType } from './Types';
 import {
   RequestAnimationFrame,
   CancelAnimationFrame,
 } from './RequestAnimationFrame';
-import { UseTransitionConfig } from '../react/useTransition';
 import { Easing } from '../easing/Easing';
+import type { TransitionValueConfig, ResultType } from '../types';
 
 /**
- * TimingAnimation class implements duration based spring animation
+ * Class implementing timing based animation
  */
 export class TimingAnimation extends Animation {
   _startTime: number;
@@ -33,7 +32,7 @@ export class TimingAnimation extends Animation {
     config,
   }: {
     initialPosition: number;
-    config?: Omit<UseTransitionConfig, 'mass' | 'friction' | 'tension'>;
+    config?: Omit<TransitionValueConfig, 'mass' | 'friction' | 'tension'>;
   }) {
     super();
 
