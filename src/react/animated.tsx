@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 import { SpringAnimation } from '../animation/SpringAnimation';
 import { TimingAnimation } from '../animation/TimingAnimation';
@@ -19,6 +19,7 @@ import {
   AnimationObject,
   getNonAnimatableStyle,
   getCssValue,
+  camelToDash,
 } from './functions';
 
 /**
@@ -162,7 +163,7 @@ export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
               }
             } else if (propertyType === 'props') {
               // set animation to property
-              ref.current.setAttribute(property, value);
+              ref.current.setAttribute(camelToDash(property), value);
             }
           }
         };
