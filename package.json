@@ -1,51 +1,49 @@
 {
-  "name": "@raidipesh78/re-motion",
-  "version": "2.0.2",
-  "description": "Powerful React animation library",
-  "main": "dist/index.js",
-  "peerDependencies": {
-    "react": "^16.8.0  || >=17.0.0 || >=18.0.0"
-  },
-  "devDependencies": {
-    "@testing-library/jest-dom": "^5.16.2",
-    "@testing-library/react": "^12.1.4",
-    "@types/jest": "^27.4.1",
-    "@types/node": "^16.11.36",
-    "@types/react": "^18.0.9",
-    "@types/react-dom": "^18.0.4",
-    "@types/resize-observer-browser": "^0.1.6",
-    "babel-core": "^6.26.3",
-    "babel-runtime": "^6.26.0",
-    "jest": "^27.5.1",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
-    "rollup": "^2.59.0",
-    "rollup-plugin-typescript2": "^0.29.0",
-    "ts-jest": "^27.1.3",
-    "tslib": "^2.3.1",
-    "typescript": "^4.1.3"
+  "name": "re-motion-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.11.56",
+    "@types/react": "^18.0.18",
+    "@types/react-dom": "^18.0.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "typescript": "^4.8.2",
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "build": "rollup -c",
-    "start": "rollup -c -w",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "publish:alpha": "npm publish --tag alpha",
-    "publish:latest": "npm publish"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dipeshrai123/re-motion.git"
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
-  "keywords": [
-    "re-motion",
-    "animation",
-    "transition"
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "workspaces": [
+    "packages/*"
   ],
-  "author": "Dipesh Rai",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/dipeshrai123/re-motion/issues"
-  },
-  "homepage": "https://github.com/dipeshrai123/re-motion#readme"
+  "devDependencies": {
+    "lerna": "^5.5.0"
+  }
 }

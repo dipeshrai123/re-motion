@@ -1,162 +1,46 @@
-# Re-Motion
+# Getting Started with Create React App
 
-> Powerful React animation library
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-### Installation
+## Available Scripts
 
-Install with npm:
+In the project directory, you can run:
 
-```bash
-npm i @raidipesh78/re-motion
-```
+### `npm start`
 
-Install with yarn:
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-```bash
-yarn add @raidipesh78/re-motion
-```
+The page will reload if you make edits.\
+You will also see any lint errors in the console.
 
-### Features
+### `npm test`
 
-#### 1. Animated Transition with **useTransition** hook
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-**Example**
+### `npm run build`
 
-```jsx
-import { useTransition, animated } from "@raidipesh78/re-motion";
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-export default function App() {
-	const [x, setX] = useTransition(0);
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-	const animate = () => {
-		setX({ toValue: 100 }); // set to new value to animate
-	}
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-	return (...);
-}
-```
+### `npm run eject`
 
-#### 2. Mounting and Unmounting with **useMount** hook
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
-**Example**
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-```jsx
-import { useMount, animated } from '@raidipesh78/re-motion';
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-export default function App() {
-  const [visible, setVisible] = useState(false);
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-  const open = useMount(visible, {
-    from: 0,
-    enter: 1,
-    exit: 0,
-  });
+## Learn More
 
-  return open((animation, mounted) => mounted && <animated.div />);
-}
-```
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-#### 3. Dynamic Animations
-
-Different animation configuration can be set while setting the Transition Value to new value
-
-**Example** - Dynamic animation with **useTransition** hook
-
-```jsx
-import { useTransition, animated } from "@raidipesh78/re-motion";
-
-export default function App() {
-	const [x, setX] = useTransition(0);
-
-	const animateRight = () => {
-		setX({
-			toValue: 200,
-			// here is timing configuration
-			config: {
-				duration: 2000,
-			},
-		});
-	};
-
-	const animateLeft = () => {
-		setX({
-			toValue: 0,
-			// here is spring configuration
-			config: {
-				mass: 1,
-				friction: 10,
-				tension: 260,
-			},
-		});
-	};
-
-	return (...);
-}
-```
-
-**Example** - Dynamic animation with **useMount** hook
-
-```jsx
-import { useMount, animated } from "@raidipesh78/re-motion";
-
-export default function App() {
-	const [open, setOpen] = useState(false);
-
-	const mount = useMount(open, {
-		from: 0,
-		enter: 1,
-		exit: 0,
-		// exit config
-		exitConfig: {
-			mass: 1,
-			friction: 5,
-			tension: 300,
-		},
-		// enter config
-		enterConfig: {
-			duration: 100,
-		},
-	});
-
-	const animate = () => {
-		setOpen((prev) => !prev);
-	};
-
-	return (...);
-}
-```
-
-#### 4. Multi-stage Transition Support
-
-**useTransition** hook's update method to accept async function to handle multi-stage transition
-
-```jsx
-const [x, setX] = useTransition(0);
-
-// ...
-
-setX(async (next) => {
-  await next({ toValue: 100 });
-  await delay(1000);
-  await next({ toValue: 500 });
-});
-```
-
-#### 5. Interpolations
-
-**interpolateNumbers** and **interpolateTransitionValue** functions to handle mathematical and transition value interpolations
-
-```jsx
-const [x, setX] = useTransition(0);
-
-// interpolating _x_ value into _backgroundColor_
-const backgroundColor = interpolateTransitionValue(
-  x,
-  [0, 500],
-  ['red', 'black']
-);
-```
-
-## License
-
-MIT
+To learn React, check out the [React documentation](https://reactjs.org/).

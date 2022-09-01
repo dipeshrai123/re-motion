@@ -1,0 +1,51 @@
+{
+  "name": "@raidipesh78/re-motion",
+  "version": "2.0.2",
+  "description": "Powerful React animation library",
+  "main": "dist/index.js",
+  "peerDependencies": {
+    "react": "^16.8.0  || >=17.0.0 || >=18.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.2",
+    "@testing-library/react": "^12.1.4",
+    "@types/jest": "^27.4.1",
+    "@types/node": "^16.11.36",
+    "@types/react": "^18.0.9",
+    "@types/react-dom": "^18.0.4",
+    "@types/resize-observer-browser": "^0.1.6",
+    "babel-core": "^6.26.3",
+    "babel-runtime": "^6.26.0",
+    "jest": "^27.5.1",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "rollup": "^2.59.0",
+    "rollup-plugin-typescript2": "^0.29.0",
+    "ts-jest": "^27.1.3",
+    "tslib": "^2.3.1",
+    "typescript": "^4.1.3"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "start": "rollup -c -w",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "publish:alpha": "npm publish --tag alpha",
+    "publish:latest": "npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dipeshrai123/re-motion.git"
+  },
+  "keywords": [
+    "re-motion",
+    "animation",
+    "transition"
+  ],
+  "author": "Dipesh Rai",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dipeshrai123/re-motion/issues"
+  },
+  "homepage": "https://github.com/dipeshrai123/re-motion#readme"
+}
