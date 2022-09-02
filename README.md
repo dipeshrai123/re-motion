@@ -11,7 +11,7 @@ First, clone the project into your local machine. Make sure the version you are 
 - `Node version: v16.16.0`
 - `NPM version: 8.19.1`
 
-We are using`lerna` for monorepo package development. If you don't have `lerna`, then install globally using:
+We are using `lerna` for monorepo package development. If you don't have `lerna`, then install globally using:
 
 ```bash
 npm install lerna@latest -g
