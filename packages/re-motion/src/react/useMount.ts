@@ -1,11 +1,11 @@
 import React from 'react';
 import { useTransition } from './useTransition';
-import type { FluidValue, TransitionValueConfig } from '../types';
+import type { FluidValue, TransitionValueConfig, AssignValue } from '../types';
 
 export interface UseMountConfig {
   from: number;
-  enter: number;
-  exit: number;
+  enter: number | AssignValue;
+  exit: number | AssignValue;
   enterConfig?: TransitionValueConfig;
   exitConfig?: TransitionValueConfig;
   config?: TransitionValueConfig;
@@ -39,10 +39,12 @@ export function useMount(state: boolean, config: UseMountConfig) {
     } else {
       initial.current = false;
       setAnimation(
-        {
-          toValue: exit,
-          config: exitConfig,
-        },
+        typeof exit === 'number'
+          ? {
+              toValue: exit,
+              config: exitConfig,
+            }
+          : exit,
         function ({ finished }) {
           if (finished) {
             setMounted(false);
@@ -54,10 +56,14 @@ export function useMount(state: boolean, config: UseMountConfig) {
 
   React.useEffect(() => {
     if (mounted && initial.current) {
-      setAnimation({
-        toValue: enter,
-        config: enterConfig,
-      });
+      setAnimation(
+        typeof enter === 'number'
+          ? {
+              toValue: enter,
+              config: enterConfig,
+            }
+          : enter
+      );
     }
   }, [mounted, initial.current]);
 

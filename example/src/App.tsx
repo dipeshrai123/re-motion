@@ -1,18 +1,5 @@
-import { useTransition, animated } from '@raidipesh78/re-motion';
+import Example from './components/useMount/basic';
 
-const App = () => {
-  const [translateX, setTranslateX] = useTransition(0);
-  return (
-    <animated.div
-      style={{
-        width: 100,
-        height: 100,
-        backgroundColor: '#3399ff',
-        translateX,
-      }}
-      onClick={() => setTranslateX({ toValue: 100 })}
-    />
-  );
-};
+const App = () => <Example />;
 
 export default App;
