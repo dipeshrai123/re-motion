@@ -32,6 +32,7 @@
     "@nrwl/nx-cloud": "latest"
   },
   "scripts": {
+    "postinstall": "cd example && yarn",
     "start:dev": "lerna run start --scope=example",
     "start": "lerna run start --scope=@raidipesh78/re-motion",
     "build": "lerna run build --scope=@raidipesh78/re-motion",
