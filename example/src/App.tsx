@@ -10,7 +10,7 @@ const App = () => {
         backgroundColor: '#3399ff',
         translateX,
       }}
-      onClick={() => setTranslateX({ toValue: 200 })}
+      onClick={() => setTranslateX({ toValue: 100 })}
     />
   );
 };
