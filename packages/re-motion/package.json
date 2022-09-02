@@ -24,9 +24,7 @@
     "build": "rollup -c",
     "start": "rollup -c -w",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "publish:alpha": "npm publish --tag alpha",
-    "publish:latest": "npm publish"
+    "test:watch": "jest --watch"
   },
   "repository": {
     "type": "git",
