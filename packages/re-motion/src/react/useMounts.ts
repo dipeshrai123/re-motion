@@ -1,23 +1,41 @@
 import { useRef, useState, useEffect } from 'react';
 
 import { useTransitions } from './useTransitions';
+import type { AssignValue, Length, TransitionValueConfig } from '../types';
+
+export interface UseMountsConfig<T> {
+  from: T;
+  enter: Partial<{ [key in keyof T]: AssignValue }>;
+  exit: Partial<{ [key in keyof T]: AssignValue }>;
+  enterConfig?: TransitionValueConfig;
+  exitConfig?: TransitionValueConfig;
+  config?: TransitionValueConfig;
+}
 
 /**
- * useMounts
+ * `useMounts`
+ *
  * applies mounting and unmounting of a component according to state change
  * applying transitions for multiple keys
  *
  * @param state - boolean indicating mount state of a component
- * @param config - the config object `UseMountConfig`
+ * @param config - the config object `UseMountsConfig`
  */
-export function useMounts(
+export const useMounts = <T extends { [key: string]: Length }>(
   state: boolean,
-  config: { from: any; enter: any; exit: any }
-) {
+  config: UseMountsConfig<T>
+) => {
   const initial = useRef(true);
   const [mounted, setMounted] = useState(false);
-  const { from, enter, exit } = useRef(config).current;
-  const [animation, setAnimation] = useTransitions(from);
+  const {
+    from,
+    enter,
+    exit,
+    config: innerConfig,
+    enterConfig,
+    exitConfig,
+  } = useRef(config).current;
+  const [animation, setAnimation] = useTransitions(from, innerConfig);
 
   useEffect(() => {
     if (state) {
@@ -25,7 +43,7 @@ export function useMounts(
       setMounted(true);
     } else {
       initial.current = false;
-      setAnimation(exit, undefined, function ({ finished }) {
+      setAnimation(exit, exitConfig, function ({ finished }) {
         if (finished) {
           setMounted(false);
         }
@@ -35,10 +53,10 @@ export function useMounts(
 
   useEffect(() => {
     if (mounted && initial.current) {
-      setAnimation(enter);
+      setAnimation(enter, enterConfig);
     }
   }, [mounted, initial.current]);
 
   return (callback: (animation: any, mounted: boolean) => React.ReactNode) =>
     callback(animation, mounted);
-}
+};

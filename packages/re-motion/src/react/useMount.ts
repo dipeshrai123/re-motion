@@ -13,14 +13,15 @@ export interface UseMountConfig {
 }
 
 /**
- * Mount hook
+ * `useMount`
+ *
  * applies mounting and unmounting of a component according to state change
  * applying transitions
  *
  * @param state - boolean indicating mount state of a component
  * @param config - the config object `UseMountConfig`
  */
-export function useMount(state: boolean, config: UseMountConfig) {
+export const useMount = (state: boolean, config: UseMountConfig) => {
   const initial = useRef(true);
   const [mounted, setMounted] = useState(false);
   const {
@@ -56,4 +57,4 @@ export function useMount(state: boolean, config: UseMountConfig) {
   return (
     callback: (animation: FluidValue, mounted: boolean) => React.ReactNode
   ) => callback(animation, mounted);
-}
+};

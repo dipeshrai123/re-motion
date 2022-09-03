@@ -4,9 +4,18 @@ import { useMounts, animated } from '@raidipesh78/re-motion';
 const App = () => {
   const [open, setOpen] = useState(true);
   const mv = useMounts(open, {
-    from: { opacity: 0, width: 100 },
-    enter: { opacity: 1, width: 200 },
-    exit: { opacity: 0, width: 100 },
+    from: { width: 100 },
+    enter: {
+      width: async (next) => {
+        await next(200, {
+          duration: 100,
+        });
+        await next(400, {
+          friction: 5,
+        });
+      },
+    },
+    exit: { width: 300 },
   });
 
   return (
@@ -20,7 +29,6 @@ const App = () => {
                 width: animation.width,
                 height: 100,
                 backgroundColor: '#3399ff',
-                opacity: animation.opacity,
               }}
             />
           )
