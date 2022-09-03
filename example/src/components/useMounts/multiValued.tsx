@@ -5,8 +5,17 @@ const App = () => {
   const [open, setOpen] = useState(true);
   const mv = useMounts(open, {
     from: { width: 100 },
-    enter: { width: 200 },
-    exit: { width: 100 },
+    enter: {
+      width: async (next) => {
+        await next(200, {
+          duration: 100,
+        });
+        await next(400, {
+          friction: 5,
+        });
+      },
+    },
+    exit: { width: 300 },
   });
 
   return (
