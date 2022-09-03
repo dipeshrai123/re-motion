@@ -7,8 +7,8 @@ import { tags } from './Tags';
 import {
   ResultType,
   TransitionValueConfig,
-  UpdateValue,
   FluidValue,
+  Length,
 } from '../types';
 import { styleTrasformKeys, getTransform } from './TransformStyles';
 import { combineRefs } from './combineRefs';
@@ -235,16 +235,15 @@ export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
         };
 
         const onUpdate = (
-          value: UpdateValue,
+          value: Length,
+          config?: TransitionValueConfig,
           callback?: (value: ResultType) => void
         ) => {
-          const { toValue, config } = value;
-
           if (animatable) {
             const previousAnimation = animation;
 
             // animatable
-            if (previousAnimation._toValue !== toValue) {
+            if (previousAnimation._toValue !== value) {
               /**
                * stopping animation here would affect in whole
                * animation pattern, requestAnimationFrame instance
@@ -262,7 +261,7 @@ export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
 
               // start animations here by start api
               animation.start({
-                toValue,
+                toValue: value,
                 onFrame,
                 previousAnimation,
                 onEnd: callback,
@@ -270,9 +269,9 @@ export function makeAnimatedComponent<C extends WrappedComponentOrTag>(
             }
           } else {
             // non-animatable
-            if (typeof toValue === typeof _value) {
+            if (typeof value === typeof _value) {
               if (ref.current) {
-                ref.current.style[property] = getCssValue(property, toValue);
+                ref.current.style[property] = getCssValue(property, value);
               }
             } else {
               throw new Error('Cannot set different types of animation values');

@@ -1,20 +1,19 @@
 import { animated, useTransition } from '@raidipesh78/re-motion';
 
 const App = () => {
-  const [translateX, setTranslateX] = useTransition(0);
+  const [translateX, setTranslateX] = useTransition(0, {
+    tension: 250,
+    friction: 18,
+  });
 
   return (
     <>
-      <button onClick={() => setTranslateX({ toValue: 200 })}>
-        ANIMATE LEFT
-      </button>
+      <button onClick={() => setTranslateX(0)}>ANIMATE LEFT</button>
       <button
         onClick={() =>
-          setTranslateX({
-            toValue: 10,
-            config: {
-              onRest: () => console.log('FINISHED'),
-            },
+          setTranslateX(async (next) => {
+            await next(100, { duration: 4000 });
+            await next(200);
           })
         }
       >

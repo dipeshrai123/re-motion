@@ -34,10 +34,7 @@ export const useTransitions = <T extends { [key: string]: Length }>(
       Object.keys(updateValues).forEach((transitionKey) => {
         const updateValue = updateValues[transitionKey];
         if (updateValue !== null && updateValue !== undefined) {
-          transitions[transitionKey]?.setValue({
-            toValue: updateValue,
-            config,
-          });
+          transitions[transitionKey]?.setValue(updateValue, config);
         }
       });
     },

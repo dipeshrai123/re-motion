@@ -5,10 +5,7 @@ const App = () => {
   const [open, setOpen] = useState(false);
   const mv = useMount(open, {
     from: 0,
-    enter: async (next) => {
-      await next({ toValue: 100 });
-      await next({ toValue: 500 });
-    },
+    enter: 100,
     exit: 0,
   });
 

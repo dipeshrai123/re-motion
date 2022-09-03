@@ -40,16 +40,16 @@ export function useMount(state: boolean, config: UseMountConfig) {
       initial.current = false;
       setAnimation(
         typeof exit === 'number'
-          ? {
+          ? ({
               toValue: exit,
               config: exitConfig,
-            }
+            } as any)
           : exit,
-        function ({ finished }) {
+        function ({ finished }: any) {
           if (finished) {
             setMounted(false);
           }
-        }
+        } as any
       );
     }
   }, [state]);
@@ -58,10 +58,10 @@ export function useMount(state: boolean, config: UseMountConfig) {
     if (mounted && initial.current) {
       setAnimation(
         typeof enter === 'number'
-          ? {
+          ? ({
               toValue: enter,
               config: enterConfig,
-            }
+            } as any)
           : enter
       );
     }
