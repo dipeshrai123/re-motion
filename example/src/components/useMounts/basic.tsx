@@ -4,9 +4,9 @@ import { useMounts, animated } from '@raidipesh78/re-motion';
 const App = () => {
   const [open, setOpen] = useState(true);
   const mv = useMounts(open, {
-    from: { opacity: 0 },
-    enter: { opacity: 1 },
-    exit: { opacity: 0 },
+    from: { opacity: 0, width: 100 },
+    enter: { opacity: 1, width: 200 },
+    exit: { opacity: 0, width: 100 },
   });
 
   return (
@@ -17,7 +17,7 @@ const App = () => {
           mounted && (
             <animated.div
               style={{
-                width: 100,
+                width: animation.width,
                 height: 100,
                 backgroundColor: '#3399ff',
                 opacity: animation.opacity,

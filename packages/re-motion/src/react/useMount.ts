@@ -1,4 +1,5 @@
-import React from 'react';
+import { useState, useRef, useEffect } from 'react';
+
 import { useTransition } from './useTransition';
 import type { FluidValue, TransitionValueConfig, AssignValue } from '../types';
 
@@ -20,8 +21,8 @@ export interface UseMountConfig {
  * @param config - the config object `UseMountConfig`
  */
 export function useMount(state: boolean, config: UseMountConfig) {
-  const initial = React.useRef(true);
-  const [mounted, setMounted] = React.useState(false);
+  const initial = useRef(true);
+  const [mounted, setMounted] = useState(false);
   const {
     from,
     enter,
@@ -29,24 +30,24 @@ export function useMount(state: boolean, config: UseMountConfig) {
     config: innerConfig,
     enterConfig,
     exitConfig,
-  } = React.useRef(config).current;
+  } = useRef(config).current;
   const [animation, setAnimation] = useTransition(from, innerConfig);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (state) {
       initial.current = true;
       setMounted(true);
     } else {
       initial.current = false;
-      setAnimation(exit, exitConfig, function ({ finished }: any) {
+      setAnimation(exit, exitConfig, function ({ finished }) {
         if (finished) {
           setMounted(false);
         }
-      } as any);
+      });
     }
   }, [state]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (mounted && initial.current) {
       setAnimation(enter, enterConfig);
     }

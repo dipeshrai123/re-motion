@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { TransitionValue } from '../animation/TransitionValue';
-import type { TransitionValueConfig, Length, AssignValue } from '../types';
+import type {
+  TransitionValueConfig,
+  Length,
+  AssignValue,
+  OnUpdateCallback,
+} from '../types';
 
 /**
  * useTransitions hook for multiple values transition
@@ -16,7 +21,8 @@ export const useTransitions = <T extends { [key: string]: Length }>(
   { [key in keyof T]?: TransitionValue },
   (
     updateValues: Partial<{ [key in keyof T]?: AssignValue }>,
-    config?: TransitionValueConfig
+    config?: TransitionValueConfig,
+    callback?: OnUpdateCallback
   ) => void
 ] => {
   const isInitialRender = useRef<boolean>(true);
@@ -35,12 +41,13 @@ export const useTransitions = <T extends { [key: string]: Length }>(
   const setTransitions = useCallback(
     (
       updateValues: Partial<{ [key in keyof T]?: AssignValue }>,
-      config?: TransitionValueConfig
+      config?: TransitionValueConfig,
+      callback?: OnUpdateCallback
     ) => {
       Object.keys(updateValues).forEach((transitionKey) => {
         const updateValue = updateValues[transitionKey];
         if (updateValue !== null && updateValue !== undefined) {
-          transitions[transitionKey]?.setValue(updateValue, config);
+          transitions[transitionKey]?.setValue(updateValue, config, callback);
         }
       });
     },

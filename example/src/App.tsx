@@ -5,9 +5,6 @@ import UseTransitions from './components/useTransitions/basic';
 
 const App = () => (
   <>
-    <h2>useMount</h2>
-    <UseMounts />
-
     <h2>useTransition</h2>
     <UseTransition />
 
@@ -16,6 +13,11 @@ const App = () => (
 
     <h2>useTransitions</h2>
     <UseTransitions />
+
+    <h2>useMounts</h2>
+    <UseMounts />
+
+    <div style={{ height: 10, backgroundColor: 'red' }} />
   </>
 );
 
