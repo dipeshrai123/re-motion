@@ -21,7 +21,7 @@ export interface UseMountConfig {
  */
 export function useMount(state: boolean, config: UseMountConfig) {
   const initial = React.useRef(true);
-  const [mounted, setMounted] = React.useState(state);
+  const [mounted, setMounted] = React.useState(false);
   const {
     from,
     enter,
@@ -52,9 +52,7 @@ export function useMount(state: boolean, config: UseMountConfig) {
     }
   }, [mounted, initial.current]);
 
-  return function (
+  return (
     callback: (animation: FluidValue, mounted: boolean) => React.ReactNode
-  ) {
-    return callback(animation, mounted);
-  };
+  ) => callback(animation, mounted);
 }

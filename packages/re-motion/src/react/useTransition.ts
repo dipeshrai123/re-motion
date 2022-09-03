@@ -25,7 +25,7 @@ export const useTransition = (
     callback?: OnUpdateCallback
   ) => void
 ] => {
-  const isInitial = useRef<boolean>(true);
+  const isInitialRender = useRef<boolean>(true);
   const transition = useMemo(() => new TransitionValue(value, config), []);
 
   const setTransition = useCallback(
@@ -40,8 +40,8 @@ export const useTransition = (
   );
 
   useEffect(() => {
-    if (isInitial.current) {
-      isInitial.current = false;
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
     } else {
       setTransition(value, config);
     }

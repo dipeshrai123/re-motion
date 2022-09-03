@@ -12,7 +12,7 @@ const App = () => {
       <button
         onClick={() =>
           setTranslateX(async (next) => {
-            await next(100, { duration: 4000 });
+            await next(100);
             await next(200);
           })
         }

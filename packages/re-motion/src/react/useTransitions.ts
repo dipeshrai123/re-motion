@@ -44,7 +44,7 @@ export const useTransitions = <T extends { [key: string]: Length }>(
         }
       });
     },
-    [transitions]
+    []
   );
 
   useEffect(() => {
