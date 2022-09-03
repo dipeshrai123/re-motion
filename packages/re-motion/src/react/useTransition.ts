@@ -1,33 +1,51 @@
-import React from 'react';
+import { useEffect, useRef, useMemo, useCallback } from 'react';
+
 import { TransitionValue } from '../animation/TransitionValue';
-import type { TransitionValueConfig, OnUpdateFn, Length } from '../types';
+import type {
+  TransitionValueConfig,
+  Length,
+  AssignValue,
+  OnUpdateCallback,
+} from '../types';
 
 /**
- * Transition hook
+ * useTransition
  *
- * @param initialValue - initial value
+ * @param value - initial value
  * @param config - the config object for `TransitionValue`
  */
-export function useTransition(
-  initialValue: Length,
+export const useTransition = (
+  value: Length,
   config?: TransitionValueConfig
-): [TransitionValue, OnUpdateFn] {
-  const isInitial = React.useRef<boolean>(true);
-  const transition = React.useRef(
-    new TransitionValue(initialValue, config)
-  ).current;
+): [
+  TransitionValue,
+  (
+    updateValue: AssignValue,
+    config?: TransitionValueConfig,
+    callback?: OnUpdateCallback
+  ) => void
+] => {
+  const isInitialRender = useRef<boolean>(true);
+  const transition = useMemo(() => new TransitionValue(value, config), []);
 
-  /**
-   * trigger animation on argument change
-   * doesn't fire the setValue method on initial render
-   */
-  React.useEffect(() => {
-    if (!isInitial.current) {
-      transition.setValue({ toValue: initialValue, config });
+  const setTransition = useCallback(
+    (
+      updateValue: AssignValue,
+      config?: TransitionValueConfig,
+      callback?: OnUpdateCallback
+    ) => {
+      transition.setValue(updateValue, config, callback);
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+    } else {
+      setTransition(value, config);
     }
+  }, [value]);
 
-    isInitial.current = false;
-  }, [initialValue]);
-
-  return [transition, transition.setValue.bind(transition)];
-}
+  return [transition, setTransition];
+};

@@ -40,16 +40,20 @@ export class TransitionValue {
    * Animates from initial value to updated value, determines the transition type `multistage`
    * or `singlestage` according to updatedValue
    */
-  setValue(updatedValue: AssignValue, callback?: Fn<ResultType, void>) {
+  setValue(
+    updatedValue: AssignValue,
+    config?: TransitionValueConfig,
+    callback?: Fn<ResultType, void>
+  ) {
     /** Multistage transition */
     if (typeof updatedValue === 'function') {
-      updatedValue((nextValue) => {
+      updatedValue((nextValue, nextConfig) => {
         const multiStagePromise = new Promise((resolve) => {
           for (const subscriptionKey of this._subscriptions.keys()) {
             const updater = this._subscriptions.get(subscriptionKey);
 
             if (updater) {
-              updater(nextValue, function (result) {
+              updater(nextValue, nextConfig ?? config, function (result) {
                 if (result.finished) {
                   resolve(nextValue);
                 }
@@ -72,7 +76,7 @@ export class TransitionValue {
     for (const subscriptionKey of this._subscriptions.keys()) {
       const updater = this._subscriptions.get(subscriptionKey);
 
-      updater && updater(updatedValue, callback);
+      updater && updater(updatedValue, config, callback);
     }
   }
 }

@@ -1,12 +1,21 @@
 import { useState } from 'react';
-import { useMount, animated } from '@raidipesh78/re-motion';
+import { useMounts, animated } from '@raidipesh78/re-motion';
 
 const App = () => {
   const [open, setOpen] = useState(true);
-  const mv = useMount(open, {
-    from: 0,
-    enter: 100,
-    exit: 0,
+  const mv = useMounts(open, {
+    from: { width: 100 },
+    enter: {
+      width: async (next) => {
+        await next(200, {
+          duration: 100,
+        });
+        await next(400, {
+          friction: 5,
+        });
+      },
+    },
+    exit: { width: 300 },
   });
 
   return (
@@ -17,10 +26,9 @@ const App = () => {
           mounted && (
             <animated.div
               style={{
-                width: 100,
+                width: animation.width,
                 height: 100,
                 backgroundColor: '#3399ff',
-                translateX: animation,
               }}
             />
           )

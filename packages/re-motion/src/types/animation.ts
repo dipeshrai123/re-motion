@@ -48,20 +48,20 @@ export type FluidValue = {
   get: () => Length;
 };
 
-export type UpdateValue = {
-  toValue: Length;
-  config?: TransitionValueConfig;
-};
-
 /**
  * Object which can be assigned to animate
  */
-export type AssignValue = UpdateValue | Fn<Fn<UpdateValue, Promise<any>>, void>;
+export type AssignValue =
+  | Length
+  | Fn<(next: Length, config?: TransitionValueConfig) => Promise<any>, void>;
+
+export type OnUpdateCallback = Fn<ResultType, void>;
 
 /**
  * Function to start the animation (it starts the already subscribed animation)
  */
 export type OnUpdateFn = (
   updatedValue: AssignValue,
-  callback?: Fn<ResultType, void>
+  config?: TransitionValueConfig,
+  callback?: OnUpdateCallback
 ) => void;
