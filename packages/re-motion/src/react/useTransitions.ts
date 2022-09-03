@@ -1,7 +1,7 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from 'react';
 
-import { TransitionValue } from "../animation/TransitionValue";
-import { Length } from "../types";
+import { TransitionValue } from '../animation/TransitionValue';
+import { Length } from '../types';
 
 export const useTransitions = <T extends { [key: string]: Length }>(
   values: T
