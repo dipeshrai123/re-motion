@@ -11,7 +11,17 @@ const App = () => {
       <button onClick={() => setAnimation({ width: 100, translateX: 0 })}>
         ANIMATE LEFT
       </button>
-      <button onClick={() => setAnimation({ width: 300, translateX: 200 })}>
+      <button
+        onClick={() =>
+          setAnimation({
+            width: async (next) => {
+              await next(200);
+              await next(600);
+            },
+            translateX: 500,
+          })
+        }
+      >
         ANIMATE RIGHT
       </button>
 
