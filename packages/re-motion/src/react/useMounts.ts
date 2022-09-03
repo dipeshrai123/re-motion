@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 
 import { useTransitions } from './useTransitions';
+import { TransitionValue } from '../animation/TransitionValue';
 import type { AssignValue, Length, TransitionValueConfig } from '../types';
 
 export interface UseMountsConfig<T> {
@@ -57,6 +58,10 @@ export const useMounts = <T extends { [key: string]: Length }>(
     }
   }, [mounted, initial.current]);
 
-  return (callback: (animation: any, mounted: boolean) => React.ReactNode) =>
-    callback(animation, mounted);
+  return (
+    callback: (
+      animation: { [key in keyof T]?: TransitionValue },
+      mounted: boolean
+    ) => React.ReactNode
+  ) => callback(animation, mounted);
 };
