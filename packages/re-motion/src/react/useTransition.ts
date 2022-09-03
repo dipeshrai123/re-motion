@@ -1,21 +1,20 @@
 import React from 'react';
+
 import { TransitionValue } from '../animation/TransitionValue';
 import type { TransitionValueConfig, OnUpdateFn, Length } from '../types';
 
 /**
- * Transition hook
+ * useTransition
  *
- * @param initialValue - initial value
+ * @param value - initial value
  * @param config - the config object for `TransitionValue`
  */
-export function useTransition(
-  initialValue: Length,
+export const useTransition = (
+  value: Length,
   config?: TransitionValueConfig
-): [TransitionValue, OnUpdateFn] {
+): [TransitionValue, OnUpdateFn] => {
   const isInitial = React.useRef<boolean>(true);
-  const transition = React.useRef(
-    new TransitionValue(initialValue, config)
-  ).current;
+  const transition = React.useRef(new TransitionValue(value, config)).current;
 
   /**
    * trigger animation on argument change
@@ -23,11 +22,11 @@ export function useTransition(
    */
   React.useEffect(() => {
     if (!isInitial.current) {
-      transition.setValue({ toValue: initialValue, config });
+      transition.setValue({ toValue: value, config });
     }
 
     isInitial.current = false;
-  }, [initialValue]);
+  }, [value]);
 
   return [transition, transition.setValue.bind(transition)];
-}
+};
