@@ -3,6 +3,6 @@
  * @param value - any
  * @returns - boolean
  */
-export const isDefined = (value: any) => {
+export const isDefined = <T>(value: T) => {
   return value !== null && value !== undefined;
 };

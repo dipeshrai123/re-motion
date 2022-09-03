@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useRef } from 'react';
 
 import { TransitionValue } from '../animation/TransitionValue';
 import type { TransitionValueConfig, OnUpdateFn, Length } from '../types';
@@ -13,19 +13,15 @@ export const useTransition = (
   value: Length,
   config?: TransitionValueConfig
 ): [TransitionValue, OnUpdateFn] => {
-  const isInitial = React.useRef<boolean>(true);
-  const transition = React.useRef(new TransitionValue(value, config)).current;
+  const isInitial = useRef<boolean>(true);
+  const transition = useRef(new TransitionValue(value, config)).current;
 
-  /**
-   * trigger animation on argument change
-   * doesn't fire the setValue method on initial render
-   */
-  React.useEffect(() => {
-    if (!isInitial.current) {
+  useEffect(() => {
+    if (isInitial.current) {
+      isInitial.current = false;
+    } else {
       transition.setValue({ toValue: value, config });
     }
-
-    isInitial.current = false;
   }, [value]);
 
   return [transition, transition.setValue.bind(transition)];
