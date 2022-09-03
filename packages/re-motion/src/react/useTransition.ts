@@ -1,7 +1,12 @@
 import { useEffect, useRef, useMemo, useCallback } from 'react';
 
 import { TransitionValue } from '../animation/TransitionValue';
-import type { TransitionValueConfig, Length, AssignValue } from '../types';
+import type {
+  TransitionValueConfig,
+  Length,
+  AssignValue,
+  OnUpdateCallback,
+} from '../types';
 
 /**
  * useTransition
@@ -14,14 +19,22 @@ export const useTransition = (
   config?: TransitionValueConfig
 ): [
   TransitionValue,
-  (updateValue: AssignValue, config?: TransitionValueConfig) => void
+  (
+    updateValue: AssignValue,
+    config?: TransitionValueConfig,
+    callback?: OnUpdateCallback
+  ) => void
 ] => {
   const isInitial = useRef<boolean>(true);
   const transition = useMemo(() => new TransitionValue(value, config), []);
 
   const setTransition = useCallback(
-    (updateValue: AssignValue, config?: TransitionValueConfig) => {
-      transition.setValue(updateValue, config);
+    (
+      updateValue: AssignValue,
+      config?: TransitionValueConfig,
+      callback?: OnUpdateCallback
+    ) => {
+      transition.setValue(updateValue, config, callback);
     },
     []
   );

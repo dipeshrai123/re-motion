@@ -1,26 +1,18 @@
-import { useState } from 'react';
 import { animated, useTransitions } from '@raidipesh78/re-motion';
 
 const App = () => {
-  const [open, setOpen] = useState(true);
-  const [animation, setAnimation] = useTransitions(
-    {
-      width: open ? 300 : 100,
-      translateX: open ? 100 : 0,
-    },
-    {
-      tension: 300,
-      friction: 20,
-    }
-  );
+  const [animation, setAnimation] = useTransitions({
+    width: 100,
+    translateX: 0,
+  });
 
   return (
     <>
-      <button onClick={() => setOpen((curr) => !curr)}>TOGGLE</button>
-      <button
-        onClick={() => setAnimation({ translateX: 500 }, { duration: 200 })}
-      >
-        ANIMATE
+      <button onClick={() => setAnimation({ width: 100, translateX: 0 })}>
+        ANIMATE LEFT
+      </button>
+      <button onClick={() => setAnimation({ width: 300, translateX: 200 })}>
+        ANIMATE RIGHT
       </button>
 
       <animated.div
@@ -30,8 +22,6 @@ const App = () => {
           ...animation,
         }}
       />
-
-      <div style={{ height: 1000 }} />
     </>
   );
 };

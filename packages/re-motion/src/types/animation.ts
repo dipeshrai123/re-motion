@@ -55,11 +55,13 @@ export type AssignValue =
   | Length
   | Fn<(next: Length, config?: TransitionValueConfig) => Promise<any>, void>;
 
+export type OnUpdateCallback = Fn<ResultType, void>;
+
 /**
  * Function to start the animation (it starts the already subscribed animation)
  */
 export type OnUpdateFn = (
   updatedValue: AssignValue,
   config?: TransitionValueConfig,
-  callback?: Fn<ResultType, void>
+  callback?: OnUpdateCallback
 ) => void;

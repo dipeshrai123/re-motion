@@ -38,32 +38,17 @@ export function useMount(state: boolean, config: UseMountConfig) {
       setMounted(true);
     } else {
       initial.current = false;
-      setAnimation(
-        typeof exit === 'number'
-          ? ({
-              toValue: exit,
-              config: exitConfig,
-            } as any)
-          : exit,
-        function ({ finished }: any) {
-          if (finished) {
-            setMounted(false);
-          }
-        } as any
-      );
+      setAnimation(exit, exitConfig, function ({ finished }: any) {
+        if (finished) {
+          setMounted(false);
+        }
+      } as any);
     }
   }, [state]);
 
   React.useEffect(() => {
     if (mounted && initial.current) {
-      setAnimation(
-        typeof enter === 'number'
-          ? ({
-              toValue: enter,
-              config: enterConfig,
-            } as any)
-          : enter
-      );
+      setAnimation(enter, enterConfig);
     }
   }, [mounted, initial.current]);
 

@@ -11,7 +11,7 @@ const App = () => {
 
   return (
     <>
-      <button onClick={() => setOpen((curr) => !curr)}>Animate</button>
+      <button onClick={() => setOpen((curr) => !curr)}>TOGGLE</button>
       {mv(
         (animation, mounted) =>
           mounted && (

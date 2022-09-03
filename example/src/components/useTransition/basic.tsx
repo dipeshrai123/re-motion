@@ -28,8 +28,6 @@ const App = () => {
           translateX,
         }}
       />
-
-      <div style={{ height: 1000 }} />
     </>
   );
 };
