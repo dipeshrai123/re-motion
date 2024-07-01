@@ -1,34 +1,46 @@
 import type {
-  Fn,
   Length,
   ResultType,
   SubscribeFn,
-  TransitionValueConfig,
+  FluidValueConfig,
   OnUpdateFn,
   AssignValue,
-} from '../types';
+} from '../types/animation';
+import type { Fn } from '../types/common';
 
-export class TransitionValue {
+/**
+ * Represents a fluid value that can animate between states.
+ */
+export class FluidValue {
   public _subscribe: SubscribeFn;
   public _value: Length;
-  public _config?: TransitionValueConfig;
+  public _config?: FluidValueConfig;
   public _currentValue: { current: Length };
   public _subscriptions: Map<{ uuid: number; property: string }, OnUpdateFn>;
 
   public get: () => Length;
 
-  constructor(initialValue: Length, config?: TransitionValueConfig) {
+  /**
+   * Creates a new FluidValue instance.
+   * @param initialValue - The initial value of the fluid value.
+   * @param config - Optional configuration for the fluid value.
+   */
+  constructor(initialValue: Length, config?: FluidValueConfig) {
     this._subscriptions = new Map();
     this._subscribe = (
       onUpdate: OnUpdateFn,
       property: string,
       uuid: number
     ) => {
-      this._subscriptions.set({ uuid, property }, onUpdate);
+      for (const key of this._subscriptions.keys()) {
+        if (key.property === property) {
+          this._subscriptions.set(key, onUpdate);
+          return () => this._subscriptions.delete(key);
+        }
+      }
 
-      return () => {
-        this._subscriptions.delete({ uuid, property });
-      };
+      this._subscriptions.set({ uuid, property }, onUpdate);
+      return () => this._subscriptions.delete({ uuid, property });
     };
     this._value = initialValue;
     this._currentValue = { current: initialValue };
@@ -37,12 +49,15 @@ export class TransitionValue {
   }
 
   /**
-   * Animates from initial value to updated value, determines the transition type `multistage`
-   * or `singlestage` according to updatedValue
+   * Animates from the current value to the updated value.
+   * Determines whether to perform a multi-stage or single-stage transition.
+   * @param updatedValue - The value to animate to, or a function that defines a multi-stage transition.
+   * @param config - Optional configuration for the animation.
+   * @param callback - Optional callback to be called after the animation ends.
    */
   setValue(
     updatedValue: AssignValue,
-    config?: TransitionValueConfig,
+    config?: FluidValueConfig,
     callback?: Fn<ResultType, void>
   ) {
     /** Multistage transition */

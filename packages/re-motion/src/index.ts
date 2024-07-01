@@ -1,10 +1,16 @@
-export * from './react/animated';
-export * from './react/useTransition';
-export * from './react/useTransitions';
-export * from './react/useMount';
-export * from './react/useMounts';
-export * from './react/functions/isTransitionValue';
-export * from './easing/Easing';
-export * from './interpolation/Interpolation';
-export * from './animation/TransitionValue';
-export * from './types';
+// React
+export { fluid } from './react/fluid';
+export { makeFluid } from './react/makeFluid';
+export { useFluidValue } from './react/useFluidValue';
+export { useMount } from './react/useMount';
+
+// Helpers and Utilities
+export { isFluidValue } from './helpers/isFluidValue';
+export { Easing } from './easing/Easing';
+export { interpolate } from './interpolation/Interpolation';
+export { FluidValue } from './controllers/FluidValue';
+
+// Types
+export type { FluidValueConfig } from './types/animation';
+export type { UseMountConfig } from './react/useMount';
+export type { ExtrapolateConfig } from './interpolation/Interpolation';
