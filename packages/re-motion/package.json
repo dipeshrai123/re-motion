@@ -4,9 +4,10 @@
   "description": "Powerful React animation library",
   "main": "dist/index.js",
   "peerDependencies": {
-    "react": "^18.0.0"
+    "react": ">=16.8.0  || >=17.0.0 || >=18.0.0"
   },
   "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^13.3.0",
     "@types/jest": "^27.4.1",
