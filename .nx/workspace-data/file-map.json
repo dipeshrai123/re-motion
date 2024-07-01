@@ -20,10 +20,6 @@
   "fileMap": {
     "nonProjectFiles": [
       {
-        "file": "package-lock.json",
-        "hash": "15164093821963408296"
-      },
-      {
         "file": ".gitignore",
         "hash": "15714077336127731563"
       },
@@ -32,20 +28,20 @@
         "hash": "11496944913603679711"
       },
       {
-        "file": "nx.json",
-        "hash": "1806998064368365693"
-      },
-      {
-        "file": ".nx/workspace-data/d/server-process.json",
-        "hash": "5835521571848409118"
+        "file": "README.md",
+        "hash": "11498170110865802302"
       },
       {
         "file": "lerna.json",
         "hash": "13403878326604643087"
       },
       {
-        "file": "README.md",
-        "hash": "11498170110865802302"
+        "file": "nx.json",
+        "hash": "1806998064368365693"
+      },
+      {
+        "file": "package-lock.json",
+        "hash": "18402782364812552635"
       },
       {
         "file": "package.json",
@@ -53,86 +49,6 @@
       }
     ],
     "projectFileMap": {
-      "example": [
-        {
-          "file": "example/.gitignore",
-          "hash": "5403484524555424706"
-        },
-        {
-          "file": "example/README.md",
-          "hash": "17911282315018038361"
-        },
-        {
-          "file": "example/package.json",
-          "hash": "5225436019049926374",
-          "deps": [
-            "npm:@testing-library/jest-dom",
-            "npm:@testing-library/react",
-            "npm:@testing-library/user-event",
-            "npm:@types/jest",
-            "npm:@types/node",
-            "npm:react-scripts",
-            "npm:typescript",
-            "npm:web-vitals"
-          ]
-        },
-        {
-          "file": "example/public/favicon.ico",
-          "hash": "2949791817221603359"
-        },
-        {
-          "file": "example/public/index.html",
-          "hash": "13849537159998354010"
-        },
-        {
-          "file": "example/public/logo192.png",
-          "hash": "7585273181698778288"
-        },
-        {
-          "file": "example/public/logo512.png",
-          "hash": "9339365414554387981"
-        },
-        {
-          "file": "example/public/manifest.json",
-          "hash": "1447645250373428393"
-        },
-        {
-          "file": "example/public/robots.txt",
-          "hash": "2790380794362165217"
-        },
-        {
-          "file": "example/src/App.tsx",
-          "hash": "14294456575199752726"
-        },
-        {
-          "file": "example/src/components/useMount/basic.tsx",
-          "hash": "246565354023266332"
-        },
-        {
-          "file": "example/src/components/useMounts/basic.tsx",
-          "hash": "6322011018383197422"
-        },
-        {
-          "file": "example/src/components/useMounts/multiValued.tsx",
-          "hash": "13433128668672389788"
-        },
-        {
-          "file": "example/src/components/useTransition/basic.tsx",
-          "hash": "15896427297509883113"
-        },
-        {
-          "file": "example/src/components/useTransitions/basic.tsx",
-          "hash": "4068595049093368814"
-        },
-        {
-          "file": "example/src/index.tsx",
-          "hash": "13449391795923722308"
-        },
-        {
-          "file": "example/tsconfig.json",
-          "hash": "3664978063588679595"
-        }
-      ],
       "@raidipesh78/re-motion": [
         {
           "file": "packages/re-motion/.gitignore",
@@ -156,9 +72,10 @@
         },
         {
           "file": "packages/re-motion/package.json",
-          "hash": "2663340708148643334",
+          "hash": "4868263935898339667",
           "deps": [
             "npm:react",
+            "npm:@rollup/plugin-terser",
             "npm:@testing-library/jest-dom",
             "npm:@testing-library/react",
             "npm:@types/jest@29.0.0",
@@ -280,6 +197,86 @@
         {
           "file": "packages/re-motion/tsconfig.json",
           "hash": "13820254307447607570"
+        }
+      ],
+      "example": [
+        {
+          "file": "example/.gitignore",
+          "hash": "5403484524555424706"
+        },
+        {
+          "file": "example/README.md",
+          "hash": "17911282315018038361"
+        },
+        {
+          "file": "example/package.json",
+          "hash": "5225436019049926374",
+          "deps": [
+            "npm:@testing-library/jest-dom",
+            "npm:@testing-library/react",
+            "npm:@testing-library/user-event",
+            "npm:@types/jest",
+            "npm:@types/node",
+            "npm:react-scripts",
+            "npm:typescript",
+            "npm:web-vitals"
+          ]
+        },
+        {
+          "file": "example/public/favicon.ico",
+          "hash": "2949791817221603359"
+        },
+        {
+          "file": "example/public/index.html",
+          "hash": "13849537159998354010"
+        },
+        {
+          "file": "example/public/logo192.png",
+          "hash": "7585273181698778288"
+        },
+        {
+          "file": "example/public/logo512.png",
+          "hash": "9339365414554387981"
+        },
+        {
+          "file": "example/public/manifest.json",
+          "hash": "1447645250373428393"
+        },
+        {
+          "file": "example/public/robots.txt",
+          "hash": "2790380794362165217"
+        },
+        {
+          "file": "example/src/App.tsx",
+          "hash": "14294456575199752726"
+        },
+        {
+          "file": "example/src/components/useMount/basic.tsx",
+          "hash": "246565354023266332"
+        },
+        {
+          "file": "example/src/components/useMounts/basic.tsx",
+          "hash": "6322011018383197422"
+        },
+        {
+          "file": "example/src/components/useMounts/multiValued.tsx",
+          "hash": "13433128668672389788"
+        },
+        {
+          "file": "example/src/components/useTransition/basic.tsx",
+          "hash": "15896427297509883113"
+        },
+        {
+          "file": "example/src/components/useTransitions/basic.tsx",
+          "hash": "4068595049093368814"
+        },
+        {
+          "file": "example/src/index.tsx",
+          "hash": "13449391795923722308"
+        },
+        {
+          "file": "example/tsconfig.json",
+          "hash": "3664978063588679595"
         }
       ]
     }

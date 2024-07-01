@@ -207,6 +207,15 @@
         "hash": "sha512-sQXCasFk+U8lWYEe66WxRDOE9PjVz4vSM51fTu3Hw+ClTpUSQb718772vH3pyS5pShp6lvQM7SxgIDXXXmOX7w=="
       }
     },
+    "npm:@jridgewell/gen-mapping@0.3.5": {
+      "type": "npm",
+      "name": "npm:@jridgewell/gen-mapping@0.3.5",
+      "data": {
+        "version": "0.3.5",
+        "packageName": "@jridgewell/gen-mapping",
+        "hash": "sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg=="
+      }
+    },
     "npm:jsesc@2.5.2": {
       "type": "npm",
       "name": "npm:jsesc@2.5.2",
@@ -2317,18 +2326,18 @@
       "type": "npm",
       "name": "npm:@jridgewell/set-array",
       "data": {
-        "version": "1.1.2",
+        "version": "1.2.1",
         "packageName": "@jridgewell/set-array",
-        "hash": "sha512-xnkseuNADM0gt2bs+BvhO0p78Mk762YnZdsuzFV018NoG1Sj1SCQvpSqa7XUaTam5vAGasABV9qXASMKnFMwMw=="
+        "hash": "sha512-R8gLRTZeyp03ymzP/6Lil/28tGeGEzhx1q2k703KGWRAI1VdvPIXdG70VJc2pAMw3NA6JKL5hhFu1sJX0Mnn/A=="
       }
     },
     "npm:@jridgewell/source-map": {
       "type": "npm",
       "name": "npm:@jridgewell/source-map",
       "data": {
-        "version": "0.3.2",
+        "version": "0.3.6",
         "packageName": "@jridgewell/source-map",
-        "hash": "sha512-m7O9o2uR8k2ObDysZYzdfhb08VuEml5oWGiosa1VdaPZ/A6QyPkAJuwN0Q1lhULOf6B7MtQmHENS743hWtCrgw=="
+        "hash": "sha512-1ZJTZebgqllO79ue2bm3rIGud/bOe0pP5BjSRCRxxYkEZS8STV7zN84UBbiYu7jy+eCKSnVIUgoWWE/tt+shMQ=="
       }
     },
     "npm:@jridgewell/sourcemap-codec": {
@@ -2344,9 +2353,9 @@
       "type": "npm",
       "name": "npm:@jridgewell/trace-mapping",
       "data": {
-        "version": "0.3.15",
+        "version": "0.3.25",
         "packageName": "@jridgewell/trace-mapping",
-        "hash": "sha512-oWZNOULl+UbhsgB51uuZzglikfIKSUBO/M9W2OfEjn7cmqoAiCgmv9lyACTUacZwBz0ITnJ2NqjU8Tx0DHL88g=="
+        "hash": "sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ=="
       }
     },
     "npm:@leichtgewicht/ip-codec": {
@@ -3555,6 +3564,15 @@
         "hash": "sha512-IGcu+cydlUMZ5En85jxHH4qj2hta/11BHq95iHEyb2sbgiN0eCdzvUcHw5gt9pBL5lTi4JDYJ1acCoMGpTvEZg=="
       }
     },
+    "npm:@rollup/plugin-terser": {
+      "type": "npm",
+      "name": "npm:@rollup/plugin-terser",
+      "data": {
+        "version": "0.4.4",
+        "packageName": "@rollup/plugin-terser",
+        "hash": "sha512-XHeJC5Bgvs8LfukDwWZp7yeqin6ns8RTl2B9avbejt6tZqsqvVoWI7ZTQrcNsfKEDWBTnTxM8nMDkO2IFFbd0A=="
+      }
+    },
     "npm:@rushstack/eslint-patch": {
       "type": "npm",
       "name": "npm:@rushstack/eslint-patch",
@@ -4567,9 +4585,9 @@
       "type": "npm",
       "name": "npm:acorn",
       "data": {
-        "version": "8.8.0",
+        "version": "8.12.0",
         "packageName": "acorn",
-        "hash": "sha512-QOxyigPVrpZ2GXT+PFyZTl6TtOFc5egxHIP9IlQ+RbupQuX4RkT/Bee4/kQuC02Xkzg84JcT7oLYtDIQxp+v7w=="
+        "hash": "sha512-RTvkC4w+KNXrM39/lWCUaG0IbRkWdCv7W/IOW9oU6SawyxulvkQy5HQPVTKxEjczcUvapcrw3cFx/60VN/NRNw=="
       }
     },
     "npm:acorn@7.4.1": {
@@ -12568,9 +12586,9 @@
       "type": "npm",
       "name": "npm:serialize-javascript",
       "data": {
-        "version": "6.0.0",
+        "version": "6.0.2",
         "packageName": "serialize-javascript",
-        "hash": "sha512-Qr3TosvguFt8ePWqsvRfrKyQXIiW+nGbYpy8XK24NQHE83caxWt+mIymTT19DGFbNWNLfEwsrkSmN64lVWB9ag=="
+        "hash": "sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g=="
       }
     },
     "npm:rollup-plugin-typescript2": {
@@ -12823,6 +12841,15 @@
         "version": "4.2.0",
         "packageName": "smart-buffer",
         "hash": "sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg=="
+      }
+    },
+    "npm:smob": {
+      "type": "npm",
+      "name": "npm:smob",
+      "data": {
+        "version": "1.5.0",
+        "packageName": "smob",
+        "hash": "sha512-g6T+p7QO8npa+/hNx9ohv1E5pVCmWrVCUzUXJyLdMmftX6ER0oiWY/w9knEonLpnOp6b6FenKnMfR8gqwWdwig=="
       }
     },
     "npm:sockjs": {
@@ -13225,9 +13252,9 @@
       "type": "npm",
       "name": "npm:terser",
       "data": {
-        "version": "5.15.0",
+        "version": "5.31.1",
         "packageName": "terser",
-        "hash": "sha512-L1BJiXVmheAQQy+as0oF3Pwtlo4s3Wi1X2zNZ2NxOB4wx9bdS9Vk67XQENLFdLYGCK/Z2di53mTj/hBafR+dTA=="
+        "hash": "sha512-37upzU1+viGvuFtBo9NPufCb9dwM0+l9hMxYyWfBA+fbwrPqNJAhbZ6W47bBFnZHKHTUBnMvi87434qq+qnxOg=="
       }
     },
     "npm:terser-webpack-plugin": {
@@ -17927,7 +17954,7 @@
     },
     {
       "source": "npm:@jridgewell/source-map",
-      "target": "npm:@jridgewell/gen-mapping@0.3.2",
+      "target": "npm:@jridgewell/gen-mapping@0.3.5",
       "type": "static"
     },
     {
@@ -17936,17 +17963,17 @@
       "type": "static"
     },
     {
-      "source": "npm:@jridgewell/gen-mapping@0.3.2",
+      "source": "npm:@jridgewell/gen-mapping@0.3.5",
       "target": "npm:@jridgewell/set-array",
       "type": "static"
     },
     {
-      "source": "npm:@jridgewell/gen-mapping@0.3.2",
+      "source": "npm:@jridgewell/gen-mapping@0.3.5",
       "target": "npm:@jridgewell/sourcemap-codec",
       "type": "static"
     },
     {
-      "source": "npm:@jridgewell/gen-mapping@0.3.2",
+      "source": "npm:@jridgewell/gen-mapping@0.3.5",
       "target": "npm:@jridgewell/trace-mapping",
       "type": "static"
     },
@@ -19473,6 +19500,26 @@
     {
       "source": "npm:@rollup/pluginutils@3.1.0",
       "target": "npm:picomatch",
+      "type": "static"
+    },
+    {
+      "source": "npm:@rollup/plugin-terser",
+      "target": "npm:rollup",
+      "type": "static"
+    },
+    {
+      "source": "npm:@rollup/plugin-terser",
+      "target": "npm:serialize-javascript",
+      "type": "static"
+    },
+    {
+      "source": "npm:@rollup/plugin-terser",
+      "target": "npm:smob",
+      "type": "static"
+    },
+    {
+      "source": "npm:@rollup/plugin-terser",
+      "target": "npm:terser",
       "type": "static"
     },
     {
