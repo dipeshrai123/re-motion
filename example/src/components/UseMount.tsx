@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMount, animated } from '@raidipesh78/re-motion';
+import { useMount, fluid } from '@raidipesh78/re-motion';
 
 const App = () => {
   const [open, setOpen] = useState(true);
@@ -15,7 +15,7 @@ const App = () => {
       {mv(
         (animation, mounted) =>
           mounted && (
-            <animated.div
+            <fluid.div
               style={{
                 width: 100,
                 height: 100,
@@ -25,6 +25,7 @@ const App = () => {
             />
           )
       )}
+      <div style={{ height: 10, backgroundColor: 'red' }} />
     </>
   );
 };

@@ -301,14 +301,14 @@ export function interpolateNumbers(
 }
 
 /**
- * interpolateTransitionValue to interpolating TransitionValue type value
+ * interpolateFluidValue to interpolating FluidValue
  * @param value
  * @param inputRange
  * @param outputRange
  * @param extrapolateConfig
  * @returns TransitionValue
  */
-export const interpolateTransitionValue = (
+export const interpolateFluidValue = (
   value: FluidValue,
   inputRange: Array<number>,
   outputRange: Array<number | string>,
@@ -326,8 +326,7 @@ export const interpolateTransitionValue = (
 };
 
 /**
- * interpolate function to interpolate both transition
- * as well as numerical value
+ * interpolate function to interpolate both FluidValue or number
  * @param value
  * @param inputRange
  * @param outputRange
@@ -340,7 +339,7 @@ export const interpolate = (
   extrapolateConfig?: ExtrapolateConfig
 ) => {
   if (isFluidValue(value)) {
-    return interpolateTransitionValue(
+    return interpolateFluidValue(
       value as FluidValue,
       inputRange,
       outputRange,
