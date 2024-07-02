@@ -20,24 +20,28 @@
   "fileMap": {
     "nonProjectFiles": [
       {
-        "file": "lerna.json",
-        "hash": "13403878326604643087"
-      },
-      {
         "file": "package-lock.json",
         "hash": "13474469242116089014"
+      },
+      {
+        "file": ".gitignore",
+        "hash": "14259985254398746534"
+      },
+      {
+        "file": "package.json",
+        "hash": "16165427748153077645"
       },
       {
         "file": ".nx/workspace-data/d/server-process.json",
         "hash": "17265709055189621454"
       },
       {
-        "file": "README.md",
-        "hash": "11498170110865802302"
+        "file": "lerna.json",
+        "hash": "4679839276830869291"
       },
       {
-        "file": ".gitignore",
-        "hash": "14259985254398746534"
+        "file": "README.md",
+        "hash": "11498170110865802302"
       },
       {
         "file": ".prettierrc",
@@ -46,10 +50,6 @@
       {
         "file": "nx.json",
         "hash": "1806998064368365693"
-      },
-      {
-        "file": "package.json",
-        "hash": "16165427748153077645"
       }
     ],
     "projectFileMap": {
@@ -76,7 +76,7 @@
         },
         {
           "file": "packages/re-motion/package.json",
-          "hash": "4868263935898339667",
+          "hash": "4194230518578184947",
           "deps": [
             "npm:react",
             "npm:@rollup/plugin-terser",
