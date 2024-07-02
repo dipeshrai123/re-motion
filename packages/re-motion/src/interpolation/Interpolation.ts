@@ -5,8 +5,8 @@ import {
   HEX_NAME_COLOR,
   colorNames,
 } from './Colors';
-import { FluidValue } from '../types';
-import { isTransitionValue } from '../react/functions';
+import { isFluidValue } from '../helpers';
+import { FluidValue } from '../controllers/FluidValue';
 
 type ExtrapolateType = 'identity' | 'extend' | 'clamp';
 
@@ -172,14 +172,8 @@ const _getArrayInterpolate = (
   }
 };
 
-const _getTemplateString = (str: string) => {
-  return str.replace(COLOR_NUMBER_REGEX, function (match) {
-    if (match.indexOf(' ') === 0) {
-      return ' $';
-    }
-
-    return '$';
-  });
+export const _getTemplateString = (str: string) => {
+  return str.replace(COLOR_NUMBER_REGEX, '$');
 };
 
 const _getParsedStringArray = (str: any) => {
@@ -199,12 +193,9 @@ const _getParsedStringArray = (str: any) => {
  * @param str2 - second string
  * @returns boolean indicating two strings matched or not
  */
-const stringMatched = (str1: string, str2: string) => {
-  return (
-    _getTemplateString(str1).trim().replace(/\s/g, '').length ===
-    _getTemplateString(str2).trim().replace(/\s/g, '').length
-  );
-};
+export const stringMatched = (str1: string, str2: string) =>
+  _getTemplateString(str1).trim().replace(/\s/g, '') ===
+  _getTemplateString(str2).trim().replace(/\s/g, '');
 
 /**
  * Function which proccess the
@@ -212,7 +203,7 @@ const stringMatched = (str1: string, str2: string) => {
  * @param str - string
  * @returns hex color string
  */
-const getProcessedColor = (str: any) => {
+export const getProcessedColor = (str: string) => {
   return str.replace(HEX_NAME_COLOR, function (match: any) {
     if (match.indexOf('#') !== -1) {
       return rgbaToHex(hexToRgba(match));
@@ -282,8 +273,8 @@ export function interpolateNumbers(
     } else {
       const [inputMin, inputMax, outputMin, outputMax] = narrowedInput;
 
-      const processedOutputMin = getProcessedColor(outputMin);
-      const processedOutputMax = getProcessedColor(outputMax);
+      const processedOutputMin = getProcessedColor(outputMin as string);
+      const processedOutputMax = getProcessedColor(outputMax as string);
 
       let templateString = _getTemplateString(processedOutputMin);
 
@@ -310,14 +301,14 @@ export function interpolateNumbers(
 }
 
 /**
- * interpolateTransitionValue to interpolating TransitionValue type value
+ * interpolateFluidValue to interpolating FluidValue
  * @param value
  * @param inputRange
  * @param outputRange
  * @param extrapolateConfig
  * @returns TransitionValue
  */
-export const interpolateTransitionValue = (
+export const interpolateFluidValue = (
   value: FluidValue,
   inputRange: Array<number>,
   outputRange: Array<number | string>,
@@ -335,8 +326,7 @@ export const interpolateTransitionValue = (
 };
 
 /**
- * interpolate function to interpolate both transition
- * as well as numerical value
+ * interpolate function to interpolate both FluidValue or number
  * @param value
  * @param inputRange
  * @param outputRange
@@ -348,8 +338,8 @@ export const interpolate = (
   outputRange: Array<number | string>,
   extrapolateConfig?: ExtrapolateConfig
 ) => {
-  if (isTransitionValue(value)) {
-    return interpolateTransitionValue(
+  if (isFluidValue(value)) {
+    return interpolateFluidValue(
       value as FluidValue,
       inputRange,
       outputRange,
@@ -366,3 +356,39 @@ export const interpolate = (
     throw new Error(`'${typeof value}' cannot be interpolated!`);
   }
 };
+
+/**
+ * Determines if two values can be interpolated.
+ * This function checks if two values, either numbers or strings,
+ * can be interpolated by ensuring they are of the same type and, in the case of strings,
+ * that they are compatible for interpolation based on processed color values.
+ *
+ * @param previousValue - The previous value to compare. Can be a number or a string.
+ * @param newValue - The new value to compare. Can be a number or a string.
+ * @returns True if interpolation is possible, false otherwise.
+ */
+export function canInterpolate(
+  previousValue: number | string,
+  newValue: number | string
+): boolean {
+  if (typeof previousValue !== typeof newValue) {
+    return false;
+  }
+
+  if (typeof newValue === 'number') {
+    return true;
+  }
+
+  if (typeof previousValue === 'string') {
+    const processedPreviousValue = getProcessedColor(previousValue);
+    const processedNewValue = getProcessedColor(newValue);
+
+    return (
+      processedPreviousValue !== processedNewValue &&
+      _getTemplateString(processedPreviousValue) ===
+        _getTemplateString(processedNewValue)
+    );
+  }
+
+  return false;
+}

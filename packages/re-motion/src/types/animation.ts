@@ -1,7 +1,7 @@
 import type { Fn } from './common';
 
 /**
- * Base unit which is accepted by `TransitionValue`
+ * Base unit which is accepted by `FluidValue`
  */
 export type Length = number | string;
 
@@ -18,12 +18,12 @@ export type SubscribeFn = (
   onUpdate: OnUpdateFn,
   property: string,
   uuid: number
-) => void;
+) => () => void;
 
 /**
- * Configuration object for `TransitionValue`
+ * Configuration object for `FluidValue`
  */
-export interface TransitionValueConfig {
+export interface FluidValueConfig {
   mass?: number;
   tension?: number;
   friction?: number;
@@ -38,30 +38,19 @@ export interface TransitionValueConfig {
 }
 
 /**
- * FluidValue
- */
-export type FluidValue = {
-  _subscribe: SubscribeFn;
-  _value: Length;
-  _currentValue: { current: Length };
-  _config?: TransitionValueConfig;
-  get: () => Length;
-};
-
-/**
  * Object which can be assigned to animate
  */
-export type AssignValue =
-  | Length
-  | Fn<(next: Length, config?: TransitionValueConfig) => Promise<any>, void>;
+export type UpdateValue = {
+  toValue: Length;
+  config?: FluidValueConfig;
+};
 
-export type OnUpdateCallback = Fn<ResultType, void>;
+export type AssignValue = UpdateValue | Fn<Fn<UpdateValue, Promise<any>>, void>;
 
 /**
  * Function to start the animation (it starts the already subscribed animation)
  */
 export type OnUpdateFn = (
   updatedValue: AssignValue,
-  config?: TransitionValueConfig,
-  callback?: OnUpdateCallback
+  callback?: Fn<ResultType, void>
 ) => void;

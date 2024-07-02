@@ -1,15 +1,17 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useLayoutEffect } from 'react';
 
-import { useTransition } from './useTransition';
-import type { FluidValue, TransitionValueConfig, AssignValue } from '../types';
+import { useFluidValue } from './useFluidValue';
+import { FluidValue } from '../controllers/FluidValue';
+
+import type { FluidValueConfig } from '../types/animation';
 
 export interface UseMountConfig {
   from: number;
-  enter: number | AssignValue;
-  exit: number | AssignValue;
-  enterConfig?: TransitionValueConfig;
-  exitConfig?: TransitionValueConfig;
-  config?: TransitionValueConfig;
+  enter: number;
+  exit: number;
+  enterConfig?: FluidValueConfig;
+  exitConfig?: FluidValueConfig;
+  config?: FluidValueConfig;
 }
 
 /**
@@ -22,37 +24,40 @@ export interface UseMountConfig {
  * @param config - the config object `UseMountConfig`
  */
 export const useMount = (state: boolean, config: UseMountConfig) => {
-  const initial = useRef(true);
   const [mounted, setMounted] = useState(false);
   const {
     from,
     enter,
     exit,
-    config: innerConfig,
+    config: defaultConfig,
     enterConfig,
     exitConfig,
   } = useRef(config).current;
-  const [animation, setAnimation] = useTransition(from, innerConfig);
+  const [animation, setAnimation] = useFluidValue(from, defaultConfig);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (state) {
-      initial.current = true;
       setMounted(true);
+      queueMicrotask(() =>
+        setAnimation({
+          toValue: enter,
+          config: enterConfig,
+        })
+      );
     } else {
-      initial.current = false;
-      setAnimation(exit, exitConfig, function ({ finished }) {
-        if (finished) {
-          setMounted(false);
+      setAnimation(
+        {
+          toValue: exit,
+          config: exitConfig,
+        },
+        function ({ finished }: { finished: boolean }) {
+          if (finished) {
+            setMounted(false);
+          }
         }
-      });
+      );
     }
   }, [state]);
-
-  useEffect(() => {
-    if (mounted && initial.current) {
-      setAnimation(enter, enterConfig);
-    }
-  }, [mounted, initial.current]);
 
   return (
     callback: (animation: FluidValue, mounted: boolean) => React.ReactNode

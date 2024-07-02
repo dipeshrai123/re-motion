@@ -1,0 +1,11 @@
+node_modules/
+.git/
+.github/
+.vscode/
+*.log
+.gitignore
+.npmignore
+/src
+*.json
+*.mjs
+rollup.config.js
