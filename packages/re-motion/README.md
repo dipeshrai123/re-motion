@@ -131,8 +131,6 @@ export default function App() {
 ```jsx
 const [x, setX] = useFluidValue(0);
 
-// ...
-
 setX(async (next) => {
   await next({ toValue: 100 });
   await delay(1000);
@@ -147,8 +145,7 @@ setX(async (next) => {
 ```jsx
 const [x, setX] = useTransition(0);
 
-// interpolating _x_ value into _backgroundColor_
-const backgroundColor = interpolateFluidValue(x, [0, 500], ['red', 'black']);
+const backgroundColor = interpolate(x, [0, 500], ['red', 'black']);
 ```
 
 ## License
