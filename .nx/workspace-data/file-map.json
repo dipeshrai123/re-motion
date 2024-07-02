@@ -20,39 +20,111 @@
   "fileMap": {
     "nonProjectFiles": [
       {
-        "file": "package-lock.json",
-        "hash": "13474469242116089014"
-      },
-      {
         "file": ".gitignore",
         "hash": "14259985254398746534"
-      },
-      {
-        "file": "package.json",
-        "hash": "16165427748153077645"
-      },
-      {
-        "file": ".nx/workspace-data/d/server-process.json",
-        "hash": "17265709055189621454"
-      },
-      {
-        "file": "lerna.json",
-        "hash": "4679839276830869291"
-      },
-      {
-        "file": "README.md",
-        "hash": "11498170110865802302"
       },
       {
         "file": ".prettierrc",
         "hash": "11496944913603679711"
       },
       {
+        "file": "README.md",
+        "hash": "11498170110865802302"
+      },
+      {
+        "file": "lerna.json",
+        "hash": "4679839276830869291"
+      },
+      {
         "file": "nx.json",
         "hash": "1806998064368365693"
+      },
+      {
+        "file": "package-lock.json",
+        "hash": "2851643585953163733"
+      },
+      {
+        "file": "package.json",
+        "hash": "16165427748153077645"
       }
     ],
     "projectFileMap": {
+      "example": [
+        {
+          "file": "example/.gitignore",
+          "hash": "5403484524555424706"
+        },
+        {
+          "file": "example/README.md",
+          "hash": "17911282315018038361"
+        },
+        {
+          "file": "example/package.json",
+          "hash": "5225436019049926374",
+          "deps": [
+            "npm:@testing-library/jest-dom",
+            "npm:@testing-library/react",
+            "npm:@testing-library/user-event",
+            "npm:@types/jest",
+            "npm:@types/node",
+            "npm:react-scripts",
+            "npm:typescript",
+            "npm:web-vitals"
+          ]
+        },
+        {
+          "file": "example/public/favicon.ico",
+          "hash": "2949791817221603359"
+        },
+        {
+          "file": "example/public/index.html",
+          "hash": "13849537159998354010"
+        },
+        {
+          "file": "example/public/logo192.png",
+          "hash": "7585273181698778288"
+        },
+        {
+          "file": "example/public/logo512.png",
+          "hash": "9339365414554387981"
+        },
+        {
+          "file": "example/public/manifest.json",
+          "hash": "1447645250373428393"
+        },
+        {
+          "file": "example/public/robots.txt",
+          "hash": "2790380794362165217"
+        },
+        {
+          "file": "example/src/App.tsx",
+          "hash": "11722723965526623768"
+        },
+        {
+          "file": "example/src/components/Interpolation.tsx",
+          "hash": "16921758144597436367"
+        },
+        {
+          "file": "example/src/components/MultiStageTransition.tsx",
+          "hash": "6224478214392004568"
+        },
+        {
+          "file": "example/src/components/UseFluidValue.tsx",
+          "hash": "11720046063571440062"
+        },
+        {
+          "file": "example/src/components/UseMount.tsx",
+          "hash": "1354369447919355522"
+        },
+        {
+          "file": "example/src/index.tsx",
+          "hash": "6508006476745694290"
+        },
+        {
+          "file": "example/tsconfig.json",
+          "hash": "13935093338863619946"
+        }
+      ],
       "@raidipesh78/re-motion": [
         {
           "file": "packages/re-motion/.gitignore",
@@ -201,74 +273,6 @@
         {
           "file": "packages/re-motion/tsconfig.json",
           "hash": "13820254307447607570"
-        }
-      ],
-      "example": [
-        {
-          "file": "example/.gitignore",
-          "hash": "5403484524555424706"
-        },
-        {
-          "file": "example/README.md",
-          "hash": "17911282315018038361"
-        },
-        {
-          "file": "example/package.json",
-          "hash": "5225436019049926374",
-          "deps": [
-            "npm:@testing-library/jest-dom",
-            "npm:@testing-library/react",
-            "npm:@testing-library/user-event",
-            "npm:@types/jest",
-            "npm:@types/node",
-            "npm:react-scripts",
-            "npm:typescript",
-            "npm:web-vitals"
-          ]
-        },
-        {
-          "file": "example/public/favicon.ico",
-          "hash": "2949791817221603359"
-        },
-        {
-          "file": "example/public/index.html",
-          "hash": "13849537159998354010"
-        },
-        {
-          "file": "example/public/logo192.png",
-          "hash": "7585273181698778288"
-        },
-        {
-          "file": "example/public/logo512.png",
-          "hash": "9339365414554387981"
-        },
-        {
-          "file": "example/public/manifest.json",
-          "hash": "1447645250373428393"
-        },
-        {
-          "file": "example/public/robots.txt",
-          "hash": "2790380794362165217"
-        },
-        {
-          "file": "example/src/App.tsx",
-          "hash": "16700512281255833603"
-        },
-        {
-          "file": "example/src/components/UseFluidValue.tsx",
-          "hash": "11720046063571440062"
-        },
-        {
-          "file": "example/src/components/UseMount.tsx",
-          "hash": "1354369447919355522"
-        },
-        {
-          "file": "example/src/index.tsx",
-          "hash": "6508006476745694290"
-        },
-        {
-          "file": "example/tsconfig.json",
-          "hash": "13935093338863619946"
         }
       ]
     }
