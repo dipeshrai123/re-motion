@@ -29,11 +29,15 @@ export type FluidCSSProperties = {
 export type FluidHTMLAttributes<T> = {
   [property in keyof HTMLAttributes<T>]:
     | HTMLAttributes<T>[property]
-    | FluidValue;
+    | FluidValue
+    | any;
 };
 
 export type FluidSVGAttributes<T> = {
-  [property in keyof SVGAttributes<T>]: SVGAttributes<T>[property] | FluidValue;
+  [property in keyof SVGAttributes<T>]:
+    | SVGAttributes<T>[property]
+    | FluidValue
+    | any;
 };
 
 export type FluidProps<T> = Omit<
