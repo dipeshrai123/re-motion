@@ -4,13 +4,11 @@
 
 ### Installation
 
-Install with npm:
+Install with npm or yarn:
 
 ```bash
 npm i @raidipesh78/re-motion
 ```
-
-Install with yarn:
 
 ```bash
 yarn add @raidipesh78/re-motion
