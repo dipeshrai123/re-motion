@@ -1,4 +1,3 @@
 node_modules/
 *.log
-.nx/workspace-data
-.nx/cache
+.nx
