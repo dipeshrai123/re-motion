@@ -160,7 +160,10 @@ export function makeFluid<C extends WrappedComponentOrTag>(
           ) {
             const previousAnimation = animation;
 
-            if (previousAnimation._value !== toValue) {
+            if (
+              config?.decay ||
+              (isDefined(toValue) && previousAnimation._value !== toValue)
+            ) {
               animation.stop();
 
               animation = generateAnimation(

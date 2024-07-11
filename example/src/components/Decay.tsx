@@ -9,9 +9,7 @@ const App = () => {
         ANIMATE LEFT
       </button>
       <button
-        onClick={() =>
-          setTranslateX({ toValue: 100, config: { decay: true, velocity: 1 } })
-        }
+        onClick={() => setTranslateX({ config: { decay: true, velocity: 1 } })}
       >
         ANIMATE RIGHT
       </button>
