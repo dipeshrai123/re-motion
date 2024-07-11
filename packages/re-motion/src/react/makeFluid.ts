@@ -154,7 +154,10 @@ export function makeFluid<C extends WrappedComponentOrTag>(
         ) => {
           const { toValue, config } = updatedValue;
 
-          if (canInterpolate(_value, toValue)) {
+          if (
+            config?.decay ||
+            (isDefined(toValue) && canInterpolate(_value, toValue))
+          ) {
             const previousAnimation = animation;
 
             if (previousAnimation._value !== toValue) {
@@ -193,6 +196,8 @@ export function makeFluid<C extends WrappedComponentOrTag>(
               });
             }
           } else {
+            if (!toValue) return;
+
             if (typeof toValue !== typeof _value) {
               throw new Error(
                 `Cannot assign ${typeof toValue} to animated ${typeof _value}`

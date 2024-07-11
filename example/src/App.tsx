@@ -1,12 +1,12 @@
-import UseMount from './components/UseMount';
-import UseFluidValue from './components/UseFluidValue';
-import SequenceTransition from './components/SequenceTransition';
-import Interpolation from './components/Interpolation';
+// import UseMount from './components/UseMount';
+// import UseFluidValue from './components/UseFluidValue';
+// import SequenceTransition from './components/SequenceTransition';
+// import Interpolation from './components/Interpolation';
 import Decay from './components/Decay';
 
 const App = () => (
   <>
-    <h2>useFluidValue</h2>
+    {/* <h2>useFluidValue</h2>
     <UseFluidValue />
 
     <h2>useMount</h2>
@@ -16,7 +16,7 @@ const App = () => (
     <SequenceTransition />
 
     <h2>Interpolation</h2>
-    <Interpolation />
+    <Interpolation /> */}
 
     <h2>Decay</h2>
     <Decay />

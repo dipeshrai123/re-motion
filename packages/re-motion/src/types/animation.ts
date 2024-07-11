@@ -44,7 +44,7 @@ export interface FluidValueConfig {
  * Object which can be assigned to animate
  */
 export type UpdateValue = {
-  toValue: Length;
+  toValue?: Length;
   config?: FluidValueConfig;
 };
 
