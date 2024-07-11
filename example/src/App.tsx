@@ -2,6 +2,7 @@ import UseMount from './components/UseMount';
 import UseFluidValue from './components/UseFluidValue';
 import SequenceTransition from './components/SequenceTransition';
 import Interpolation from './components/Interpolation';
+import Decay from './components/Decay';
 
 const App = () => (
   <>
@@ -16,6 +17,9 @@ const App = () => (
 
     <h2>Interpolation</h2>
     <Interpolation />
+
+    <h2>Decay</h2>
+    <Decay />
   </>
 );
 

@@ -31,6 +31,7 @@ import type {
   UpdateValue,
 } from '../types/animation';
 import type { FluidProps, WrappedComponentOrTag } from '../types/fluid';
+import { DecayAnimation } from '../controllers/DecayAnimation';
 
 /**
  * Higher-order component to make any component animatable.
@@ -250,10 +251,15 @@ function animationObjectGenerator(defaultConfig?: FluidValueConfig) {
   return (value: number, config?: FluidValueConfig) => {
     const animationConfig = { ...defaultConfig, ...config };
 
-    const Animation =
-      isDefined(animationConfig?.duration) || animationConfig?.immediate
-        ? TimingAnimation
-        : SpringAnimation;
+    let Animation;
+
+    if (isDefined(animationConfig?.duration) || animationConfig?.immediate) {
+      Animation = TimingAnimation;
+    } else if (animationConfig?.decay) {
+      Animation = DecayAnimation;
+    } else {
+      Animation = SpringAnimation;
+    }
 
     return new Animation({
       initialPosition: value,
