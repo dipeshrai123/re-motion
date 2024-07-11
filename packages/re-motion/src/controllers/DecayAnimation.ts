@@ -101,11 +101,12 @@ export class DecayAnimation extends Animation {
 
       const now = Date.now();
 
+      this._startTime = now;
+
       if (previousAnimation instanceof DecayAnimation) {
         this._velocity = previousAnimation._velocity || this._velocity || 0;
-        this._startTime = previousAnimation._startTime || now;
-      } else {
-        this._startTime = now;
+        this._deceleration =
+          previousAnimation._deceleration || this._deceleration || 0.998;
       }
 
       this._animationFrame = RequestAnimationFrame.current(
