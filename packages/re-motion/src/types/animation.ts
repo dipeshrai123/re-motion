@@ -35,13 +35,16 @@ export interface FluidValueConfig {
   onChange?: Fn<number, void>;
   onRest?: Fn<ResultType, void>;
   onStart?: Fn<number, void>;
+  decay?: boolean;
+  velocity?: number;
+  deceleration?: number;
 }
 
 /**
  * Object which can be assigned to animate
  */
 export type UpdateValue = {
-  toValue: Length;
+  toValue?: Length;
   config?: FluidValueConfig;
 };
 

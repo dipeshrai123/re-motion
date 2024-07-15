@@ -31,6 +31,7 @@ import type {
   UpdateValue,
 } from '../types/animation';
 import type { FluidProps, WrappedComponentOrTag } from '../types/fluid';
+import { DecayAnimation } from '../controllers/DecayAnimation';
 
 /**
  * Higher-order component to make any component animatable.
@@ -153,10 +154,16 @@ export function makeFluid<C extends WrappedComponentOrTag>(
         ) => {
           const { toValue, config } = updatedValue;
 
-          if (canInterpolate(_value, toValue)) {
+          if (
+            config?.decay ||
+            (isDefined(toValue) && canInterpolate(_value, toValue))
+          ) {
             const previousAnimation = animation;
 
-            if (previousAnimation._value !== toValue) {
+            if (
+              config?.decay ||
+              (isDefined(toValue) && previousAnimation._value !== toValue)
+            ) {
               animation.stop();
 
               animation = generateAnimation(
@@ -192,6 +199,8 @@ export function makeFluid<C extends WrappedComponentOrTag>(
               });
             }
           } else {
+            if (!toValue) return;
+
             if (typeof toValue !== typeof _value) {
               throw new Error(
                 `Cannot assign ${typeof toValue} to animated ${typeof _value}`
@@ -250,10 +259,15 @@ function animationObjectGenerator(defaultConfig?: FluidValueConfig) {
   return (value: number, config?: FluidValueConfig) => {
     const animationConfig = { ...defaultConfig, ...config };
 
-    const Animation =
-      isDefined(animationConfig?.duration) || animationConfig?.immediate
-        ? TimingAnimation
-        : SpringAnimation;
+    let Animation;
+
+    if (isDefined(animationConfig?.duration) || animationConfig?.immediate) {
+      Animation = TimingAnimation;
+    } else if (animationConfig?.decay) {
+      Animation = DecayAnimation;
+    } else {
+      Animation = SpringAnimation;
+    }
 
     return new Animation({
       initialPosition: value,
