@@ -3,14 +3,12 @@ import { useState, useRef, useLayoutEffect } from 'react';
 import { useFluidValue } from './useFluidValue';
 import { FluidValue } from '../controllers/FluidValue';
 
-import type { FluidValueConfig } from '../types/animation';
+import type { AssignValue, FluidValueConfig } from '../types/animation';
 
 export interface UseMountConfig {
   from: number;
-  enter: number;
-  exit: number;
-  enterConfig?: FluidValueConfig;
-  exitConfig?: FluidValueConfig;
+  enter: number | AssignValue;
+  exit: number | AssignValue;
   config?: FluidValueConfig;
 }
 
@@ -25,31 +23,24 @@ export interface UseMountConfig {
  */
 export const useMount = (state: boolean, config: UseMountConfig) => {
   const [mounted, setMounted] = useState(false);
-  const {
-    from,
-    enter,
-    exit,
-    config: defaultConfig,
-    enterConfig,
-    exitConfig,
-  } = useRef(config).current;
-  const [animation, setAnimation] = useFluidValue(from, defaultConfig);
+  const { from, enter, exit, config: innerConfig } = useRef(config).current;
+  const [animation, setAnimation] = useFluidValue(from, innerConfig);
 
   useLayoutEffect(() => {
     if (state) {
       setMounted(true);
       queueMicrotask(() =>
-        setAnimation({
-          toValue: enter,
-          config: enterConfig,
-        })
+        setAnimation(
+          typeof enter === 'number'
+            ? { toValue: enter, config: innerConfig }
+            : enter
+        )
       );
     } else {
       setAnimation(
-        {
-          toValue: exit,
-          config: exitConfig,
-        },
+        typeof exit === 'number'
+          ? { toValue: exit, config: innerConfig }
+          : exit,
         function ({ finished }: { finished: boolean }) {
           if (finished) {
             setMounted(false);

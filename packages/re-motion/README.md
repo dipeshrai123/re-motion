@@ -4,13 +4,11 @@
 
 ### Installation
 
-Install with npm:
+Install with npm or yarn:
 
 ```bash
 npm i @raidipesh78/re-motion
 ```
-
-Install with yarn:
 
 ```bash
 yarn add @raidipesh78/re-motion
@@ -102,18 +100,22 @@ export default function App() {
 
 	const mount = useMount(open, {
 		from: 0,
-		enter: 1,
-		exit: 0,
-		// exit config
-		exitConfig: {
-			mass: 1,
-			friction: 5,
-			tension: 300,
+		enter: {
+			toValue: 1,
+			// configure here
+			config: {
+				mass: 1,
+				friction: 5,
+				tension: 300,
+			}
 		},
-		// enter config
-		enterConfig: {
-			duration: 100,
-		},
+		exit: {
+			toValue: 0,
+			// configure here
+			config: {
+				duration: 100
+			}
+		}
 	});
 
 	const animate = () => {
@@ -124,14 +126,12 @@ export default function App() {
 }
 ```
 
-#### 4. Multi-stage Transition Support
+#### 4. Sequence Transition Support
 
-**useFluidValue** hook's update method to accept async function to handle multi-stage transition
+**useFluidValue** hook's update method to accept async function to handle sequence transition
 
 ```jsx
 const [x, setX] = useFluidValue(0);
-
-// ...
 
 setX(async (next) => {
   await next({ toValue: 100 });
@@ -147,8 +147,7 @@ setX(async (next) => {
 ```jsx
 const [x, setX] = useTransition(0);
 
-// interpolating _x_ value into _backgroundColor_
-const backgroundColor = interpolateFluidValue(x, [0, 500], ['red', 'black']);
+const backgroundColor = interpolate(x, [0, 500], ['red', 'black']);
 ```
 
 ## License

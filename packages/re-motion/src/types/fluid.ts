@@ -7,23 +7,37 @@ import {
 
 import { FluidValue } from '../controllers/FluidValue';
 import { styleTrasformKeys } from '../react/transforms';
+import { AssignValue, Length } from './animation';
 
 export type FluidTypes = 'spring' | 'timing';
 
 export type FluidCSSProperties = {
-  [key in keyof CSSProperties]: CSSProperties[key];
+  [key in keyof CSSProperties]:
+    | CSSProperties[key]
+    | FluidValue
+    | Length
+    | AssignValue
+    | any;
 } & {
-  [key in (typeof styleTrasformKeys)[number]]?: number | string | FluidValue;
+  [key in (typeof styleTrasformKeys)[number]]?:
+    | FluidValue
+    | Length
+    | AssignValue
+    | any;
 };
 
 export type FluidHTMLAttributes<T> = {
   [property in keyof HTMLAttributes<T>]:
     | HTMLAttributes<T>[property]
-    | FluidValue;
+    | FluidValue
+    | any;
 };
 
 export type FluidSVGAttributes<T> = {
-  [property in keyof SVGAttributes<T>]: SVGAttributes<T>[property] | FluidValue;
+  [property in keyof SVGAttributes<T>]:
+    | SVGAttributes<T>[property]
+    | FluidValue
+    | any;
 };
 
 export type FluidProps<T> = Omit<
