@@ -216,13 +216,9 @@ export function makeFluid<C extends WrappedComponentOrTag>(
           }
         };
 
-        animation = generateAnimation(typeof _value === 'string' ? 0 : _value);
-        applyAnimationValues({
-          isTransform,
-          propertyType,
-          property,
-          value: _value,
-        });
+        const valueIsString = typeof _value === 'string';
+        animation = generateAnimation(valueIsString ? 0 : _value);
+        onFrame(valueIsString ? 0 : _value);
 
         const subscribe = _subscribe(onUpdate, property, Date.now());
         subscribers.push(subscribe);

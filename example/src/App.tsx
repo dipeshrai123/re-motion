@@ -2,7 +2,9 @@
 // import UseFluidValue from './components/UseFluidValue';
 // import SequenceTransition from './components/SequenceTransition';
 // import Interpolation from './components/Interpolation';
-import Decay from './components/Decay';
+// import Decay from './components/Decay';
+
+import SharedElement from './examples/SharedElement';
 
 const App = () => (
   <>
@@ -16,10 +18,12 @@ const App = () => (
     <SequenceTransition />
 
     <h2>Interpolation</h2>
-    <Interpolation /> */}
+    <Interpolation />
 
     <h2>Decay</h2>
-    <Decay />
+    <Decay /> */}
+
+    <SharedElement />
   </>
 );
 
