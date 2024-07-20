@@ -25,7 +25,7 @@ export class TimingAnimation extends Animation {
   // Modifiers
   _delay: number;
   _tempDuration: number;
-  _onRest?: (value: ResultType) => void;
+  _onRest?: (value: number) => void;
   _onChange?: (value: number) => void;
 
   constructor({
@@ -78,6 +78,7 @@ export class TimingAnimation extends Animation {
       this.onChange(this._position);
 
       this._debounceOnEnd({ finished: true, value: this._position });
+      this._onRest?.(this._position);
       return;
     }
 

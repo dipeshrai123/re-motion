@@ -18,7 +18,7 @@ export class DecayAnimation extends Animation {
   _position: number;
 
   _delay: number;
-  _onRest?: (value: ResultType) => void;
+  _onRest?: (value: number) => void;
   _onChange?: (value: number) => void;
 
   constructor({
@@ -63,6 +63,7 @@ export class DecayAnimation extends Animation {
 
     if (Math.abs(this._lastPosition - this._position) < 0.1) {
       this._debounceOnEnd({ finished: true, value: this._position });
+      this._onRest?.(this._position);
       return;
     }
 
