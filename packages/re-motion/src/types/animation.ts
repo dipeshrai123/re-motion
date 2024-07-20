@@ -33,7 +33,7 @@ export interface FluidValueConfig {
   delay?: number;
   restDistance?: number;
   onChange?: Fn<number, void>;
-  onRest?: Fn<ResultType, void>;
+  onRest?: Fn<number, void>;
   onStart?: Fn<number, void>;
   decay?: boolean;
   velocity?: number;

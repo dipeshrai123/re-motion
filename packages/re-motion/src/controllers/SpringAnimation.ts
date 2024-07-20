@@ -30,7 +30,7 @@ export class SpringAnimation extends Animation {
 
   // Modifiers
   _delay: number;
-  _onRest?: (value: ResultType) => void;
+  _onRest?: (value: number) => void;
   _onChange?: (value: number) => void;
 
   constructor({
@@ -152,6 +152,7 @@ export class SpringAnimation extends Animation {
       this._lastTime = 0;
 
       this._debounceOnEnd({ finished: true, value: this._toValue });
+      this._onRest?.(this._position);
 
       return;
     }
