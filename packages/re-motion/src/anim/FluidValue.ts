@@ -1,89 +1,45 @@
-abstract class FluidAnimation {
-  abstract isActive: boolean;
-  abstract start(
-    value: number,
-    onChange: (value: number) => void,
-    onEnd: (value: number) => void,
-    previousAnimation: FluidAnimation
-  ): void;
-  abstract stop(): void;
-}
+import { FluidAnimation } from './FluidAnimation';
 
-type TimingConfig = {
-  toValue: number;
-  duration?: number;
-};
+function flushSubscriptions(rootNode: FluidValue) {
+  const fluidStyles = new Set();
 
-export class Timing extends FluidAnimation {
-  public isActive: boolean;
-  public startTime: number;
-  public fromValue: number;
-  public toValue: any;
-  public duration: number;
-  public animationFrame: any;
-  public onChange: (value: number) => void;
-  public onEnd: (value: number) => void;
-
-  constructor(config: TimingConfig) {
-    super();
-    this.toValue = config.toValue;
-    this.duration = config?.duration ?? 250;
-  }
-
-  start(
-    fromValue: number,
-    onChange: (value: number) => void,
-    onEnd: (value: number) => void
-  ) {
-    this.isActive = true;
-    this.fromValue = fromValue;
-    this.onChange = onChange;
-    this.onEnd = onEnd;
-
-    if (this.duration === 0) {
-      this.onChange(this.toValue);
+  const findFluidStyles = (node: any) => {
+    if (typeof node.update === 'function') {
+      fluidStyles.add(node);
     } else {
-      this.startTime = Date.now();
-      this.animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
+      node.getSubscriptions().forEach(findFluidStyles);
     }
-  }
+  };
 
-  stop() {
-    this.isActive = false;
-    cancelAnimationFrame(this.animationFrame);
-  }
+  findFluidStyles(rootNode);
 
-  onUpdate(): void {
-    var now = Date.now();
-
-    if (now >= this.startTime + this.duration) {
-      if (this.duration === 0) {
-        this.onChange(this.toValue);
-      } else {
-        this.onChange(this.fromValue + (this.toValue - this.fromValue));
-      }
-
-      return;
-    }
-
-    this.onChange(
-      this.fromValue +
-        ((now - this.startTime) / this.duration) *
-          (this.toValue - this.fromValue)
-    );
-
-    if (this.isActive) {
-      this.animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
-    }
-  }
+  fluidStyles.forEach((fluidStyle: any) => fluidStyle.update());
 }
 
 export class FluidValue {
   private value: number;
   private animation: FluidAnimation;
+  private subcriptions: Array<FluidValue> = [];
 
   constructor(value: number) {
     this.value = value;
+  }
+
+  private updateValue(value: number) {
+    this.value = value;
+    flushSubscriptions(this);
+  }
+
+  public get() {
+    return this.value;
+  }
+
+  public addSubscription(subscription: FluidValue) {
+    this.subcriptions.push(subscription);
+  }
+
+  public getSubscriptions() {
+    return this.subcriptions;
   }
 
   public animate(animation: FluidAnimation) {
@@ -93,7 +49,7 @@ export class FluidValue {
 
     animation.start(
       this.value,
-      (value) => console.log('change', value),
+      (value) => this.updateValue(value),
       (value) => console.log('end', value),
       previousAnimation
     );
