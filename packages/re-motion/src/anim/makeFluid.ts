@@ -7,26 +7,32 @@ import {
 } from 'react';
 
 import { FluidStyle } from './FluidStyle';
+import { getTransform, separateTransformStyle } from './transforms';
+import { getCssValue } from '../helpers';
+
+function applyFluidValues(ref: { current: any }, style: Record<string, any>) {
+  const { nonTransformStyle, transformStyle } = separateTransformStyle(style);
+
+  ref.current.style.transform = getTransform(transformStyle);
+  Object.entries(nonTransformStyle).forEach(([property, value]) => {
+    ref.current.style[property] = getCssValue(property, value);
+  });
+}
 
 export function makeFluid(WrapperComponent: any) {
   return forwardRef((givenProps: any, givenRef: any) => {
     const instanceRef = useRef<any>(null);
 
-    const fluidStyles = useRef<FluidStyle | null>(null);
+    const fluidStylesRef = useRef<FluidStyle | null>(null);
 
     useLayoutEffect(() => {
       const { style = {} } = givenProps;
 
-      fluidStyles.current = new FluidStyle(style, () => {
+      fluidStylesRef.current = new FluidStyle(style, () => {
         if (!instanceRef) return;
 
-        if (fluidStyles.current) {
-          Object.entries(fluidStyles.current.get()).forEach(
-            ([property, value]) => {
-              instanceRef.current.style[property] =
-                typeof value === 'string' ? value : value + 'px';
-            }
-          );
+        if (fluidStylesRef.current) {
+          applyFluidValues(instanceRef, fluidStylesRef.current.get());
         }
       });
     }, []);

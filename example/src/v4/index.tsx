@@ -15,12 +15,14 @@ const App = () => {
       </button>
 
       <FluidDiv
+        x={x}
         style={{
           width: 100,
           height: 100,
           backgroundColor: 'red',
           position: 'relative',
-          left: x,
+          translateX: x,
+          translateY: x,
         }}
       />
     </>
