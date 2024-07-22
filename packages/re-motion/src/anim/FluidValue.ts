@@ -1,45 +1,39 @@
+import { Fluid } from './Fluid';
 import { FluidAnimation } from './FluidAnimation';
 
-export class FluidValue {
+function applySubscriptions(rootNode: any) {
+  const fluidStyles = new Set();
+
+  const findFluidStyles = (node: any) => {
+    if (typeof node.update === 'function') {
+      fluidStyles.add(node);
+    } else {
+      node.getSubscriptions().forEach(findFluidStyles);
+    }
+  };
+
+  findFluidStyles(rootNode);
+
+  fluidStyles.forEach((fluidStyle: any) => fluidStyle.update());
+}
+
+export class FluidValue extends Fluid {
   private value: number;
   private animation: FluidAnimation;
-  private subcriptions: Array<FluidValue> = [];
 
   constructor(value: number) {
+    super();
     this.value = value;
-  }
-
-  private applySubscriptions() {
-    const fluidStyles = new Set();
-
-    const findFluidStyles = (node: any) => {
-      if (typeof node.update === 'function') {
-        fluidStyles.add(node);
-      } else {
-        node.getSubscriptions().forEach(findFluidStyles);
-      }
-    };
-
-    findFluidStyles(this);
-
-    fluidStyles.forEach((fluidStyle: any) => fluidStyle.update());
   }
 
   private updateValue(value: number) {
     this.value = value;
-    this.applySubscriptions();
+
+    applySubscriptions(this);
   }
 
   public get() {
     return this.value;
-  }
-
-  public addSubscription(subscription: FluidValue) {
-    this.subcriptions.push(subscription);
-  }
-
-  public getSubscriptions() {
-    return this.subcriptions;
   }
 
   public animate(animation: FluidAnimation) {

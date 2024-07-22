@@ -3,14 +3,16 @@ import {
   forwardRef,
   RefObject,
   useLayoutEffect,
+  useMemo,
   useRef,
 } from 'react';
 
-import { FluidStyle } from './FluidStyle';
+import { FluidProps } from './Fluid';
 import { getTransform, separateTransformStyle } from './transforms';
 import { getCssValue } from '../helpers';
 
-function applyFluidValues(ref: { current: any }, style: Record<string, any>) {
+function applyFluidValues(ref: { current: any }, props: Record<string, any>) {
+  const { style = {} } = props;
   const { nonTransformStyle, transformStyle } = separateTransformStyle(style);
 
   ref.current.style.transform = getTransform(transformStyle);
@@ -23,12 +25,10 @@ export function makeFluid(WrapperComponent: any) {
   return forwardRef((givenProps: any, givenRef: any) => {
     const instanceRef = useRef<any>(null);
 
-    const fluidStylesRef = useRef<FluidStyle | null>(null);
+    const fluidStylesRef = useRef<FluidProps | null>(null);
 
     useLayoutEffect(() => {
-      const { style = {} } = givenProps;
-
-      fluidStylesRef.current = new FluidStyle(style, () => {
+      fluidStylesRef.current = new FluidProps(givenProps, () => {
         if (!instanceRef) return;
 
         if (fluidStylesRef.current) {
@@ -37,8 +37,21 @@ export function makeFluid(WrapperComponent: any) {
       });
     }, []);
 
+    const initialProps = useMemo(() => {
+      const { style = {} } = new FluidProps(givenProps, () => {}).get();
+      const { nonTransformStyle, transformStyle } =
+        separateTransformStyle(style);
+
+      return {
+        style: {
+          ...nonTransformStyle,
+          transform: getTransform(transformStyle),
+        },
+      };
+    }, [givenProps]);
+
     return createElement(WrapperComponent, {
-      ...givenProps,
+      ...initialProps,
       ref: combineRefs(instanceRef, givenRef),
     });
   });

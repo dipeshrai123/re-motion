@@ -6,7 +6,7 @@ const { FluidValue, Timing, makeFluid } = v4;
 const FluidDiv = makeFluid('div');
 
 const App = () => {
-  const x = useRef(new FluidValue(0)).current;
+  const x = useRef(new FluidValue(50)).current;
 
   return (
     <>
