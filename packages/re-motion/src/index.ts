@@ -14,3 +14,7 @@ export { FluidValue } from './controllers/FluidValue';
 export type { FluidValueConfig, Length } from './types/animation';
 export type { UseMountConfig } from './react/useMount';
 export type { ExtrapolateConfig } from './interpolation/Interpolation';
+
+// v4
+
+export * as v4 from './anim';

@@ -4,7 +4,10 @@
 // import Interpolation from './components/Interpolation';
 // import Decay from './components/Decay';
 
-import SharedElement from './examples/SharedElement';
+// import SharedElement from './examples/SharedElement';
+
+// v4
+import Example from './v4';
 
 const App = () => (
   <>
@@ -22,8 +25,9 @@ const App = () => (
 
     <h2>Decay</h2>
     <Decay /> */}
+    {/* <SharedElement /> */}
 
-    <SharedElement />
+    <Example />
   </>
 );
 
