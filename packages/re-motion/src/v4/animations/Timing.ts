@@ -30,14 +30,14 @@ export class Timing extends FluidAnimation {
   }
 
   start(
-    fromValue: number,
+    value: number,
     onChange: (value: number) => void,
     onEnd: (result: EndResultType) => void | null,
-    previousAnimation?: FluidAnimation | null
+    previousAnimation: FluidAnimation | null
   ) {
     const onStart = () => {
       this.isActive = true;
-      this.fromValue = this.position = fromValue;
+      this.fromValue = this.position = value;
       this.onChange = onChange;
       this.onEnd = onEnd;
 
@@ -66,6 +66,7 @@ export class Timing extends FluidAnimation {
 
   stop() {
     this.isActive = false;
+    clearTimeout(this.timeout);
     cancelAnimationFrame(this.animationFrame);
     this.debouncedOnEnd({ finished: false, value: this.position });
   }

@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { v4 } from '@raidipesh78/re-motion';
 
-const { FluidValue, makeFluid, timing, Easing } = v4;
+const { FluidValue, makeFluid, timing, Easing, Spring } = v4;
 
 const FluidDiv = makeFluid('div');
 
@@ -11,11 +11,17 @@ const App = () => {
   return (
     <>
       <button
+        onClick={() => x.animate(new Spring({ toValue: 0, friction: 10 }))}
+      >
+        Spring
+      </button>
+
+      <button
         onClick={() =>
-          timing(x, { toValue: 300, duration: 5000, easing: Easing.bounce })
+          timing(x, { toValue: 300, duration: 500, easing: Easing.bounce })
         }
       >
-        Click Me
+        Timing
       </button>
 
       <FluidDiv
