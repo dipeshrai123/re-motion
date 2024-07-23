@@ -1,67 +1,92 @@
-import { FluidAnimation } from './FluidAnimation';
+import { Easing } from '../easing/Easing';
+import { FluidAnimation, EndResultType } from './FluidAnimation';
 
 export type TimingConfig = {
   toValue: number;
   duration?: number;
+  easing?: (value: number) => number;
+  delay?: number;
 };
 
 export class Timing extends FluidAnimation {
   public isActive: boolean;
+  public position: number;
   public startTime: number;
   public fromValue: number;
-  public toValue: any;
+  public toValue: number;
   public duration: number;
+  public delay: number;
+  public timeout: any;
   public animationFrame: any;
+  public easing: (value: number) => number;
   public onChange: (value: number) => void;
-  public onEnd: (value: number) => void;
 
   constructor(config: TimingConfig) {
     super();
     this.toValue = config.toValue;
     this.duration = config?.duration ?? 250;
+    this.easing = config?.easing ?? Easing.linear;
+    this.delay = config?.delay ?? 0;
   }
 
   start(
     fromValue: number,
     onChange: (value: number) => void,
-    onEnd: (value: number) => void
+    onEnd: (result: EndResultType) => void | null,
+    previousAnimation?: FluidAnimation | null
   ) {
-    this.isActive = true;
-    this.fromValue = fromValue;
-    this.onChange = onChange;
-    this.onEnd = onEnd;
+    const onStart = () => {
+      this.isActive = true;
+      this.fromValue = this.position = fromValue;
+      this.onChange = onChange;
+      this.onEnd = onEnd;
 
-    if (this.duration === 0) {
-      this.onChange(this.toValue);
-    } else {
-      this.startTime = Date.now();
+      if (
+        previousAnimation &&
+        previousAnimation instanceof Timing &&
+        previousAnimation.toValue === this.toValue &&
+        previousAnimation.startTime
+      ) {
+        this.startTime = previousAnimation.startTime;
+        this.fromValue = previousAnimation.fromValue;
+      } else {
+        this.startTime = Date.now();
+        this.fromValue = this.position;
+      }
+
       this.animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
+    };
+
+    if (this.delay !== 0) {
+      this.timeout = setTimeout(() => onStart(), this.delay);
+    } else {
+      onStart();
     }
   }
 
   stop() {
     this.isActive = false;
     cancelAnimationFrame(this.animationFrame);
+    this.debouncedOnEnd({ finished: false, value: this.position });
   }
 
-  onUpdate(): void {
-    var now = Date.now();
+  onUpdate() {
+    const now = Date.now();
+    const runTime = now - this.startTime;
 
-    if (now >= this.startTime + this.duration) {
-      if (this.duration === 0) {
-        this.onChange(this.toValue);
-      } else {
-        this.onChange(this.fromValue + (this.toValue - this.fromValue));
-      }
+    if (runTime >= this.duration) {
+      this.startTime = 0;
+      this.position = this.toValue;
 
+      this.onChange(this.position);
+      this.debouncedOnEnd({ finished: true, value: this.position });
       return;
     }
 
-    this.onChange(
-      this.fromValue +
-        ((now - this.startTime) / this.duration) *
-          (this.toValue - this.fromValue)
-    );
+    const progress = this.easing(runTime / this.duration);
+    this.position = this.fromValue + (this.toValue - this.fromValue) * progress;
+
+    this.onChange(this.position);
 
     if (this.isActive) {
       this.animationFrame = requestAnimationFrame(this.onUpdate.bind(this));

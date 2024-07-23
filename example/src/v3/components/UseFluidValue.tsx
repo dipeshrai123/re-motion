@@ -1,9 +1,9 @@
-import { fluid, useFluidValue } from '@raidipesh78/re-motion';
+import { Easing, fluid, useFluidValue } from '@raidipesh78/re-motion';
 
 const App = () => {
   const [translateX, setTranslateX] = useFluidValue(0, {
-    tension: 250,
-    friction: 18,
+    duration: 1000,
+    easing: Easing.bounce,
   });
 
   return (
