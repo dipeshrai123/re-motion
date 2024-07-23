@@ -1,5 +1,5 @@
 import { Fluid } from './Fluid';
-import { FluidAnimation } from './FluidAnimation';
+import { FluidAnimation } from '../animations/FluidAnimation';
 
 function updateSubscriptions(rootNode: any) {
   const fluidStyles = new Set();

@@ -17,4 +17,4 @@ export type { ExtrapolateConfig } from './interpolation/Interpolation';
 
 // v4
 
-export * as v4 from './anim';
+export * as v4 from './v4';
