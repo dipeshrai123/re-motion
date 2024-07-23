@@ -1,21 +1,8 @@
-class FluidBase {
+export class Fluid {
   public get() {}
   public attach() {}
-  public addSubscription(_subscription: FluidBase) {}
-}
-
-export class Fluid extends FluidBase {
-  private subcriptions: Array<FluidBase> = [];
-
-  public addSubscription(subscription: FluidBase) {
-    if (this.subcriptions.length === 0) {
-      this.attach();
-    }
-    this.subcriptions.push(subscription);
-  }
-
-  public getSubscriptions() {
-    return this.subcriptions;
+  public addSubscription(subscription: Fluid) {
+    void subscription;
   }
 }
 
@@ -27,19 +14,11 @@ class FluidStyle extends Fluid {
     this.style = style;
   }
 
-  public attach() {
-    for (const value of Object.values(this.style)) {
-      if (value instanceof FluidBase) {
-        value.addSubscription(this);
-      }
-    }
-  }
-
   public get() {
     const result: Record<string, any> = {};
 
     for (const [property, value] of Object.entries(this.style)) {
-      if (value instanceof FluidBase) {
+      if (value instanceof Fluid) {
         result[property] = value.get();
       } else {
         result[property] = value;
@@ -50,7 +29,7 @@ class FluidStyle extends Fluid {
   }
 }
 
-export class FluidProps extends FluidBase {
+export class FluidProps extends Fluid {
   private props: Record<string, any>;
   private callback: () => void;
 
@@ -70,7 +49,7 @@ export class FluidProps extends FluidBase {
 
   public attach() {
     for (const value of Object.values(this.props)) {
-      if (value instanceof FluidBase) {
+      if (value instanceof Fluid) {
         value.addSubscription(this);
       }
     }
@@ -80,7 +59,7 @@ export class FluidProps extends FluidBase {
     const result: Record<string, any> = {};
 
     for (const [property, value] of Object.entries(this.props)) {
-      if (value instanceof FluidBase) {
+      if (value instanceof Fluid) {
         result[property] = value.get();
       } else {
         result[property] = value;

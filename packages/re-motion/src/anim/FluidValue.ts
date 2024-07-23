@@ -1,7 +1,7 @@
 import { Fluid } from './Fluid';
 import { FluidAnimation } from './FluidAnimation';
 
-function applySubscriptions(rootNode: any) {
+function updateSubscriptions(rootNode: any) {
   const fluidStyles = new Set();
 
   const findFluidStyles = (node: any) => {
@@ -20,6 +20,7 @@ function applySubscriptions(rootNode: any) {
 export class FluidValue extends Fluid {
   private value: number;
   private animation: FluidAnimation;
+  private subcriptions: Array<Fluid> = [];
 
   constructor(value: number) {
     super();
@@ -28,8 +29,15 @@ export class FluidValue extends Fluid {
 
   private updateValue(value: number) {
     this.value = value;
+    updateSubscriptions(this);
+  }
 
-    applySubscriptions(this);
+  public addSubscription(subscription: Fluid) {
+    this.subcriptions.push(subscription);
+  }
+
+  public getSubscriptions() {
+    return this.subcriptions;
   }
 
   public get() {
