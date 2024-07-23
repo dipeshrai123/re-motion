@@ -1,6 +1,6 @@
 import { FluidAnimation } from './FluidAnimation';
 
-type TimingConfig = {
+export type TimingConfig = {
   toValue: number;
   duration?: number;
 };
