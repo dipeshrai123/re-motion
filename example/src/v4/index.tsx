@@ -19,10 +19,9 @@ const App = () => {
         style={{
           width: 100,
           height: 100,
-          backgroundColor: 'red',
+          backgroundColor: x.interpolate([50, 100], ['red', 'green']),
           position: 'relative',
           translateX: x,
-          translateY: x,
         }}
       />
     </>

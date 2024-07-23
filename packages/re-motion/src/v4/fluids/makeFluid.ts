@@ -7,9 +7,9 @@ import {
   useRef,
 } from 'react';
 
-import { FluidProps } from './Fluid';
+import { FluidProps } from './FluidProps';
 import { getTransform, separateTransformStyle } from './transforms';
-import { getCssValue } from '../../helpers';
+import { getCssValue } from '../helpers';
 
 function applyFluidValues(ref: { current: any }, props: Record<string, any>) {
   const { style = {} } = props;

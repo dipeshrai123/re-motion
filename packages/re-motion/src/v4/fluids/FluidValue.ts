@@ -1,5 +1,7 @@
-import { Fluid } from './Fluid';
 import { FluidAnimation } from '../animations/FluidAnimation';
+import { FluidInterpolation } from './FluidInterpolation';
+import { FluidSubscriptions } from './FluidSubscriptions';
+import { ExtrapolateConfig, interpolate } from '../interpolation/Interpolation';
 
 function updateSubscriptions(rootNode: any) {
   const fluidStyles = new Set();
@@ -17,10 +19,9 @@ function updateSubscriptions(rootNode: any) {
   fluidStyles.forEach((fluidStyle: any) => fluidStyle.update());
 }
 
-export class FluidValue extends Fluid {
+export class FluidValue extends FluidSubscriptions {
   private value: number;
   private animation: FluidAnimation;
-  private subcriptions: Array<Fluid> = [];
 
   constructor(value: number) {
     super();
@@ -30,14 +31,6 @@ export class FluidValue extends Fluid {
   private updateValue(value: number) {
     this.value = value;
     updateSubscriptions(this);
-  }
-
-  public addSubscription(subscription: Fluid) {
-    this.subcriptions.push(subscription);
-  }
-
-  public getSubscriptions() {
-    return this.subcriptions;
   }
 
   public get() {
@@ -54,6 +47,17 @@ export class FluidValue extends Fluid {
       (value) => this.updateValue(value),
       (value) => console.log('end', value),
       previousAnimation
+    );
+  }
+
+  public interpolate(
+    inputRange: Array<number>,
+    outputRange: Array<string | number>,
+    extrapolateConfig?: ExtrapolateConfig
+  ) {
+    return new FluidInterpolation(
+      this,
+      interpolate(inputRange, outputRange, extrapolateConfig)
     );
   }
 }
