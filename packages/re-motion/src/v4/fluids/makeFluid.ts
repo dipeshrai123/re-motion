@@ -8,18 +8,7 @@ import {
 } from 'react';
 
 import { FluidProps } from './FluidProps';
-import { getTransform, separateTransformStyle } from './transforms';
-import { getCssValue } from '../helpers';
-
-function applyFluidValues(ref: { current: any }, props: Record<string, any>) {
-  const { style = {} } = props;
-  const { nonTransformStyle, transformStyle } = separateTransformStyle(style);
-
-  ref.current.style.transform = getTransform(transformStyle);
-  Object.entries(nonTransformStyle).forEach(([property, value]) => {
-    ref.current.style[property] = getCssValue(property, value);
-  });
-}
+import { applyFluidValues, getInitialProps } from '../helpers';
 
 export function makeFluid(WrapperComponent: any) {
   return forwardRef((givenProps: any, givenRef: any) => {
@@ -39,28 +28,16 @@ export function makeFluid(WrapperComponent: any) {
       });
 
       oldFluidStyleRef?.detach();
-    }, []);
-
-    const initialProps = useMemo(() => {
-      const { style = {}, ...attrs } = new FluidProps(
-        givenProps,
-        () => {}
-      ).get();
-      const { nonTransformStyle, transformStyle } =
-        separateTransformStyle(style);
-
-      return {
-        ...attrs,
-        style: {
-          ...nonTransformStyle,
-          transform: getTransform(transformStyle),
-        },
-      };
     }, [givenProps]);
 
+    const initialProps = useMemo(
+      () => getInitialProps(givenProps),
+      [givenProps]
+    );
+
     return createElement(WrapperComponent, {
-      ...initialProps,
       ref: combineRefs(instanceRef, givenRef),
+      ...initialProps,
     });
   });
 }
