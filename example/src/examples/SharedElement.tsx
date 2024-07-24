@@ -3,7 +3,7 @@ import {
   useMount,
   useFluidValue,
   fluid,
-  FluidValueConfig,
+  UseFluidValueConfig,
   interpolate,
 } from '@raidipesh78/re-motion';
 import { useDrag } from '@use-gesture/react';
@@ -58,7 +58,7 @@ export default function App() {
 
   useLayoutEffect(() => {
     if (activeIndex !== null) {
-      const activeBox = document.getElementById(`box-${activeIndex}`);
+      const activeBox = document.getElementById(`box-v3-${activeIndex}`);
       if (activeBox) {
         const { left, top, width, height } = activeBox.getBoundingClientRect();
 
@@ -98,7 +98,7 @@ export default function App() {
           await next({ toValue: height, config: { immediate: true } });
           await sleep(100);
           await next({
-            toValue: 500,
+            toValue: window.innerHeight,
             config: animationConfig,
           });
         });
@@ -108,12 +108,12 @@ export default function App() {
 
   const closeSharedElement = () => {
     if (activeIndex !== null) {
-      const activeBox = document.getElementById(`box-${activeIndex}`);
+      const activeBox = document.getElementById(`box-v3-${activeIndex}`);
 
       if (activeBox) {
         const { left, top, width, height } = activeBox.getBoundingClientRect();
 
-        const restConfig: FluidValueConfig = {
+        const restConfig: UseFluidValueConfig = {
           mass: 1,
           friction: 20,
           tension: 300,
@@ -126,8 +126,9 @@ export default function App() {
           toValue: height,
           config: {
             ...restConfig,
-            onRest: (v) => {
-              console.log(v);
+            onRest: () => {
+              setActiveIndex(-1);
+              setExpanded(false);
             },
           },
         });
@@ -157,7 +158,7 @@ export default function App() {
 
           return (
             <div
-              id={`box-${index}`}
+              id={`box-v3-${index}`}
               key={index}
               style={{
                 height: BOX_SIZE,
