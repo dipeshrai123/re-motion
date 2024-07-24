@@ -22,7 +22,13 @@ interface FluidValueConfig {
   //   deceleration?: number;
 }
 
-export const useFluidValue = (value: number, config?: FluidValueConfig) => {
+export const useFluidValue = (
+  value: number,
+  config?: FluidValueConfig
+): [
+  FluidValue,
+  (updateValue: { toValue: number; config?: FluidValueConfig }) => void
+] => {
   const fluid = useRef(new FluidValue(value)).current;
 
   const setFluid = useCallback(

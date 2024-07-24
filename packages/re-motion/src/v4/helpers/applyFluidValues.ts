@@ -1,9 +1,6 @@
-import {
-  camelToKebab,
-  getCssValue,
-  getTransform,
-  separateTransformStyle,
-} from '../helpers';
+import { camelToKebab } from './camelToKebab';
+import { getCssValue } from './getCssValue';
+import { getTransform, separateTransformStyle } from './transforms';
 
 function applyStyle(ref: { current: any }, style: Record<string, any>) {
   const { nonTransformStyle, transformStyle } = separateTransformStyle(style);
