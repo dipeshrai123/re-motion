@@ -1,14 +1,9 @@
+import { uniqueId } from '../helpers/uniqueId';
 import { EndResultType, FluidAnimation } from '../animations/FluidAnimation';
+import { ExtrapolateConfig, interpolate } from '../interpolation/Interpolation';
 import { FluidInterpolation } from './FluidInterpolation';
 import { FluidSubscriptions } from './FluidSubscriptions';
-import { ExtrapolateConfig, interpolate } from '../interpolation/Interpolation';
 import { Fluid } from './Fluid';
-
-var _uniqueId = 0;
-
-export function uniqueId() {
-  return String(_uniqueId++);
-}
 
 function updateSubscriptions(rootNode: any) {
   const fluidStyles = new Set();
