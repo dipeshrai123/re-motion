@@ -1,6 +1,7 @@
 import { Fluid } from './Fluid';
+import { FluidSubscriptions } from './FluidSubscriptions';
 
-export class FluidStyle extends Fluid {
+export class FluidStyle extends FluidSubscriptions {
   private style: Record<string, any>;
 
   constructor(style: Record<string, any>) {

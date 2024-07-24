@@ -32,8 +32,8 @@ export class Spring extends FluidAnimation {
     this.velocity = 0;
     this.toValue = config.toValue;
     this.mass = config?.mass ?? 1;
-    this.tension = config?.tension ?? 170;
-    this.friction = config?.friction ?? 26;
+    this.tension = config?.tension ?? 210;
+    this.friction = config?.friction ?? 18;
     this.delay = config?.delay ?? 0;
   }
 

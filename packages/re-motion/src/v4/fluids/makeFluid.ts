@@ -28,6 +28,8 @@ export function makeFluid(WrapperComponent: any) {
     const fluidStylesRef = useRef<FluidProps | null>(null);
 
     useLayoutEffect(() => {
+      const oldFluidStyleRef = fluidStylesRef.current;
+
       fluidStylesRef.current = new FluidProps(givenProps, () => {
         if (!instanceRef) return;
 
@@ -36,9 +38,7 @@ export function makeFluid(WrapperComponent: any) {
         }
       });
 
-      return () => {
-        fluidStylesRef.current?.detach();
-      };
+      oldFluidStyleRef?.detach();
     }, []);
 
     const initialProps = useMemo(() => {
