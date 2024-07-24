@@ -8,7 +8,7 @@ export class FluidAnimation {
     value: number,
     onChange: (value: number) => void,
     onEnd: (result: EndResultType) => void,
-    previousAnimation: FluidAnimation
+    previousAnimation: FluidAnimation | null
   ) {
     void value;
     void onChange;

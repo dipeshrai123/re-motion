@@ -27,6 +27,14 @@ export class FluidProps extends Fluid {
     }
   }
 
+  public detach() {
+    for (const value of Object.entries(this.props)) {
+      if (value instanceof Fluid) {
+        value.removeSubscription(this);
+      }
+    }
+  }
+
   public get() {
     const result: Record<string, any> = {};
 

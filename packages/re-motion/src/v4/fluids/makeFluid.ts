@@ -35,6 +35,10 @@ export function makeFluid(WrapperComponent: any) {
           applyFluidValues(instanceRef, fluidStylesRef.current.get());
         }
       });
+
+      return () => {
+        fluidStylesRef.current?.detach();
+      };
     }, []);
 
     const initialProps = useMemo(() => {
