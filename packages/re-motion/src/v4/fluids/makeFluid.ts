@@ -42,11 +42,15 @@ export function makeFluid(WrapperComponent: any) {
     }, []);
 
     const initialProps = useMemo(() => {
-      const { style = {} } = new FluidProps(givenProps, () => {}).get();
+      const { style = {}, ...attrs } = new FluidProps(
+        givenProps,
+        () => {}
+      ).get();
       const { nonTransformStyle, transformStyle } =
         separateTransformStyle(style);
 
       return {
+        ...attrs,
         style: {
           ...nonTransformStyle,
           transform: getTransform(transformStyle),

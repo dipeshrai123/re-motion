@@ -52,8 +52,9 @@ export class Spring extends FluidAnimation {
       const now = Date.now();
 
       if (previousAnimation instanceof Spring) {
-        this.velocity = previousAnimation.velocity || this.velocity || 0;
-        this.startTime = previousAnimation.startTime || now;
+        this.position = previousAnimation.position;
+        this.velocity = previousAnimation.velocity;
+        this.startTime = previousAnimation.startTime;
       } else {
         this.startTime = now;
       }

@@ -56,7 +56,9 @@ export class FluidValue extends FluidSubscriptions {
 
     animation.start(
       this.value,
-      (value) => this.updateValue(value),
+      (value) => {
+        this.updateValue(value);
+      },
       (value) => {
         this.animation?.stop();
         callback && callback(value);
