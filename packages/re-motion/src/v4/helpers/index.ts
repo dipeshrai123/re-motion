@@ -3,3 +3,4 @@ export { camelToKebab } from './camelToKebab';
 export { getTransform, separateTransformStyle } from './transforms';
 export { applyFluidValues } from './applyFluidValues';
 export { getInitialProps } from './getInitialProps';
+export { isDefined } from './isDefined';

@@ -5,3 +5,6 @@ export { Easing } from './easing/Easing';
 
 // animation controllers
 export { timing, spring } from './controllers';
+
+// hooks
+export { useFluidValue } from './hooks/useFluidValue';
