@@ -30,6 +30,7 @@ export const useFluidValue = (
   (updateValue: { toValue: number; config?: FluidValueConfig }) => void
 ] => {
   const fluid = useRef(new FluidValue(value)).current;
+  const listenerIdRef = useRef<string>();
 
   const setFluid = useCallback(
     (updateValue: { toValue: number; config?: FluidValueConfig }) => {
@@ -38,7 +39,10 @@ export const useFluidValue = (
       config?.onStart && config.onStart(fluid.get());
 
       if (config?.onChange) {
-        fluid.addListener((value) => config?.onChange?.(value));
+        fluid.removeAllListeners();
+        listenerIdRef.current = fluid.addListener((value) =>
+          config?.onChange?.(value)
+        );
       }
 
       if (isDefined(config?.duration) || config?.immediate) {
