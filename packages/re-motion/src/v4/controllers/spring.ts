@@ -1,5 +1,6 @@
 import { EndResultType } from '../animations/FluidAnimation';
 import { Spring, SpringConfig } from '../animations/Spring';
+import { Fluid } from '../fluids/Fluid';
 import { FluidTrack } from '../fluids/FluidTrack';
 import { FluidValue } from '../fluids/FluidValue';
 
@@ -9,7 +10,7 @@ export const spring = (
   callback?: (value: EndResultType) => void
 ) => {
   value.stopTrack();
-  if (config.toValue instanceof FluidValue) {
+  if (config.toValue instanceof Fluid) {
     value.startTrack(
       new FluidTrack(value, config.toValue, Spring, config, callback)
     );
