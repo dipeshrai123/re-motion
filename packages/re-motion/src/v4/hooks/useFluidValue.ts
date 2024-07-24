@@ -14,9 +14,9 @@ interface FluidValueConfig {
   immediate?: boolean;
   delay?: number;
   restDistance?: number;
-  //   onChange?: Fn<number, void>;
+  onChange?: Fn<number, void>;
   onRest?: Fn<number, void>;
-  //   onStart?: Fn<number, void>;
+  onStart?: Fn<number, void>;
   //   decay?: boolean;
   //   velocity?: number;
   //   deceleration?: number;
@@ -24,7 +24,7 @@ interface FluidValueConfig {
 
 export const useFluidValue = (
   value: number,
-  config?: FluidValueConfig
+  defaultConfig?: FluidValueConfig
 ): [
   FluidValue,
   (updateValue: { toValue: number; config?: FluidValueConfig }) => void
@@ -33,6 +33,14 @@ export const useFluidValue = (
 
   const setFluid = useCallback(
     (updateValue: { toValue: number; config?: FluidValueConfig }) => {
+      const config = { ...defaultConfig, ...updateValue.config };
+
+      config?.onStart && config.onStart(fluid.get());
+
+      if (config?.onChange) {
+        fluid.addListener((value) => config?.onChange?.(value));
+      }
+
       if (isDefined(config?.duration) || config?.immediate) {
         const timingConfig = {
           toValue: updateValue.toValue,
@@ -40,6 +48,7 @@ export const useFluidValue = (
           duration: config?.duration,
           easing: config?.easing,
         };
+
         timing(
           fluid,
           timingConfig,
@@ -54,6 +63,7 @@ export const useFluidValue = (
           friction: config?.friction,
           restDistance: config?.restDistance,
         };
+
         spring(
           fluid,
           springConfig,
@@ -61,7 +71,7 @@ export const useFluidValue = (
         );
       }
     },
-    [config]
+    [defaultConfig]
   );
 
   return [fluid, setFluid];

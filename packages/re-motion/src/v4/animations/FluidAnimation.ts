@@ -6,12 +6,12 @@ export class FluidAnimation {
 
   public start(
     value: number,
-    onChange: (value: number) => void,
+    onFrame: (value: number) => void,
     onEnd: (result: EndResultType) => void,
     previousAnimation: FluidAnimation | null
   ) {
     void value;
-    void onChange;
+    void onFrame;
     void onEnd;
     void previousAnimation;
   }

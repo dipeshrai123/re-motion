@@ -22,7 +22,7 @@ export class Spring extends FluidAnimation {
   private delay: number;
   private timeout: any;
   private aniamtionFrame: any;
-  private onChange: (value: number) => void;
+  private onFrame: (value: number) => void;
 
   constructor(config: SpringConfig) {
     super();
@@ -39,14 +39,14 @@ export class Spring extends FluidAnimation {
 
   start = (
     value: number,
-    onChange: (value: number) => void,
+    onFrame: (value: number) => void,
     onEnd: (result: EndResultType) => void | null,
     previousAnimation: FluidAnimation | null
   ) => {
     const onStart = () => {
       this.isActive = true;
       this.position = value;
-      this.onChange = onChange;
+      this.onFrame = onFrame;
       this.onEnd = onEnd;
 
       const now = Date.now();
@@ -120,7 +120,7 @@ export class Spring extends FluidAnimation {
       criticallyDampedEnvelope *
       (v0 * (t * omega0 - 1) + t * x0 * omega0 * omega0);
 
-    this.onChange(this.position);
+    this.onFrame(this.position);
 
     const isVelocity = Math.abs(this.velocity) < this.restSpeedThreshold;
     const isDisplacement =
@@ -140,7 +140,7 @@ export class Spring extends FluidAnimation {
         this.velocity = 0;
         this.position = this.toValue;
 
-        this.onChange(this.position);
+        this.onFrame(this.position);
       }
 
       this.startTime = 0;

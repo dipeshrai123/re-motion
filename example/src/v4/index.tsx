@@ -11,14 +11,43 @@ const App = () => {
         onClick={() =>
           setTranslateX({
             toValue: 0,
-            config: { onRest: (value) => console.log(value) },
+            config: {
+              onStart: (v) => {
+                console.log('left start', v);
+              },
+              onChange: (v) => {
+                console.log('left change', v);
+              },
+              onRest: (v) => {
+                console.log('left end', v);
+              },
+            },
           })
         }
       >
         LEFT
       </button>
 
-      <button onClick={() => setTranslateX({ toValue: 300 })}>RIGHT</button>
+      <button
+        onClick={() =>
+          setTranslateX({
+            toValue: 300,
+            config: {
+              onStart: (v) => {
+                console.log('right start ', v);
+              },
+              onChange: (v) => {
+                console.log('right change', v);
+              },
+              onRest: (v) => {
+                console.log('right end', v);
+              },
+            },
+          })
+        }
+      >
+        RIGHT
+      </button>
 
       <fluid.div
         style={{

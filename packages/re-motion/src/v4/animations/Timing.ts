@@ -19,7 +19,7 @@ export class Timing extends FluidAnimation {
   public timeout: any;
   public animationFrame: any;
   public easing: (value: number) => number;
-  public onChange: (value: number) => void;
+  public onFrame: (value: number) => void;
 
   constructor(config: TimingConfig) {
     super();
@@ -31,14 +31,14 @@ export class Timing extends FluidAnimation {
 
   start(
     value: number,
-    onChange: (value: number) => void,
+    onFrame: (value: number) => void,
     onEnd: (result: EndResultType) => void | null,
     previousAnimation: FluidAnimation | null
   ) {
     const onStart = () => {
       this.isActive = true;
       this.fromValue = this.position = value;
-      this.onChange = onChange;
+      this.onFrame = onFrame;
       this.onEnd = onEnd;
 
       if (
@@ -79,7 +79,7 @@ export class Timing extends FluidAnimation {
       this.startTime = 0;
       this.position = this.toValue;
 
-      this.onChange(this.position);
+      this.onFrame(this.position);
       this.debouncedOnEnd({ finished: true, value: this.position });
       return;
     }
@@ -87,7 +87,7 @@ export class Timing extends FluidAnimation {
     const progress = this.easing(runTime / this.duration);
     this.position = this.fromValue + (this.toValue - this.fromValue) * progress;
 
-    this.onChange(this.position);
+    this.onFrame(this.position);
 
     if (this.isActive) {
       this.animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
