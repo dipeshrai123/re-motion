@@ -31,17 +31,19 @@ const App = () => {
       <button
         onClick={() =>
           setTranslateX({
-            toValue: 300,
+            // toValue: 300,
             config: {
-              onStart: (v) => {
-                console.log('right start ', v);
-              },
-              onChange: (v) => {
-                console.log('right change', v);
-              },
-              onRest: (v) => {
-                console.log('right end', v);
-              },
+              decay: true,
+              velocity: 1,
+              // onStart: (v) => {
+              //   console.log('right start ', v);
+              // },
+              // onChange: (v) => {
+              //   console.log('right change', v);
+              // },
+              // onRest: (v) => {
+              //   console.log('right end', v);
+              // },
             },
           })
         }

@@ -1,30 +1,28 @@
-import { Easing } from '../easing/Easing';
 import { FluidAnimation, EndResultType } from './FluidAnimation';
 
-export type TimingConfig = {
-  toValue: number;
-  duration?: number;
-  easing?: (value: number) => number;
+export type DecayConfig = {
+  velocity?: number;
+  deceleration?: number;
   delay?: number;
 };
 
-export class Timing extends FluidAnimation {
-  private position: number;
+export class Decay extends FluidAnimation {
   private startTime: number;
   private fromValue: number;
-  private toValue: number;
-  private duration: number;
+  private position: number;
+  private lastPosition: number;
+  private velocity: number;
+  private deceleration: number;
   private delay: number;
   private timeout: any;
   private animationFrame: any;
-  private easing: (value: number) => number;
   private onFrame: (value: number) => void;
 
-  constructor(config: TimingConfig) {
+  constructor(config: DecayConfig) {
     super();
-    this.toValue = config.toValue;
-    this.duration = config?.duration ?? 250;
-    this.easing = config?.easing ?? Easing.linear;
+
+    this.deceleration = config?.deceleration ?? 0.998;
+    this.velocity = config?.velocity ?? 0;
     this.delay = config?.delay ?? 0;
   }
 
@@ -36,21 +34,15 @@ export class Timing extends FluidAnimation {
   ) {
     const onStart = () => {
       this.isActive = true;
-      this.fromValue = this.position = value;
+      this.fromValue = this.position = this.lastPosition = value;
       this.onFrame = onFrame;
       this.onEnd = onEnd;
 
-      if (
-        previousAnimation &&
-        previousAnimation instanceof Timing &&
-        previousAnimation.toValue === this.toValue &&
-        previousAnimation.startTime
-      ) {
-        this.startTime = previousAnimation.startTime;
-        this.fromValue = previousAnimation.fromValue;
-      } else {
-        this.startTime = Date.now();
-        this.fromValue = this.position;
+      this.startTime = Date.now();
+
+      if (previousAnimation instanceof Decay) {
+        this.velocity = previousAnimation.velocity;
+        this.deceleration = previousAnimation.deceleration;
       }
 
       this.animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
@@ -72,21 +64,20 @@ export class Timing extends FluidAnimation {
 
   onUpdate() {
     const now = Date.now();
-    const runTime = now - this.startTime;
 
-    if (runTime >= this.duration) {
-      this.startTime = 0;
-      this.position = this.toValue;
+    this.position =
+      this.fromValue +
+      (this.velocity / (1 - this.deceleration)) *
+        (1 - Math.exp(-(1 - this.deceleration) * (now - this.startTime)));
 
-      this.onFrame(this.position);
+    if (Math.abs(this.lastPosition - this.position) < 0.1) {
       this.debouncedOnEnd({ finished: true, value: this.position });
       return;
     }
 
-    const progress = this.easing(runTime / this.duration);
-    this.position = this.fromValue + (this.toValue - this.fromValue) * progress;
-
     this.onFrame(this.position);
+
+    this.lastPosition = this.position;
 
     if (this.isActive) {
       this.animationFrame = requestAnimationFrame(this.onUpdate.bind(this));

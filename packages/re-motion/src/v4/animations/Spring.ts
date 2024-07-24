@@ -21,7 +21,7 @@ export class Spring extends FluidAnimation {
   private friction: number;
   private delay: number;
   private timeout: any;
-  private aniamtionFrame: any;
+  private animationFrame: any;
   private onFrame: (value: number) => void;
 
   constructor(config: SpringConfig) {
@@ -59,7 +59,7 @@ export class Spring extends FluidAnimation {
         this.startTime = now;
       }
 
-      this.aniamtionFrame = requestAnimationFrame(this.onUpdate.bind(this));
+      this.animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
     };
 
     if (this.delay !== 0) {
@@ -72,7 +72,7 @@ export class Spring extends FluidAnimation {
   stop() {
     this.isActive = false;
     clearTimeout(this.timeout);
-    cancelAnimationFrame(this.aniamtionFrame);
+    cancelAnimationFrame(this.animationFrame);
     this.debouncedOnEnd({ finished: false, value: this.position });
   }
 
@@ -149,6 +149,6 @@ export class Spring extends FluidAnimation {
       return;
     }
 
-    this.aniamtionFrame = requestAnimationFrame(this.onUpdate.bind(this));
+    this.animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
   }
 }
