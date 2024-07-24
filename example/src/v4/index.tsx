@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { v4 } from '@raidipesh78/re-motion';
 
-const { useMount, fluid } = v4;
+const { useMount, fluid, interpolate } = v4;
 
 const App = () => {
   const [open, setOpen] = useState(false);
@@ -19,7 +19,7 @@ const App = () => {
           mounted && (
             <fluid.div
               style={{
-                width: 100,
+                width: interpolate(animation, [0, 100], [100, 200]),
                 height: 100,
                 backgroundColor: '#3399ff',
                 translateX: animation,
