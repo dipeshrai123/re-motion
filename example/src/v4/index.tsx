@@ -2,9 +2,7 @@ import { useRef } from 'react';
 import { v4 } from '@raidipesh78/re-motion';
 import { useDrag } from '@use-gesture/react';
 
-const { FluidValue, makeFluid, spring } = v4;
-
-const FluidDiv = makeFluid('div');
+const { FluidValue, spring, fluid } = v4;
 
 const App = () => {
   const x = useRef(new FluidValue(0)).current;
@@ -28,7 +26,7 @@ const App = () => {
         RIGHT
       </button>
 
-      <FluidDiv
+      <fluid.div
         {...bind()}
         style={{
           width: 100,
@@ -38,7 +36,7 @@ const App = () => {
           backgroundColor: 'red',
         }}
       />
-      <FluidDiv
+      <fluid.div
         style={{
           width: 100,
           height: 100,
