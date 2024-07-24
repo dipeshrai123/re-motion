@@ -21,6 +21,10 @@ export function applyFluidValues(
   ref: { current: any },
   props: Record<string, any>
 ) {
+  if (!ref.current) {
+    return;
+  }
+
   const { style = {}, ...attrs } = props;
   applyStyle(ref, style);
   applyProps(ref, attrs);

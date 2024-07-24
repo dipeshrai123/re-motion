@@ -5,7 +5,7 @@ import { spring, timing, decay } from '../controllers';
 
 type Fn<T, U> = (value: T) => U;
 
-interface FluidValueConfig {
+export interface UseFluidValueConfig {
   mass?: number;
   tension?: number;
   friction?: number;
@@ -24,16 +24,16 @@ interface FluidValueConfig {
 
 export const useFluidValue = (
   value: number,
-  defaultConfig?: FluidValueConfig
+  defaultConfig?: UseFluidValueConfig
 ): [
   FluidValue,
-  (updateValue: { toValue?: number; config?: FluidValueConfig }) => void
+  (updateValue: { toValue?: number; config?: UseFluidValueConfig }) => void
 ] => {
   const fluid = useRef(new FluidValue(value)).current;
   const listenerIdRef = useRef<string>();
 
   const setFluid = useCallback(
-    (updateValue: { toValue?: number; config?: FluidValueConfig }) => {
+    (updateValue: { toValue?: number; config?: UseFluidValueConfig }) => {
       const config = { ...defaultConfig, ...updateValue.config };
 
       fluid.removeAllListeners();

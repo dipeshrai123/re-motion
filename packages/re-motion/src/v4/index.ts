@@ -8,3 +8,4 @@ export { timing, spring } from './controllers';
 
 // hooks
 export { useFluidValue } from './hooks/useFluidValue';
+export { useMount } from './hooks/useMount';
