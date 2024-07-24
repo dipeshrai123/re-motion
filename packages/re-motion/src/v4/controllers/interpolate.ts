@@ -2,7 +2,7 @@ import { FluidValue } from '../fluids/FluidValue';
 
 type ExtrapolateType = 'extend' | 'identity' | 'clamp';
 
-type ExtrapolateConfig = {
+export type ExtrapolateConfig = {
   extrapolate?: ExtrapolateType;
   extrapolateLeft?: ExtrapolateType;
   extrapolateRight?: ExtrapolateType;

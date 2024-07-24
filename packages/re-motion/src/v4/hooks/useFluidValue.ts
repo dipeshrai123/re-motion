@@ -68,7 +68,7 @@ export const useFluidValue = (
         const timingConfig = {
           toValue: updateValue.toValue,
           delay: config?.delay,
-          duration: config?.duration,
+          duration: config?.immediate ? 0 : config?.duration,
           easing: config?.easing,
         };
 
