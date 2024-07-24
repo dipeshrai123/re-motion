@@ -1,6 +1,6 @@
 import { FluidAnimation, EndResultType } from './FluidAnimation';
 
-type SpringConfig = {
+export type SpringConfig = {
   toValue: number;
   mass?: number;
   tension?: number;

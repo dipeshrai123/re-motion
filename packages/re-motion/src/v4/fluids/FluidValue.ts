@@ -1,4 +1,4 @@
-import { FluidAnimation } from '../animations/FluidAnimation';
+import { EndResultType, FluidAnimation } from '../animations/FluidAnimation';
 import { FluidInterpolation } from './FluidInterpolation';
 import { FluidSubscriptions } from './FluidSubscriptions';
 import { ExtrapolateConfig, interpolate } from '../interpolation/Interpolation';
@@ -37,7 +37,10 @@ export class FluidValue extends FluidSubscriptions {
     return this.value;
   }
 
-  public animate(animation: FluidAnimation) {
+  public animate(
+    animation: FluidAnimation,
+    callback?: (value: EndResultType) => void
+  ) {
     const previousAnimation = this.animation;
     this.animation && this.animation.stop();
     this.animation = animation;
@@ -45,7 +48,10 @@ export class FluidValue extends FluidSubscriptions {
     animation.start(
       this.value,
       (value) => this.updateValue(value),
-      (value) => console.log('end', value),
+      (value) => {
+        this.animation.stop();
+        callback && callback(value);
+      },
       previousAnimation
     );
   }

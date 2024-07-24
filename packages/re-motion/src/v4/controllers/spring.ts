@@ -1,11 +1,11 @@
 import { EndResultType } from '../animations/FluidAnimation';
-import { Timing, TimingConfig } from '../animations/Timing';
+import { Spring, SpringConfig } from '../animations/Spring';
 import { FluidValue } from '../fluids/FluidValue';
 
-export const timing = (
+export const spring = (
   value: FluidValue,
-  config: TimingConfig,
+  config: SpringConfig,
   callback?: (value: EndResultType) => void
 ) => {
-  value.animate(new Timing(config), callback);
+  value.animate(new Spring(config), callback);
 };
