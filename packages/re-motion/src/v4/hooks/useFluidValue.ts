@@ -22,18 +22,22 @@ export interface UseFluidValueConfig {
   deceleration?: number;
 }
 
+type UpdateValue = {
+  toValue?: number;
+  config?: UseFluidValueConfig;
+};
+
+type AssignValue = UpdateValue | Fn<Fn<UpdateValue, Promise<any>>, void>;
+
 export const useFluidValue = (
   value: number,
   defaultConfig?: UseFluidValueConfig
-): [
-  FluidValue,
-  (updateValue: { toValue?: number; config?: UseFluidValueConfig }) => void
-] => {
+): [FluidValue, (updateValue: AssignValue) => void] => {
   const fluid = useRef(new FluidValue(value)).current;
   const listenerIdRef = useRef<string>();
 
-  const setFluid = useCallback(
-    (updateValue: { toValue?: number; config?: UseFluidValueConfig }) => {
+  const runAnimation = useCallback(
+    (updateValue: UpdateValue, onComplete?: () => void) => {
       const config = { ...defaultConfig, ...updateValue.config };
 
       fluid.removeAllListeners();
@@ -44,6 +48,17 @@ export const useFluidValue = (
           config?.onChange?.(value)
         );
       }
+
+      const onRest = ({
+        finished,
+        value,
+      }: {
+        finished: boolean;
+        value: number;
+      }) => {
+        finished && config?.onRest?.(value);
+        onComplete?.();
+      };
 
       if (isDefined(config?.duration) || config?.immediate) {
         if (!isDefined(updateValue.toValue)) {
@@ -57,11 +72,7 @@ export const useFluidValue = (
           easing: config?.easing,
         };
 
-        timing(
-          fluid,
-          timingConfig,
-          ({ finished, value }) => finished && config?.onRest?.(value)
-        );
+        timing(fluid, timingConfig, onRest);
       } else if (config?.decay) {
         const decayConfig = {
           velocity: config?.velocity,
@@ -69,11 +80,7 @@ export const useFluidValue = (
           delay: config?.delay,
         };
 
-        decay(
-          fluid,
-          decayConfig,
-          ({ finished, value }) => finished && config?.onRest?.(value)
-        );
+        decay(fluid, decayConfig, onRest);
       } else {
         if (!isDefined(updateValue.toValue)) {
           throw new Error('No `toValue` is defined');
@@ -88,11 +95,24 @@ export const useFluidValue = (
           restDistance: config?.restDistance,
         };
 
-        spring(
-          fluid,
-          springConfig,
-          ({ finished, value }) => finished && config?.onRest?.(value)
-        );
+        spring(fluid, springConfig, onRest);
+      }
+    },
+    [defaultConfig]
+  );
+
+  const setFluid = useCallback(
+    (updateValue: AssignValue) => {
+      if (typeof updateValue === 'function') {
+        updateValue((nextValue) => {
+          return new Promise((resolve) => {
+            runAnimation(nextValue, () => {
+              resolve(nextValue);
+            });
+          });
+        });
+      } else {
+        runAnimation(updateValue);
       }
     },
     [defaultConfig]
