@@ -1,45 +1,97 @@
 import {
-  createElement,
+  ComponentType,
   forwardRef,
+  HTMLAttributes,
   RefObject,
   useLayoutEffect,
   useMemo,
   useRef,
+  createElement,
+  CSSProperties,
+  SVGAttributes,
 } from 'react';
 
 import { FluidProps } from './FluidProps';
-import { applyFluidValues, getInitialProps } from '../helpers';
+import {
+  applyFluidValues,
+  getInitialProps,
+  styleTrasformKeys,
+} from '../helpers';
+import { FluidValue } from './FluidValue';
+import { FluidInterpolation } from './FluidInterpolation';
 
-export function makeFluid(WrapperComponent: any) {
-  return forwardRef((givenProps: any, givenRef: any) => {
-    const instanceRef = useRef<any>(null);
+type WrappedComponentOrTag =
+  | ComponentType<HTMLAttributes<HTMLElement>>
+  | keyof JSX.IntrinsicElements;
 
-    const fluidStylesRef = useRef<FluidProps | null>(null);
+type FluidCSSProperties = {
+  [key in keyof CSSProperties]:
+    | CSSProperties[key]
+    | FluidValue
+    | FluidInterpolation;
+} & {
+  [key in (typeof styleTrasformKeys)[number]]?:
+    | FluidValue
+    | FluidInterpolation
+    | number
+    | string;
+};
 
-    useLayoutEffect(() => {
-      const oldFluidStyleRef = fluidStylesRef.current;
+type FluidHTMLAttributes<T> = {
+  [key in keyof HTMLAttributes<T>]:
+    | HTMLAttributes<T>[key]
+    | FluidValue
+    | FluidInterpolation;
+};
 
-      fluidStylesRef.current = new FluidProps(givenProps, () => {
-        if (!instanceRef) return;
+type FluidSVGAttributes<T> = {
+  [key in keyof SVGAttributes<T>]:
+    | SVGAttributes<T>[key]
+    | FluidValue
+    | FluidInterpolation;
+};
 
-        if (fluidStylesRef.current) {
-          applyFluidValues(instanceRef, fluidStylesRef.current.get());
-        }
+type FluidAttributes<T extends EventTarget> = Omit<
+  FluidHTMLAttributes<T> & FluidSVGAttributes<T>,
+  'style'
+> & {
+  style?: FluidCSSProperties;
+};
+
+export function makeFluid<C extends WrappedComponentOrTag>(
+  WrapperComponent: C
+) {
+  return forwardRef(
+    (givenProps: FluidAttributes<EventTarget>, givenRef: any) => {
+      const instanceRef = useRef<any>(null);
+
+      const fluidStylesRef = useRef<FluidProps | null>(null);
+
+      useLayoutEffect(() => {
+        const oldFluidStyleRef = fluidStylesRef.current;
+
+        fluidStylesRef.current = new FluidProps(givenProps, () => {
+          if (!instanceRef) return;
+
+          if (fluidStylesRef.current) {
+            applyFluidValues(instanceRef, fluidStylesRef.current.get());
+          }
+        });
+
+        oldFluidStyleRef?.detach();
+      }, [givenProps]);
+
+      const initialProps: any = useMemo(
+        () => getInitialProps(givenProps),
+        [givenProps]
+      );
+
+      return createElement(WrapperComponent, {
+        ...initialProps,
+        ref: combineRefs(instanceRef, givenRef),
       });
-
-      oldFluidStyleRef?.detach();
-    }, [givenProps]);
-
-    const initialProps = useMemo(
-      () => getInitialProps(givenProps),
-      [givenProps]
-    );
-
-    return createElement(WrapperComponent, {
-      ref: combineRefs(instanceRef, givenRef),
-      ...initialProps,
-    });
-  });
+    }
+  );
 }
 
 function combineRefs(
