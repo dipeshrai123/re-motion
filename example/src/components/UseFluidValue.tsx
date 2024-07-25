@@ -1,11 +1,4 @@
-import {
-  Easing,
-  fluid,
-  useFluidValue,
-  makeFluid,
-} from '@raidipesh78/re-motion';
-
-const AnimatedDiv = makeFluid('div');
+import { Easing, fluid, useFluidValue } from '@raidipesh78/re-motion';
 
 const App = () => {
   const [translateX, setTranslateX] = useFluidValue(0, {
@@ -21,16 +14,6 @@ const App = () => {
       <button onClick={() => setTranslateX({ toValue: 100 })}>
         ANIMATE RIGHT
       </button>
-
-      <AnimatedDiv
-        style={{
-          width: 100,
-          height: 100,
-          backgroundColor: 'red',
-          position: 'relative',
-          left: translateX,
-        }}
-      />
 
       <fluid.div
         style={{
