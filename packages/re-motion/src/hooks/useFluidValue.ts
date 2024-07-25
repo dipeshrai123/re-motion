@@ -27,7 +27,7 @@ type UpdateValue = {
   config?: UseFluidValueConfig;
 };
 
-type AssignValue = UpdateValue | Fn<Fn<UpdateValue, Promise<any>>, void>;
+export type AssignValue = UpdateValue | Fn<Fn<UpdateValue, Promise<any>>, void>;
 
 export const useFluidValue = (
   value: number,

@@ -1,17 +1,16 @@
 import { useState, useRef, useLayoutEffect } from 'react';
 
 import { FluidValue } from '../fluids/FluidValue';
-import { useFluidValue, UseFluidValueConfig } from './useFluidValue';
-
-type UpdateValue = {
-  toValue?: number;
-  config?: UseFluidValueConfig;
-};
+import {
+  AssignValue,
+  useFluidValue,
+  UseFluidValueConfig,
+} from './useFluidValue';
 
 export interface UseMountConfig {
   from: number;
-  enter: number | UpdateValue;
-  exit: number | UpdateValue;
+  enter: number | AssignValue;
+  exit: number | AssignValue;
   config?: UseFluidValueConfig;
 }
 
