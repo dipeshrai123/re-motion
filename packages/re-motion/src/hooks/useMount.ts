@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect } from 'react';
+import { useState, useLayoutEffect, useRef } from 'react';
 
 import { FluidValue } from '../fluids/FluidValue';
 import {
@@ -25,7 +25,7 @@ export interface UseMountConfig {
  */
 export const useMount = (state: boolean, config: UseMountConfig) => {
   const [mounted, setMounted] = useState(false);
-  const { from, enter, exit, config: innerConfig } = config;
+  const { from, enter, exit, config: innerConfig } = useRef(config).current;
   const [animation, setAnimation] = useFluidValue(from, innerConfig);
 
   useLayoutEffect(() => {

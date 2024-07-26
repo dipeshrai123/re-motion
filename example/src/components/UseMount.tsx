@@ -1,17 +1,12 @@
 import { useState } from 'react';
-import { useMount, fluid } from '@raidipesh78/re-motion';
+import { useMount, fluid, interpolate } from '@raidipesh78/re-motion';
 
 const App = () => {
   const [open, setOpen] = useState(false);
   const mv = useMount(open, {
     from: 0,
-    enter: async (next) => {
-      await next({ toValue: 100 });
-      await next({ toValue: 200 });
-    },
-    exit: async (next) => {
-      await next({ toValue: 0, config: { duration: 100 } });
-    },
+    enter: 1,
+    exit: 0,
   });
 
   return (
@@ -22,10 +17,11 @@ const App = () => {
           mounted && (
             <fluid.div
               style={{
-                width: 100,
-                height: 100,
+                width: interpolate(animation, [0, 1], [100, 200]),
+                height: interpolate(animation, [0, 1], [100, 200]),
                 backgroundColor: '#3399ff',
-                translateX: animation,
+                translateX: interpolate(animation, [0, 1], [0, 100]),
+                opacity: animation,
               }}
             />
           )

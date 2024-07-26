@@ -118,7 +118,7 @@ export const useFluidValue = (
           });
         });
       } else {
-        runAnimation(updateValue);
+        runAnimation(updateValue, () => callback?.());
       }
     },
     [defaultConfig]
