@@ -56,8 +56,10 @@ export const useFluidValue = (
         finished: boolean;
         value: number;
       }) => {
-        finished && config?.onRest?.(value);
-        onComplete?.();
+        if (finished) {
+          config?.onRest?.(value);
+          onComplete?.();
+        }
       };
 
       if (isDefined(config?.duration) || config?.immediate) {
