@@ -23,7 +23,7 @@ export class Timing extends FluidAnimation {
   constructor(config: TimingConfig) {
     super();
     this.toValue = config.toValue;
-    this.duration = config?.duration ?? 250;
+    this.duration = config?.duration ?? 500;
     this.easing = config?.easing ?? Easing.linear;
     this.delay = config?.delay ?? 0;
   }

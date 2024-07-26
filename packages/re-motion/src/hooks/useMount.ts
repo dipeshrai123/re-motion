@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect } from 'react';
+import { useState, useLayoutEffect } from 'react';
 
 import { FluidValue } from '../fluids/FluidValue';
 import {
@@ -25,7 +25,7 @@ export interface UseMountConfig {
  */
 export const useMount = (state: boolean, config: UseMountConfig) => {
   const [mounted, setMounted] = useState(false);
-  const { from, enter, exit, config: innerConfig } = useRef(config).current;
+  const { from, enter, exit, config: innerConfig } = config;
   const [animation, setAnimation] = useFluidValue(from, innerConfig);
 
   useLayoutEffect(() => {
@@ -43,18 +43,15 @@ export const useMount = (state: boolean, config: UseMountConfig) => {
         typeof exit === 'number'
           ? {
               toValue: exit,
-              config: {
-                ...innerConfig,
-                onRest: (value) => {
-                  setMounted(false);
-                  innerConfig?.onRest?.(value);
-                },
-              },
+              config: innerConfig,
             }
-          : exit
+          : exit,
+        () => {
+          setMounted(false);
+        }
       );
     }
-  }, [state]);
+  }, [state, config]);
 
   return (
     callback: (animation: FluidValue, mounted: boolean) => React.ReactNode

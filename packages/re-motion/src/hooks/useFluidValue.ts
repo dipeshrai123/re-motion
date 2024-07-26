@@ -32,7 +32,7 @@ export type AssignValue = UpdateValue | Fn<Fn<UpdateValue, Promise<any>>, void>;
 export const useFluidValue = (
   value: number,
   defaultConfig?: UseFluidValueConfig
-): [FluidValue, (updateValue: AssignValue) => void] => {
+): [FluidValue, (updateValue: AssignValue, callback?: () => void) => void] => {
   const fluid = useRef(new FluidValue(value)).current;
   const listenerIdRef = useRef<string>();
 
@@ -104,12 +104,16 @@ export const useFluidValue = (
   );
 
   const setFluid = useCallback(
-    (updateValue: AssignValue) => {
+    (updateValue: AssignValue, callback?: () => void) => {
       if (typeof updateValue === 'function') {
         updateValue((nextValue) => {
           return new Promise((resolve) => {
             runAnimation(nextValue, () => {
               resolve(nextValue);
+
+              if (callback) {
+                callback();
+              }
             });
           });
         });
