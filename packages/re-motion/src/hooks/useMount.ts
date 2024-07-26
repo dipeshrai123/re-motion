@@ -48,6 +48,10 @@ export const useMount = (state: boolean, config: UseMountConfig) => {
           : exit,
         () => {
           setMounted(false);
+
+          animation
+            .getSubscriptions()
+            .forEach((s) => animation.removeSubscription(s));
         }
       );
     }

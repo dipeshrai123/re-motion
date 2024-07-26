@@ -68,18 +68,19 @@ export function makeFluid<C extends WrappedComponentOrTag>(
       const fluidStylesRef = useRef<FluidProps | null>(null);
 
       useLayoutEffect(() => {
-        const oldFluidStyleRef = fluidStylesRef.current;
-
-        fluidStylesRef.current = new FluidProps(givenProps, () => {
+        const callback = () => {
           if (!instanceRef) return;
 
           if (fluidStylesRef.current) {
             applyFluidValues(instanceRef, fluidStylesRef.current.get());
           }
-        });
+        };
 
-        oldFluidStyleRef?.detach();
-      }, [givenProps]);
+        fluidStylesRef.current = new FluidProps(givenProps, callback);
+        fluidStylesRef.current.attach();
+
+        return () => fluidStylesRef.current?.detach();
+      }, []);
 
       const initialProps: any = useMemo(
         () => getInitialProps(givenProps),

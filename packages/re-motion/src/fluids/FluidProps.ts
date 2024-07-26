@@ -15,8 +15,6 @@ export class FluidProps extends Fluid {
     }
     this.props = props;
     this.callback = callback;
-
-    this.attach();
   }
 
   public attach() {

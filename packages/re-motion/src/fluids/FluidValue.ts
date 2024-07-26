@@ -100,7 +100,6 @@ export class FluidValue extends FluidSubscriptions {
 
   addListener(callback: (value: number) => void): string {
     const id = uniqueId();
-    console.log(id);
     this.listeners[id] = callback;
     return id;
   }
