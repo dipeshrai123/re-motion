@@ -4,8 +4,8 @@ import { useLayoutEffect } from 'react';
 // import Example from './components/Decay';
 // import Example from './components/Interpolation';
 // import Example from './components/SequenceTransition';
-// import Example from './components/UseFluidValue';
-import Example from './components/UseMount';
+import Example from './components/UseFluidValue';
+// import Example from './components/UseMount';
 
 const App = () => {
   useLayoutEffect(() => {
