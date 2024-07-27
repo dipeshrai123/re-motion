@@ -20,12 +20,27 @@ const App = () => {
         onClick={() =>
           setTranslateX([
             { toValue: 100 },
-            { toValue: 300, config: { friction: 10 } },
+            async (next) => {
+              await next({ toValue: 200, config: { duration: 2000 } });
+              await next({ toValue: 300, config: { friction: 10 } });
+            },
             { toValue: 500, config: { duration: 500, easing: Easing.bounce } },
           ])
         }
       >
         ANIMATE RIGHT
+      </button>
+
+      <button
+        onClick={() =>
+          setTranslateX(
+            translateX.map((_, i) =>
+              i === 0 ? { toValue: 500 } : { toValue: 0 }
+            )
+          )
+        }
+      >
+        Animate Middle
       </button>
 
       {translateX.map((t, i) => (

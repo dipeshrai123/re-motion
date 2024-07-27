@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { FluidValue } from '../fluids/FluidValue';
 import { isDefined } from '../helpers';
 import { spring, timing, decay } from '../controllers';
@@ -144,30 +144,32 @@ export const useFluidValue = <T extends number | number[]>(
   ).current;
 
   const onUpdate = useCallback(
-    (updateValue: AssignValue | AssignValue[], callback?: () => void) => {
-      if (Array.isArray(updateValue) && Array.isArray(fluidController)) {
-        (fluidController as Array<FluidController>).map((fc, i) => {
-          fc.setFluid(updateValue[i], callback);
+    (
+      updateValue: T extends number ? AssignValue : AssignValue[],
+      callback?: () => void
+    ) => {
+      if (Array.isArray(fluidController)) {
+        fluidController.map((fc, i) => {
+          fc.setFluid((updateValue as AssignValue[])[i], callback);
         });
-        return;
+      } else {
+        fluidController.setFluid(updateValue as AssignValue, callback);
       }
-
-      (fluidController as FluidController).setFluid(
-        updateValue as AssignValue,
-        callback
-      );
     },
     []
   );
 
-  return [
-    Array.isArray(fluidController)
-      ? (fluidController.map((fc) => fc.getFluid()) as T extends number
-          ? FluidValue
-          : FluidValue[])
-      : (fluidController.getFluid() as T extends number
-          ? FluidValue
-          : FluidValue[]),
-    onUpdate,
-  ];
+  const fluidValue = useMemo(
+    () =>
+      Array.isArray(fluidController)
+        ? (fluidController.map((fc) => fc.getFluid()) as T extends number
+            ? FluidValue
+            : FluidValue[])
+        : (fluidController.getFluid() as T extends number
+            ? FluidValue
+            : FluidValue[]),
+    []
+  );
+
+  return [fluidValue, onUpdate];
 };
