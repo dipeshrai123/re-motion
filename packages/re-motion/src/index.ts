@@ -5,7 +5,7 @@ export { Easing } from './easing/Easing';
 export { interpolate } from './controllers/interpolate';
 
 // animation controllers
-export { timing, spring } from './controllers';
+export { timing, spring, decay } from './controllers';
 
 // hooks
 export { useFluidValue } from './hooks/useFluidValue';
