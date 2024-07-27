@@ -38,7 +38,10 @@ class FluidController {
     this.defaultConfig = config;
   }
 
-  private runAnimation(updateValue: UpdateValue, onComplete?: () => void) {
+  private runAnimation(
+    updateValue: UpdateValue,
+    onComplete?: (value: number) => void
+  ) {
     const config = { ...this.defaultConfig, ...updateValue.config };
 
     this.fluid.removeAllListeners();
@@ -57,7 +60,7 @@ class FluidController {
     }) => {
       if (finished) {
         config?.onRest?.(value);
-        onComplete?.();
+        onComplete?.(value);
       }
     };
 
@@ -100,7 +103,10 @@ class FluidController {
     }
   }
 
-  public setFluid(updateValue: AssignValue, callback?: () => void) {
+  public setFluid(
+    updateValue: AssignValue,
+    callback?: (value: number) => void
+  ) {
     if (!updateValue) {
       return;
     }
@@ -108,17 +114,17 @@ class FluidController {
     if (typeof updateValue === 'function') {
       updateValue((nextValue) => {
         return new Promise((resolve) => {
-          this.runAnimation(nextValue, () => {
+          this.runAnimation(nextValue, (value) => {
             resolve(nextValue);
 
             if (callback) {
-              callback();
+              callback(value);
             }
           });
         });
       });
     } else {
-      this.runAnimation(updateValue, () => callback?.());
+      this.runAnimation(updateValue, callback);
     }
   }
 
