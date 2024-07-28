@@ -23,13 +23,14 @@ function updateSubscriptions(rootNode: any) {
 
 export class FluidValue extends FluidSubscriptions {
   private value: number;
+  private startingValue: number;
   private animation: FluidAnimation | null;
   private track: Fluid | null;
   private listeners: Record<string, (value: number) => void>;
 
   constructor(value: number) {
     super();
-    this.value = value;
+    this.startingValue = this.value = value;
     this.listeners = {};
   }
 
@@ -54,6 +55,11 @@ export class FluidValue extends FluidSubscriptions {
     this.animation?.stop();
     this.animation = null;
     callback && callback(this.get());
+  }
+
+  public resetAnimation(callback?: (value: number) => void | null) {
+    this.stopAnimation(callback);
+    this.value = this.startingValue;
   }
 
   public animate(

@@ -1,11 +1,21 @@
 import { useLayoutEffect } from 'react';
 
-const App = () => {
-  useLayoutEffect(() => {
-    document.body.style.backgroundColor = '#333';
-  }, []);
+import Test from './Test';
 
-  return <>APP COMPONENT</>;
+const App = () => {
+  useDark();
+
+  return <Test />;
 };
+
+function useDark() {
+  useLayoutEffect(() => {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (isDark) {
+      document.body.style.backgroundColor = '#333';
+    }
+  }, []);
+}
 
 export default App;
