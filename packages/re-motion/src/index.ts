@@ -2,6 +2,13 @@ export { FluidValue } from './fluids/FluidValue';
 export { makeFluid } from './fluids/makeFluid';
 export { fluid } from './fluids/tags';
 export { Easing } from './easing/Easing';
-
-// animation controllers
-export { timing, spring, decay } from './controllers';
+export {
+  timing,
+  spring,
+  decay,
+  delay,
+  loop,
+  parallel,
+  sequence,
+  stagger,
+} from './controllers';
