@@ -3,7 +3,6 @@ import type { ControllerAnimation } from './types';
 
 export type LoopConfig = {
   iterations?: number;
-  reverse?: boolean;
 };
 
 export const loop = function (
@@ -11,7 +10,6 @@ export const loop = function (
   config?: LoopConfig
 ): ControllerAnimation {
   const iterations = config?.iterations ?? -1;
-  const reverse = config?.reverse ?? true;
   let hasEnded = false;
   let currentIteration = 0;
 
@@ -25,7 +23,7 @@ export const loop = function (
         callback && callback(result);
       } else {
         currentIteration++;
-        reverse && animation.reset();
+        animation.reset();
         animation.start(restart);
       }
     };
