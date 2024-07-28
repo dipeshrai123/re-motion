@@ -1,4 +1,6 @@
-export type EndResultType = { finished: boolean; value: number };
+export type EndResultType = { finished: boolean; value?: number };
+
+export type EndCallback = (value: EndResultType) => void;
 
 export class FluidAnimation {
   public isActive: boolean;

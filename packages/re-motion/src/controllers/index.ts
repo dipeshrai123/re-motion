@@ -1,3 +1,4 @@
-export * from './timing';
-export * from './spring';
-export * from './decay';
+export { timing } from './timing';
+export { spring } from './spring';
+export { decay } from './decay';
+export { loop } from './loop';
