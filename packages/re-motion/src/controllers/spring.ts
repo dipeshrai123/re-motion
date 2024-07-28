@@ -35,9 +35,5 @@ export const spring = (
     value.resetAnimation();
   };
 
-  return {
-    start,
-    stop,
-    reset,
-  };
+  return { start, stop, reset };
 };

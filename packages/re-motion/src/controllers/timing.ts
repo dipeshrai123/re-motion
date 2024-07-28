@@ -35,9 +35,5 @@ export const timing = (
     value.resetAnimation();
   };
 
-  return {
-    start,
-    stop,
-    reset,
-  };
+  return { start, stop, reset };
 };

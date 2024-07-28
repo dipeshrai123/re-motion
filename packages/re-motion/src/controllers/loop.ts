@@ -48,9 +48,5 @@ export const loop = function (
     animation.reset();
   };
 
-  return {
-    start,
-    stop,
-    reset,
-  };
+  return { start, stop, reset };
 };
