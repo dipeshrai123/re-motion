@@ -1,7 +1,5 @@
 import { makeFluid } from './makeFluid';
 
-import type { FluidProps } from '../types/fluid';
-
 type HTMLTags = keyof JSX.IntrinsicElements;
 
 const tags: HTMLTags[] = [
@@ -185,13 +183,11 @@ const tags: HTMLTags[] = [
 ];
 
 type WithFluid = {
-  [k in keyof JSX.IntrinsicElements]: React.ComponentType<
-    FluidProps<HTMLElement>
-  >;
+  [k in keyof JSX.IntrinsicElements]: ReturnType<typeof makeFluid>;
 };
 
 export const fluid: WithFluid = {} as WithFluid;
 
 tags.forEach((tag) => {
-  (fluid as any)[tag] = makeFluid(tag);
+  fluid[tag] = makeFluid(tag);
 });

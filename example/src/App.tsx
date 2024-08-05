@@ -1,30 +1,21 @@
-// import UseMount from './components/UseMount';
-// import UseFluidValue from './components/UseFluidValue';
-// import SequenceTransition from './components/SequenceTransition';
-// import Interpolation from './components/Interpolation';
-// import Decay from './components/Decay';
+import { useLayoutEffect } from 'react';
 
-import SharedElement from './examples/SharedElement';
+import Test from './Test';
 
-const App = () => (
-  <>
-    {/* <h2>useFluidValue</h2>
-    <UseFluidValue />
+const App = () => {
+  useDark();
 
-    <h2>useMount</h2>
-    <UseMount />
+  return <Test />;
+};
 
-    <h2>Sequence Transition</h2>
-    <SequenceTransition />
+function useDark() {
+  useLayoutEffect(() => {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    <h2>Interpolation</h2>
-    <Interpolation />
-
-    <h2>Decay</h2>
-    <Decay /> */}
-
-    <SharedElement />
-  </>
-);
+    if (isDark) {
+      document.body.style.backgroundColor = '#333';
+    }
+  }, []);
+}
 
 export default App;

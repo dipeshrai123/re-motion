@@ -5,8 +5,6 @@ import {
   HEX_NAME_COLOR,
   colorNames,
 } from './Colors';
-import { isFluidValue } from '../helpers';
-import { FluidValue } from '../controllers/FluidValue';
 
 type ExtrapolateType = 'identity' | 'extend' | 'clamp';
 
@@ -172,7 +170,7 @@ const _getArrayInterpolate = (
   }
 };
 
-export const _getTemplateString = (str: string) => {
+const _getTemplateString = (str: string) => {
   return str.replace(COLOR_NUMBER_REGEX, '$');
 };
 
@@ -186,24 +184,11 @@ const _getParsedStringArray = (str: any) => {
   });
 };
 
-/**
- * Function returns if the template of two strings are matched
- * i.e. they can be interpolated
- * @param str1 - first string
- * @param str2 - second string
- * @returns boolean indicating two strings matched or not
- */
 export const stringMatched = (str1: string, str2: string) =>
   _getTemplateString(str1).trim().replace(/\s/g, '') ===
   _getTemplateString(str2).trim().replace(/\s/g, '');
 
-/**
- * Function which proccess the
- * hexadecimal colors to its proper formats
- * @param str - string
- * @returns hex color string
- */
-export const getProcessedColor = (str: string) => {
+const getProcessedColor = (str: string) => {
   return str.replace(HEX_NAME_COLOR, function (match: any) {
     if (match.indexOf('#') !== -1) {
       return rgbaToHex(hexToRgba(match));
@@ -221,174 +206,79 @@ export interface ExtrapolateConfig {
   extrapolateLeft?: ExtrapolateType;
 }
 
-/**
- * interpolateNumbers to interpolate the numeric value
- * @param value - number
- * @param inputRange
- * @param outputRange
- * @param extrapolateConfig
- * @returns - number | string
- */
-export function interpolateNumbers(
-  value: number,
+export function interpolate(
   inputRange: Array<number>,
   outputRange: Array<number | string>,
   extrapolateConfig?: ExtrapolateConfig
 ) {
-  const extrapolate = extrapolateConfig?.extrapolate;
-  const extrapolateLeft = extrapolateConfig?.extrapolateLeft;
-  const extrapolateRight = extrapolateConfig?.extrapolateRight;
+  return function (value: number) {
+    const extrapolate = extrapolateConfig?.extrapolate;
+    const extrapolateLeft = extrapolateConfig?.extrapolateLeft;
+    const extrapolateRight = extrapolateConfig?.extrapolateRight;
 
-  const narrowedInput = _getNarrowedInputArray(value, inputRange, outputRange);
+    const narrowedInput = _getNarrowedInputArray(
+      value,
+      inputRange,
+      outputRange
+    );
 
-  let _extrapolateLeft: ExtrapolateType = 'extend';
-  if (extrapolateLeft !== undefined) {
-    _extrapolateLeft = extrapolateLeft;
-  } else if (extrapolate !== undefined) {
-    _extrapolateLeft = extrapolate;
-  }
+    let _extrapolateLeft: ExtrapolateType = 'extend';
+    if (extrapolateLeft !== undefined) {
+      _extrapolateLeft = extrapolateLeft;
+    } else if (extrapolate !== undefined) {
+      _extrapolateLeft = extrapolate;
+    }
 
-  let _extrapolateRight: ExtrapolateType = 'extend';
-  if (extrapolateRight !== undefined) {
-    _extrapolateRight = extrapolateRight;
-  } else if (extrapolate !== undefined) {
-    _extrapolateRight = extrapolate;
-  }
+    let _extrapolateRight: ExtrapolateType = 'extend';
+    if (extrapolateRight !== undefined) {
+      _extrapolateRight = extrapolateRight;
+    } else if (extrapolate !== undefined) {
+      _extrapolateRight = extrapolate;
+    }
 
-  if (outputRange.length) {
-    if (typeof outputRange[0] === 'number') {
-      return _internalInterpolate(
-        value,
-        narrowedInput,
-        _extrapolateLeft,
-        _extrapolateRight
-      );
-    } else if (Array.isArray(outputRange[0])) {
-      return _getArrayInterpolate(
-        value,
-        narrowedInput,
-        _extrapolateLeft,
-        _extrapolateRight
-      );
-    } else {
-      const [inputMin, inputMax, outputMin, outputMax] = narrowedInput;
-
-      const processedOutputMin = getProcessedColor(outputMin as string);
-      const processedOutputMax = getProcessedColor(outputMax as string);
-
-      let templateString = _getTemplateString(processedOutputMin);
-
-      if (stringMatched(processedOutputMin, processedOutputMax)) {
-        const outputMinParsed = _getParsedStringArray(processedOutputMin);
-        const outputMaxParsed = _getParsedStringArray(processedOutputMax);
-
-        const result = _getArrayInterpolate(
+    if (outputRange.length) {
+      if (typeof outputRange[0] === 'number') {
+        return _internalInterpolate(
           value,
-          [inputMin, inputMax, outputMinParsed, outputMaxParsed],
+          narrowedInput,
           _extrapolateLeft,
           _extrapolateRight
         );
-
-        for (const v of result) templateString = templateString.replace('$', v);
-        return templateString;
+      } else if (Array.isArray(outputRange[0])) {
+        return _getArrayInterpolate(
+          value,
+          narrowedInput,
+          _extrapolateLeft,
+          _extrapolateRight
+        );
       } else {
-        throw new Error("Output range doesn't match string format!");
+        const [inputMin, inputMax, outputMin, outputMax] = narrowedInput;
+
+        const processedOutputMin = getProcessedColor(outputMin as string);
+        const processedOutputMax = getProcessedColor(outputMax as string);
+
+        let templateString = _getTemplateString(processedOutputMin);
+
+        if (stringMatched(processedOutputMin, processedOutputMax)) {
+          const outputMinParsed = _getParsedStringArray(processedOutputMin);
+          const outputMaxParsed = _getParsedStringArray(processedOutputMax);
+
+          const result = _getArrayInterpolate(
+            value,
+            [inputMin, inputMax, outputMinParsed, outputMaxParsed],
+            _extrapolateLeft,
+            _extrapolateRight
+          );
+
+          for (const v of result)
+            templateString = templateString.replace('$', v);
+          return templateString;
+        } else {
+          throw new Error("Output range doesn't match string format!");
+        }
       }
+    } else {
+      throw new Error('Output range cannot be Empty');
     }
-  } else {
-    throw new Error('Output range cannot be Empty');
-  }
-}
-
-/**
- * interpolateFluidValue to interpolating FluidValue
- * @param value
- * @param inputRange
- * @param outputRange
- * @param extrapolateConfig
- * @returns TransitionValue
- */
-export const interpolateFluidValue = (
-  value: FluidValue,
-  inputRange: Array<number>,
-  outputRange: Array<number | string>,
-  extrapolateConfig?: ExtrapolateConfig
-) => {
-  return {
-    ...value,
-    isInterpolation: true,
-    interpolationConfig: {
-      inputRange,
-      outputRange,
-      extrapolateConfig,
-    },
   };
-};
-
-/**
- * interpolate function to interpolate both FluidValue or number
- * @param value
- * @param inputRange
- * @param outputRange
- * @param extrapolateConfig
- */
-export const interpolate = (
-  value: number | FluidValue,
-  inputRange: Array<number>,
-  outputRange: Array<number | string>,
-  extrapolateConfig?: ExtrapolateConfig
-) => {
-  if (isFluidValue(value)) {
-    return interpolateFluidValue(
-      value as FluidValue,
-      inputRange,
-      outputRange,
-      extrapolateConfig
-    );
-  } else if (typeof value === 'number') {
-    return interpolateNumbers(
-      value,
-      inputRange,
-      outputRange,
-      extrapolateConfig
-    );
-  } else {
-    throw new Error(`'${typeof value}' cannot be interpolated!`);
-  }
-};
-
-/**
- * Determines if two values can be interpolated.
- * This function checks if two values, either numbers or strings,
- * can be interpolated by ensuring they are of the same type and, in the case of strings,
- * that they are compatible for interpolation based on processed color values.
- *
- * @param previousValue - The previous value to compare. Can be a number or a string.
- * @param newValue - The new value to compare. Can be a number or a string.
- * @returns True if interpolation is possible, false otherwise.
- */
-export function canInterpolate(
-  previousValue: number | string,
-  newValue: number | string
-): boolean {
-  if (typeof previousValue !== typeof newValue) {
-    return false;
-  }
-
-  if (typeof newValue === 'number') {
-    return true;
-  }
-
-  if (typeof previousValue === 'string') {
-    const processedPreviousValue = getProcessedColor(previousValue);
-    const processedNewValue = getProcessedColor(newValue);
-
-    return (
-      processedPreviousValue !== processedNewValue &&
-      _getTemplateString(processedPreviousValue) ===
-        _getTemplateString(processedNewValue)
-    );
-  }
-
-  return false;
 }

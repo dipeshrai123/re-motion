@@ -74,6 +74,10 @@ function getTransformValueWithUnits(property: string, value: string) {
   }
 }
 
+function isTransformKey(key: string) {
+  return (styleTrasformKeys as readonly string[]).includes(key);
+}
+
 /**
  * getTransform function returns transform string from style object
  */
@@ -87,6 +91,20 @@ export function getTransform(style: Record<string, any>) {
     .trim();
 }
 
-export function isTransformKey(key: string) {
-  return (styleTrasformKeys as readonly string[]).includes(key);
+export function separateTransformStyle(style: Record<string, any>) {
+  return Object.entries(style).reduce(
+    (acc, [property, value]) => {
+      if (isTransformKey(property)) {
+        acc.transformStyle[property] = value;
+      } else {
+        acc.nonTransformStyle[property] = value;
+      }
+
+      return acc;
+    },
+    { transformStyle: {}, nonTransformStyle: {} } as {
+      transformStyle: Record<string, any>;
+      nonTransformStyle: Record<string, any>;
+    }
+  );
 }
