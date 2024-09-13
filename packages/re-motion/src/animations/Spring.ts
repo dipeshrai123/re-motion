@@ -37,6 +37,18 @@ export class Spring extends FluidAnimation {
     this.delay = config?.delay ?? 0;
   }
 
+  getInternalState(): {
+    position: number;
+    velocity: number;
+    startTime: number;
+  } {
+    return {
+      position: this.position,
+      velocity: this.velocity,
+      startTime: this.startTime,
+    };
+  }
+
   start = (
     value: number,
     onFrame: (value: number) => void,
@@ -48,15 +60,13 @@ export class Spring extends FluidAnimation {
       this.position = value;
       this.onFrame = onFrame;
       this.onEnd = onEnd;
-
-      const now = Date.now();
+      this.startTime = Date.now();
 
       if (previousAnimation instanceof Spring) {
-        this.position = previousAnimation.position;
-        this.velocity = previousAnimation.velocity;
-        this.startTime = previousAnimation.startTime;
-      } else {
-        this.startTime = now;
+        const internalState = previousAnimation.getInternalState();
+        this.position = internalState.position || this.position;
+        this.velocity = internalState.velocity || this.velocity || 0;
+        this.startTime = internalState.startTime || Date.now();
       }
 
       this.animationFrame = requestAnimationFrame(this.onUpdate.bind(this));

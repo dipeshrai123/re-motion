@@ -16,7 +16,7 @@ export default function Test() {
   };
 
   const animateRight = () => {
-    timing(translateX, { toValue: 200, duration: 5000 }).start();
+    timing(translateX, { toValue: 200, duration: 5000, delay: 50 }).start();
   };
 
   return (
