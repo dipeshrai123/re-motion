@@ -11,4 +11,5 @@ export {
   parallel,
   sequence,
   stagger,
+  native,
 } from './controllers';

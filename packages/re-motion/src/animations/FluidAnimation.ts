@@ -1,4 +1,4 @@
-export type EndResultType = { finished: boolean; value?: number };
+export type EndResultType = { finished: boolean; value?: number | string };
 
 export type EndCallback = (value: EndResultType) => void;
 
@@ -7,8 +7,8 @@ export class FluidAnimation {
   public onEnd: ((result: EndResultType) => void) | null;
 
   public start(
-    value: number,
-    onFrame: (value: number) => void,
+    value: number | string,
+    onFrame: (value: number | string) => void,
     onEnd: (result: EndResultType) => void,
     previousAnimation: FluidAnimation | null
   ) {
