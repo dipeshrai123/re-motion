@@ -22,19 +22,19 @@ function updateSubscriptions(rootNode: any) {
 }
 
 export class FluidValue extends FluidSubscriptions {
-  private value: number;
-  private startingValue: number;
+  private value: number | string;
+  private startingValue: number | string;
   private animation: FluidAnimation | null;
   private track: Fluid | null;
-  private listeners: Record<string, (value: number) => void>;
+  private listeners: Record<string, (value: number | string) => void>;
 
-  constructor(value: number) {
+  constructor(value: number | string) {
     super();
     this.startingValue = this.value = value;
     this.listeners = {};
   }
 
-  private updateValue(value: number) {
+  private updateValue(value: number | string) {
     this.value = value;
     updateSubscriptions(this);
     for (var key in this.listeners) {
@@ -50,7 +50,7 @@ export class FluidValue extends FluidSubscriptions {
     this.stopAnimation();
   }
 
-  public stopAnimation(callback?: ((value: number) => void) | null) {
+  public stopAnimation(callback?: ((value: number | string) => void) | null) {
     this.stopTrack();
     this.animation?.stop();
     this.animation = null;
