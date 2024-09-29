@@ -1,5 +1,5 @@
 import { useState, useRef, useLayoutEffect } from 'react';
-import { fluid, FluidValue, spring } from '@raidipesh78/re-motion';
+import { fluid, FluidValue, timing } from '@raidipesh78/re-motion';
 
 export default function Callbacks() {
   const [open, setOpen] = useState(false);
@@ -8,14 +8,14 @@ export default function Callbacks() {
 
   useLayoutEffect(() => {
     if (open) {
-      spring(animation, {
+      timing(animation, {
         toValue: 200,
         onStart: (value) => console.log('start open', value),
         onChange: (value) => console.log('change open', value),
         onRest: (value) => console.log('rest open', value),
       }).start();
     } else {
-      spring(animation, {
+      timing(animation, {
         toValue: 100,
         onStart: (value) => console.log('start close', value),
         onChange: (value) => console.log('change close', value),
