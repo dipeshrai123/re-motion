@@ -8,9 +8,20 @@ import type { ControllerAnimation } from './types';
 
 export const timing = (
   value: FluidValue,
-  config: Omit<TimingConfig, 'toValue'> & { toValue: number | FluidValue }
+  config: Omit<TimingConfig, 'toValue'> & {
+    toValue: number | FluidValue;
+    onStart?: (value: number | string) => void;
+    onChange?: (value: number | string) => void;
+    onRest?: (value: number | string) => void;
+  }
 ): ControllerAnimation => {
   const start = (callback?: (value: EndResultType) => void) => {
+    const handlers = {
+      onStart: config?.onStart,
+      onChange: config?.onChange,
+      onRest: config?.onRest,
+    };
+
     value.stopTrack();
     if (config.toValue instanceof Fluid) {
       value.startTrack(
@@ -22,7 +33,8 @@ export const timing = (
           ...config,
           toValue: config.toValue,
         }),
-        callback
+        callback,
+        handlers
       );
     }
   };

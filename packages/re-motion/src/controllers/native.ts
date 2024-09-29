@@ -3,7 +3,7 @@ import { FluidValue } from '../fluids/FluidValue';
 
 import type { ControllerAnimation } from './types';
 
-type NativeConfig = { toValue: string; delay?: number };
+type NativeConfig = { toValue: number | string; delay?: number };
 
 export const native = (
   value: FluidValue,
@@ -11,11 +11,11 @@ export const native = (
 ): ControllerAnimation => {
   const start = (callback?: (value: EndResultType) => void) => {
     class NativeValue extends FluidAnimation {
-      private fromValue: string;
-      private toValue: string;
+      private fromValue: number | string;
+      private toValue: number | string;
       private delay: number;
       private timeout: any;
-      private onFrame: (value: string) => void;
+      private onFrame: (value: number | string) => void;
 
       constructor(config: NativeConfig) {
         super();

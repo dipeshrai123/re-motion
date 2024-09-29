@@ -8,13 +8,23 @@ export class FluidTrack extends Fluid {
   private AnimationClass: any;
   private animationConfig: any;
   private callback?: (value: EndResultType) => void;
+  private handlers?: {
+    onStart?: (value: number | string) => void;
+    onChange?: (value: number | string) => void;
+    onRest?: (value: number | string) => void;
+  };
 
   constructor(
     value: FluidValue,
     parent: Fluid,
     AnimationClass: any,
     animationConfig: any,
-    callback?: (value: EndResultType) => void
+    callback?: (value: EndResultType) => void,
+    handlers?: {
+      onStart?: (value: number | string) => void;
+      onChange?: (value: number | string) => void;
+      onRest?: (value: number | string) => void;
+    }
   ) {
     super();
 
@@ -23,6 +33,7 @@ export class FluidTrack extends Fluid {
     this.AnimationClass = AnimationClass;
     this.animationConfig = animationConfig;
     this.callback = callback;
+    this.handlers = handlers;
 
     this.attach();
   }
@@ -42,7 +53,8 @@ export class FluidTrack extends Fluid {
           ...this.animationConfig,
           toValue: (this.animationConfig.toValue as any).get(),
         },
-        this.callback
+        this.callback,
+        this.handlers
       )
     );
   }
