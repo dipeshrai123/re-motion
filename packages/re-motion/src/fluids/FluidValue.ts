@@ -64,20 +64,28 @@ export class FluidValue extends FluidSubscriptions {
 
   public animate(
     animation: FluidAnimation,
-    callback?: (value: EndResultType) => void
+    callback?: (value: EndResultType) => void,
+    handlers?: {
+      onStart?: (value: number | string) => void;
+      onChange?: (value: number | string) => void;
+      onRest?: (value: number | string) => void;
+    }
   ) {
     const previousAnimation = this.animation;
     this.animation?.stop();
     this.animation = animation;
+    handlers?.onStart?.(this.value);
 
     animation.start(
       this.value,
       (value) => {
         this.updateValue(value);
+        handlers?.onChange?.(value);
       },
       (value) => {
         this.animation?.stop();
         callback && callback(value);
+        value.finished && handlers?.onRest?.(value.value!);
       },
       previousAnimation
     );
