@@ -7,6 +7,7 @@ import {
   spring,
   decay,
   loop,
+  native,
 } from '@raidipesh78/re-motion';
 
 export default function Callbacks() {
@@ -62,6 +63,10 @@ export default function Callbacks() {
         }
       >
         Toggle
+      </button>
+
+      <button onClick={() => native(animation, { toValue: 300 }).start()}>
+        Native
       </button>
 
       <fluid.div
