@@ -85,7 +85,7 @@ export class FluidValue extends FluidSubscriptions {
       (value) => {
         this.animation?.stop();
         callback && callback(value);
-        value.finished && handlers?.onRest?.(value.value!);
+        handlers?.onRest?.(value.value!);
       },
       previousAnimation
     );
