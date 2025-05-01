@@ -100,9 +100,6 @@ export class MotionValue extends MotionNode<number> {
   private tweenFrom = 0;
   private tweenTo = 0;
   private tweenEasing: EasingFn = (t) => t;
-  private tweenElapsed = 0;
-  private tweenInitial = 0;
-  private springOrigin = 0;
 
   constructor(initial = 0) {
     super();
@@ -136,9 +133,27 @@ export class MotionValue extends MotionNode<number> {
     }
   };
 
+  public stop(): void {
+    // cancel the tween
+    if (this.frame != null) {
+      cancelAnimationFrame(this.frame);
+      this.frame = undefined;
+    }
+    // cancel the spring
+    if (this.active) {
+      motionScheduler.remove(this);
+      this.active = false;
+    }
+  }
+
   public tween(to: number, duration = 300, easing: EasingFn = (t) => t): void {
+    if (this.frame != null && this.tweenTo === to) {
+      return
+    }
+    
+    this.stop();
+
     // store metadata
-    this.tweenInitial = this.value;
     this.tweenFrom = this.value;
     this.tweenTo = to;
     this.tweenDuration = duration;
@@ -151,10 +166,8 @@ export class MotionValue extends MotionNode<number> {
   }
 
   public spring(to: number, config: SpringConfig = {}): void {
+    this.stop();
     // capture the true starting value of this spring
-    if (!this.active) {
-      this.springOrigin = this.value; // ← only set once per “session”
-    }
 
     // then set up the new target/config and (re)start the loop
     this.dest = to;
@@ -212,60 +225,6 @@ export class MotionValue extends MotionNode<number> {
       output as (number | string)[],
       easing
     );
-  }
-
-  /**
-   * Pause the current tween or spring.
-   */
-  public pause(): void {
-    // if we're mid-tween, record how far we got
-    if (this.frame != null) {
-      this.tweenElapsed = performance.now() - this.tweenStart;
-      cancelAnimationFrame(this.frame);
-      this.frame = undefined;
-    }
-    // if we're mid-spring, same as before
-    if (this.active) {
-      motionScheduler.remove(this);
-      this.active = false;
-    }
-  }
-
-  /**
-   * Resume a paused tween or spring.
-   */
-  public resume(): void {
-    // resume tween: reuse the elapsed time we saved
-    if (this.tweenElapsed && this.frame == null) {
-      this.tweenStart = performance.now() - this.tweenElapsed;
-      this.frame = requestAnimationFrame(this._tweenStep);
-    }
-    // resume spring: no change
-    else if (!this.active && this.dest != null) {
-      this.active = true;
-      motionScheduler.add(this);
-    }
-  }
-
-  public reverse(): void {
-    // ── Replace your existing reverse() entirely with this ────────
-
-    // —— Tween reversal: back to tweenInitial exactly once
-    if (this.tweenDuration) {
-      const start = this.tweenInitial;
-      if (this.value === start) return; // already at initial
-      if (this.frame != null) cancelAnimationFrame(this.frame);
-      this.tween(start, this.tweenDuration, this.tweenEasing);
-      this.tweenDuration = 0; // prevent further reversals
-      return;
-    }
-
-    const initialSpring = this.springOrigin; // the value at the very start of spring()
-    if (this.value === initialSpring) return; // no-op if already there
-    this.velocity = 0; // clear any existing momentum
-    this.dest = initialSpring; // target the original start
-    this.active = true;
-    motionScheduler.add(this);
   }
 
   public _springStep(dt: number): void {

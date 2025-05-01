@@ -1,12 +1,14 @@
-import { v5 } from '@raidipesh78/re-motion';
+import { v5, FluidValue, makeFluid, spring, timing } from '@raidipesh78/re-motion';
 import { useEffect, useMemo } from 'react';
 
 const { withMotion, MotionValue } = v5;
 
 const AnimatedDiv = withMotion('div');
+const FluidDiv = makeFluid('div');
 
 export default function New() {
   const progress = useMemo(() => new MotionValue(0), []);
+  const fluidProgress = useMemo(() => new FluidValue(0), []);
 
   useEffect(() => {
     const unsubscribe = progress.onChange((v) => {
@@ -20,14 +22,15 @@ export default function New() {
 
   return (
     <div>
+      <button onClick={() => progress.tween(0, 5000)}>TO: 0</button>
+      <button onClick={() => progress.spring(100)}>TO: 100</button>
       <AnimatedDiv
-        onClick={() => progress.spring(100, { damping: 8 })}
         style={{
           width: progress.to([0, 100], [100, 200]),
           height: 100,
           position: 'relative',
           left: progress,
-          backgroundColor: progress.to([0, 100], ['#000', '#f00']),
+          backgroundColor: progress.to([0, 100], ['red', '#f00']),
           border: progress.to(
             [0, 100],
             ['1px solid red', '10px solid #ff00ff']
@@ -37,12 +40,20 @@ export default function New() {
         }}
       >
         {progress.to([0, 100], (v) => 'value: ' + v)}
-        <div>HEY</div>
       </AnimatedDiv>
 
-      <button onClick={() => progress.resume()}>Resume</button>
-      <button onClick={() => progress.pause()}>Pause</button>
-      <button onClick={() => progress.reverse()}>Reverse</button>
+      <button onClick={() => timing(fluidProgress, {toValue: 0, duration: 5000}).start()}>TO: 0</button>
+      <button onClick={() => spring(fluidProgress, {toValue: 100}).start()}>TO: 100</button>
+      <FluidDiv
+        style={{
+          width: 100,
+          height: 100,
+          position: 'relative',
+          background: 'red',
+          left: fluidProgress,
+        }}
+      >
+      </FluidDiv>
     </div>
   );
 }
