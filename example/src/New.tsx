@@ -5,11 +5,6 @@ const { withMotion, MotionValue } = v5;
 
 const AnimatedDiv = withMotion('div');
 
-const Child = () => {
-  console.log('re-rendering child');
-  return <div>CHILD</div>;
-};
-
 export default function New() {
   const progress = useMemo(() => new MotionValue(0), []);
 
@@ -41,7 +36,8 @@ export default function New() {
           textAlign: progress.to([0, 100], (v) => (v > 50 ? 'center' : 'left')),
         }}
       >
-        <Child />
+        {progress.to([0, 100], (v) => 'value: ' + v)}
+        <div>HEY</div>
       </AnimatedDiv>
 
       <button onClick={() => progress.resume()}>Resume</button>

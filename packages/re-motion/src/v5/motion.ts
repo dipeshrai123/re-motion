@@ -101,6 +101,7 @@ export class MotionValue extends MotionNode<number> {
   private tweenTo = 0;
   private tweenEasing: EasingFn = (t) => t;
   private tweenElapsed = 0;
+  private tweenInitial = 0;
   private springOrigin = 0;
 
   constructor(initial = 0) {
@@ -137,6 +138,7 @@ export class MotionValue extends MotionNode<number> {
 
   public tween(to: number, duration = 300, easing: EasingFn = (t) => t): void {
     // store metadata
+    this.tweenInitial = this.value;
     this.tweenFrom = this.value;
     this.tweenTo = to;
     this.tweenDuration = duration;
@@ -149,10 +151,12 @@ export class MotionValue extends MotionNode<number> {
   }
 
   public spring(to: number, config: SpringConfig = {}): void {
-    // capture initial value once
+    // capture the true starting value of this spring
     if (!this.active) {
-      this.springOrigin = this.value;
+      this.springOrigin = this.value; // ← only set once per “session”
     }
+
+    // then set up the new target/config and (re)start the loop
     this.dest = to;
     this.config = config;
     this.active = true;
@@ -244,24 +248,24 @@ export class MotionValue extends MotionNode<number> {
   }
 
   public reverse(): void {
-    // ── Tween: go back to the start value once ───────────────
-    if (this.tweenDuration > 0) {
-      const start = this.tweenFrom;
-      if (this.value === start) return; // already there
-      // cancel any running tween
+    // ── Replace your existing reverse() entirely with this ────────
+
+    // —— Tween reversal: back to tweenInitial exactly once
+    if (this.tweenDuration) {
+      const start = this.tweenInitial;
+      if (this.value === start) return; // already at initial
       if (this.frame != null) cancelAnimationFrame(this.frame);
-      // animate back to the original from
       this.tween(start, this.tweenDuration, this.tweenEasing);
-      // clear so reverse() only works once
-      this.tweenDuration = 0;
+      this.tweenDuration = 0; // prevent further reversals
       return;
     }
 
-    // ── Spring: return to the captured origin once ───────────
-    const origin = this.springOrigin;
-    if (this.value === origin) return; // already there
-    // spring back to the original value
-    this.spring(origin, this.config);
+    const initialSpring = this.springOrigin; // the value at the very start of spring()
+    if (this.value === initialSpring) return; // no-op if already there
+    this.velocity = 0; // clear any existing momentum
+    this.dest = initialSpring; // target the original start
+    this.active = true;
+    motionScheduler.add(this);
   }
 
   public _springStep(dt: number): void {
@@ -346,18 +350,35 @@ export class MotionProps<P extends Record<string, any>> extends MotionNode<P> {
     }
     this.props = { ...props };
     this.cb = cb;
+
     Object.values(this.props).forEach((v) => {
-      if (v instanceof MotionNode) v.subscribe(this);
+      if (v instanceof MotionNode) {
+        v.subscribe(this);
+      } else if (Array.isArray(v)) {
+        v.forEach((item) => {
+          if (item instanceof MotionNode) item.subscribe(this);
+        });
+      }
     });
   }
   public get(): P {
-    const out = {} as P;
+    const out = {} as any;
+    // ── New get() logic: unwrap single MotionNodes & arrays thereof ──
     for (const k in this.props) {
-      const v = this.props[k] as any;
-      out[k] = v instanceof MotionNode ? v.get() : v;
+      const v = (this.props as any)[k];
+      if (v instanceof MotionNode) {
+        out[k] = v.get();
+      } else if (Array.isArray(v)) {
+        out[k] = v.map((item: any) =>
+          item instanceof MotionNode ? item.get() : item
+        );
+      } else {
+        out[k] = v;
+      }
     }
     return out;
   }
+
   public update(): void {
     this.cb();
     this.notify();
@@ -377,7 +398,13 @@ export function withMotion<P extends Record<string, any>>(
     useLayoutEffect(() => {
       return () => {
         Object.values((applier as any).props).forEach((v: any) => {
-          if (v instanceof MotionNode) v.unsubscribe(applier as any);
+          if (v instanceof MotionNode) {
+            v.unsubscribe(applier);
+          } else if (Array.isArray(v)) {
+            v.forEach((item: any) => {
+              if (item instanceof MotionNode) item.unsubscribe(applier);
+            });
+          }
         });
       };
     }, [applier]);
