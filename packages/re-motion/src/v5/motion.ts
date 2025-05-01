@@ -7,31 +7,23 @@ import React, {
 } from 'react';
 
 /**
- * Helper to detect whether a string can be interpolated (e.g., colors).
- */
-function isAnimatableString(s: string): boolean {
-  // hex (#RGB, #RRGGBB) or rgb(a) formats
-  return /^#([0-9A-F]{3}){1,2}$/i.test(s) || /^rgba?\(/i.test(s);
-}
-
-/**
  * Global spring scheduler: batches all active springs into a single RAF loop.
  */
 class MotionScheduler {
   private springs = new Set<MotionValue>();
   private frame?: number;
-  private lastTime: number = 0;
+  private lastTime = 0;
 
-  add(spring: MotionValue) {
-    this.springs.add(spring);
+  add(s: MotionValue) {
+    this.springs.add(s);
     if (this.frame == null) {
       this.lastTime = performance.now();
       this.frame = requestAnimationFrame(this.step);
     }
   }
 
-  remove(spring: MotionValue) {
-    this.springs.delete(spring);
+  remove(s: MotionValue) {
+    this.springs.delete(s);
     if (this.springs.size === 0 && this.frame != null) {
       cancelAnimationFrame(this.frame);
       this.frame = undefined;
@@ -41,11 +33,7 @@ class MotionScheduler {
   private step = (time: number) => {
     const dt = (time - this.lastTime) / 1000;
     this.lastTime = time;
-
-    for (const spring of Array.from(this.springs)) {
-      spring._springStep(dt);
-    }
-
+    this.springs.forEach((s) => s._springStep(dt));
     if (this.springs.size > 0) {
       this.frame = requestAnimationFrame(this.step);
     } else {
@@ -53,7 +41,6 @@ class MotionScheduler {
     }
   };
 }
-
 const motionScheduler = new MotionScheduler();
 
 /** MotionNode – core reactive base */
@@ -65,7 +52,7 @@ export abstract class MotionNode<T> {
   protected onDetach(): void {}
 
   public subscribe(child: MotionNode<any>): void {
-    if (this.subs.size === 0) {
+    if (!this.attached) {
       this.attached = true;
       this.onAttach();
     }
@@ -81,7 +68,7 @@ export abstract class MotionNode<T> {
   }
 
   protected notify(): void {
-    for (const c of this.subs) c.update();
+    this.subs.forEach((c) => c.update());
   }
 
   public update(): void {
@@ -91,7 +78,7 @@ export abstract class MotionNode<T> {
   public abstract get(): T;
 }
 
-/** MotionValue – holds a numeric value, with tween and spring */
+/** MotionValue – holds a numeric value, supports tween & spring */
 export type EasingFn = (t: number) => number;
 export interface SpringConfig {
   stiffness?: number;
@@ -102,10 +89,10 @@ export interface SpringConfig {
 export class MotionValue extends MotionNode<number> {
   private value: number;
   private frame?: number;
-  private velocity: number = 0;
-  private _springActive = false;
-  private _springDest = 0;
-  private _springConfig: SpringConfig = {};
+  private velocity = 0;
+  private active = false;
+  private dest = 0;
+  private config: SpringConfig = {};
 
   constructor(initial = 0) {
     super();
@@ -118,12 +105,12 @@ export class MotionValue extends MotionNode<number> {
 
   public set(v: number): void {
     if (this.frame != null) cancelAnimationFrame(this.frame);
+    if (this.active) {
+      motionScheduler.remove(this);
+      this.active = false;
+    }
     this.value = v;
     this.velocity = 0;
-    if (this._springActive) {
-      motionScheduler.remove(this);
-      this._springActive = false;
-    }
     this.notify();
   }
 
@@ -141,12 +128,29 @@ export class MotionValue extends MotionNode<number> {
   }
 
   public spring(to: number, config: SpringConfig = {}): void {
-    this._springDest = to;
-    this._springConfig = config;
-    if (!this._springActive) {
-      this._springActive = true;
+    if (!this.active) {
+      this.dest = to;
+      this.config = config;
+      this.active = true;
       motionScheduler.add(this);
     }
+  }
+
+  public onChange(fn: (v: number) => void): () => void {
+    // A lightweight “listener node”
+    class Listener extends MotionNode<number> {
+      get() {
+        return self.get();
+      }
+      update() {
+        fn(self.get());
+      }
+    }
+    const self = this;
+    const listener = new Listener();
+    this.subscribe(listener);
+    // cleanup
+    return () => this.unsubscribe(listener);
   }
 
   public _springStep(dt: number): void {
@@ -155,94 +159,75 @@ export class MotionValue extends MotionNode<number> {
       damping = 26,
       mass = 1,
       precision = 0.01,
-    } = this._springConfig;
+    } = this.config;
     const x = this.value;
-    const dest = this._springDest;
-    const force = -stiffness * (x - dest);
-    const dampingForce = -damping * this.velocity;
-    const accel = (force + dampingForce) / mass;
+    const f = -stiffness * (x - this.dest);
+    const df = -damping * this.velocity;
+    const accel = (f + df) / mass;
     this.velocity += accel * dt;
     this.value = x + this.velocity * dt;
     this.notify();
     if (
       Math.abs(this.velocity) <= precision &&
-      Math.abs(this.value - dest) <= precision
+      Math.abs(this.value - this.dest) <= precision
     ) {
-      this.value = dest;
+      this.value = this.dest;
       this.velocity = 0;
-      this.notify();
+      this.active = false;
       motionScheduler.remove(this);
-      this._springActive = false;
+      this.notify();
     }
   }
 }
 
-/** MotionInterpolation – derive from numeric MotionNode */
+/** MotionInterpolation – maps a parent numeric node via fn */
 export class MotionInterpolation<T> extends MotionNode<T> {
   private parent: MotionNode<number>;
   private fn: (n: number) => T;
-
   constructor(parent: MotionNode<number>, fn: (n: number) => T) {
     super();
     this.parent = parent;
     this.fn = fn;
     parent.subscribe(this);
   }
-
   public get(): T {
     return this.fn(this.parent.get());
   }
-
   protected onDetach(): void {
     this.parent.unsubscribe(this);
   }
 }
 
-/** MotionStyle – wrap CSSProperties, only animate numeric or color strings */
+/** MotionStyle – wrap CSS props, auto-subscribe MotionNodes */
 export class MotionStyle extends MotionNode<CSSProperties> {
   private styles: CSSProperties;
-  private callback: () => void;
-
-  constructor(styles: CSSProperties, cb?: () => void) {
+  private cb: () => void;
+  constructor(styles: CSSProperties, cb: () => void) {
     super();
     this.styles = { ...styles };
-    this.callback = cb || (() => {});
+    this.cb = cb;
     Object.values(this.styles).forEach((v) => {
       if (v instanceof MotionNode) v.subscribe(this);
     });
   }
-
   public get(): CSSProperties {
-    const out: CSSProperties = {};
+    const out: any = {};
     for (const key in this.styles) {
-      const raw = (this as any).styles[key]!;
-      if (raw instanceof MotionNode) {
-        const val = raw.get();
-        if (typeof val === 'string') {
-          // only substrings like colors can be animated via MotionInterpolation;
-          // others just render immediately
-          (out as any)[key] = isAnimatableString(val) ? val : val;
-        } else {
-          (out as any)[key] = val;
-        }
-      } else {
-        (out as any)[key] = raw;
-      }
+      const raw = (this.styles as any)[key];
+      out[key] = raw instanceof MotionNode ? raw.get() : raw;
     }
     return out;
   }
-
   public update(): void {
-    this.callback();
+    this.cb();
     this.notify();
   }
 }
 
-/** MotionProps – wrap props, auto-wrap style */
+/** MotionProps – wrap component props, auto-wrap style */
 export class MotionProps<P extends Record<string, any>> extends MotionNode<P> {
   private props: P;
   private cb: () => void;
-
   constructor(props: P, cb: () => void) {
     super();
     if (props.style && !(props.style instanceof MotionStyle)) {
@@ -254,7 +239,6 @@ export class MotionProps<P extends Record<string, any>> extends MotionNode<P> {
       if (v instanceof MotionNode) v.subscribe(this);
     });
   }
-
   public get(): P {
     const out = {} as P;
     for (const k in this.props) {
@@ -263,14 +247,13 @@ export class MotionProps<P extends Record<string, any>> extends MotionNode<P> {
     }
     return out;
   }
-
   public update(): void {
     this.cb();
     this.notify();
   }
 }
 
-/** HOC: withMotion – wrap a component to accept MotionNode props */
+/** HOC: withMotion – wrap any component to accept MotionNode props */
 export function withMotion<P extends Record<string, any>>(
   Wrapped: any
 ): ComponentType<P & { forwardedRef?: any }> {
@@ -280,7 +263,6 @@ export function withMotion<P extends Record<string, any>>(
       () => new MotionProps(props as any, () => tick((x) => x + 1)),
       [props]
     );
-
     useLayoutEffect(() => {
       return () => {
         Object.values((applier as any).props).forEach((v: any) => {
@@ -288,14 +270,10 @@ export function withMotion<P extends Record<string, any>>(
         });
       };
     }, [applier]);
-
-    const applied = applier.get();
-    return React.createElement(Wrapped, { ...applied, ref } as any);
+    return React.createElement(Wrapped, { ...applier.get(), ref } as any);
   });
-
   (Component as any).displayName = `withMotion(${
     Wrapped.displayName || Wrapped.name || 'Component'
   })`;
-
   return Component as any;
 }
