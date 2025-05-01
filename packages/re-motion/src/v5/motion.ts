@@ -5,6 +5,7 @@ import React, {
   useLayoutEffect,
   useMemo,
 } from 'react';
+import { interpolate } from './interpolate';
 
 /**
  * Global spring scheduler: batches all active springs into a single RAF loop.
@@ -94,6 +95,14 @@ export class MotionValue extends MotionNode<number> {
   private dest = 0;
   private config: SpringConfig = {};
 
+  private tweenStart = 0;
+  private tweenDuration = 0;
+  private tweenFrom = 0;
+  private tweenTo = 0;
+  private tweenEasing: EasingFn = (t) => t;
+  private tweenElapsed = 0;
+  private springOrigin = 0;
+
   constructor(initial = 0) {
     super();
     this.value = initial;
@@ -114,26 +123,40 @@ export class MotionValue extends MotionNode<number> {
     this.notify();
   }
 
+  private _tweenStep = (now: number) => {
+    const t = Math.min(1, (now - this.tweenStart) / this.tweenDuration);
+    this.value =
+      this.tweenFrom + (this.tweenTo - this.tweenFrom) * this.tweenEasing(t);
+    this.notify();
+    if (t < 1) {
+      this.frame = requestAnimationFrame(this._tweenStep);
+    } else {
+      this.frame = undefined;
+    }
+  };
+
   public tween(to: number, duration = 300, easing: EasingFn = (t) => t): void {
+    // store metadata
+    this.tweenFrom = this.value;
+    this.tweenTo = to;
+    this.tweenDuration = duration;
+    this.tweenEasing = easing;
+    this.tweenStart = performance.now();
+
+    // kick off
     if (this.frame != null) cancelAnimationFrame(this.frame);
-    const from = this.value;
-    const start = performance.now();
-    const step = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      this.value = from + (to - from) * easing(t);
-      this.notify();
-      if (t < 1) this.frame = requestAnimationFrame(step);
-    };
-    this.frame = requestAnimationFrame(step);
+    this.frame = requestAnimationFrame(this._tweenStep);
   }
 
   public spring(to: number, config: SpringConfig = {}): void {
+    // capture initial value once
     if (!this.active) {
-      this.dest = to;
-      this.config = config;
-      this.active = true;
-      motionScheduler.add(this);
+      this.springOrigin = this.value;
     }
+    this.dest = to;
+    this.config = config;
+    this.active = true;
+    motionScheduler.add(this);
   }
 
   public onChange(fn: (v: number) => void): () => void {
@@ -151,6 +174,94 @@ export class MotionValue extends MotionNode<number> {
     this.subscribe(listener);
     // cleanup
     return () => this.unsubscribe(listener);
+  }
+
+  // ─── Overload #1: array → array (numbers or strings) ────────────────
+  public to<Out extends number | string>(
+    inputRange: number[],
+    outputRange: Out[],
+    easing?: EasingFn
+  ): MotionInterpolation<Out>;
+
+  // ─── Overload #2: array → mapper fn (any T) ────────────────────────
+  public to<T>(
+    inputRange: number[],
+    mapper: (v: number) => T
+  ): MotionInterpolation<T>;
+
+  // ─── Implementation ─────────────────────────────────────────────────
+  public to(
+    inputRange: number[],
+    output: number[] | ((v: number) => any),
+    easing: EasingFn = (t) => t
+  ): MotionInterpolation<any> {
+    // If you passed a function, treat it as a custom mapper
+    if (typeof output === 'function') {
+      const mapper = output as (v: number) => any;
+      return new MotionInterpolation<any>(this, mapper);
+    }
+
+    // Otherwise it's an array of numbers or strings
+    return interpolate<any>(
+      this,
+      inputRange,
+      output as (number | string)[],
+      easing
+    );
+  }
+
+  /**
+   * Pause the current tween or spring.
+   */
+  public pause(): void {
+    // if we're mid-tween, record how far we got
+    if (this.frame != null) {
+      this.tweenElapsed = performance.now() - this.tweenStart;
+      cancelAnimationFrame(this.frame);
+      this.frame = undefined;
+    }
+    // if we're mid-spring, same as before
+    if (this.active) {
+      motionScheduler.remove(this);
+      this.active = false;
+    }
+  }
+
+  /**
+   * Resume a paused tween or spring.
+   */
+  public resume(): void {
+    // resume tween: reuse the elapsed time we saved
+    if (this.tweenElapsed && this.frame == null) {
+      this.tweenStart = performance.now() - this.tweenElapsed;
+      this.frame = requestAnimationFrame(this._tweenStep);
+    }
+    // resume spring: no change
+    else if (!this.active && this.dest != null) {
+      this.active = true;
+      motionScheduler.add(this);
+    }
+  }
+
+  public reverse(): void {
+    // ── Tween: go back to the start value once ───────────────
+    if (this.tweenDuration > 0) {
+      const start = this.tweenFrom;
+      if (this.value === start) return; // already there
+      // cancel any running tween
+      if (this.frame != null) cancelAnimationFrame(this.frame);
+      // animate back to the original from
+      this.tween(start, this.tweenDuration, this.tweenEasing);
+      // clear so reverse() only works once
+      this.tweenDuration = 0;
+      return;
+    }
+
+    // ── Spring: return to the captured origin once ───────────
+    const origin = this.springOrigin;
+    if (this.value === origin) return; // already there
+    // spring back to the original value
+    this.spring(origin, this.config);
   }
 
   public _springStep(dt: number): void {

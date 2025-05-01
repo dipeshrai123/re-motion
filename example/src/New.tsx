@@ -1,7 +1,7 @@
 import { v5 } from '@raidipesh78/re-motion';
 import { useEffect, useMemo } from 'react';
 
-const { withMotion, MotionValue, interpolate } = v5;
+const { withMotion, MotionValue } = v5;
 
 const AnimatedDiv = withMotion('div');
 
@@ -12,9 +12,6 @@ const Child = () => {
 
 export default function New() {
   const progress = useMemo(() => new MotionValue(0), []);
-
-  const width = interpolate(progress, [0, 100], [100, 500]);
-  const bg = interpolate(progress, [0, 100], ['#000', '#f00']);
 
   useEffect(() => {
     const unsubscribe = progress.onChange((v) => {
@@ -29,17 +26,27 @@ export default function New() {
   return (
     <div>
       <AnimatedDiv
-        onClick={() => progress.spring(100, { damping: 10 })}
+        onClick={() => progress.spring(100, { damping: 8 })}
         style={{
-          width: width,
+          width: progress.to([0, 100], [100, 200]),
           height: 100,
           position: 'relative',
           left: progress,
-          backgroundColor: bg,
+          backgroundColor: progress.to([0, 100], ['#000', '#f00']),
+          border: progress.to(
+            [0, 100],
+            ['1px solid red', '10px solid #ff00ff']
+          ),
+          borderRadius: progress.to([0, 100], (v) => `${v}px`),
+          textAlign: progress.to([0, 100], (v) => (v > 50 ? 'center' : 'left')),
         }}
       >
         <Child />
       </AnimatedDiv>
+
+      <button onClick={() => progress.resume()}>Resume</button>
+      <button onClick={() => progress.pause()}>Pause</button>
+      <button onClick={() => progress.reverse()}>Reverse</button>
     </div>
   );
 }
