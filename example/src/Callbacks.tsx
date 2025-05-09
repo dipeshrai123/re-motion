@@ -1,14 +1,5 @@
 import { useRef } from 'react';
-import {
-  fluid,
-  FluidValue,
-  sequence,
-  timing,
-  spring,
-  decay,
-  loop,
-  native,
-} from '@raidipesh78/re-motion';
+import { fluid, FluidValue } from '@raidipesh78/re-motion';
 
 export default function Callbacks() {
   // const [, setOpen] = useState(false);
@@ -66,9 +57,7 @@ export default function Callbacks() {
         Toggle
       </button>
 
-      <button onClick={() => native(animation, { toValue: 300 }).start()}>
-        Native
-      </button>
+      <button onClick={() => animation.set({ toValue: 300 })}>Native</button>
 
       <fluid.div
         style={{

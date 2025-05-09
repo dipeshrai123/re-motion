@@ -1,4 +1,4 @@
-import { FluidValue, spring, fluid, combine } from '@raidipesh78/re-motion';
+import { FluidValue, fluid, combine } from '@raidipesh78/re-motion';
 import * as React from 'react';
 
 export default function New() {
@@ -10,14 +10,14 @@ export default function New() {
     <div>
       <button
         onClick={() => {
-          spring(y, { toValue: 0 }).start();
+          y.spring({ toValue: 0 }).start();
         }}
       >
         TO: 0
       </button>
       <button
         onClick={() => {
-          spring(y, { toValue: 100 }).start();
+          y.spring({ toValue: 100 }).start();
         }}
       >
         TO: 100

@@ -1,21 +1,21 @@
 import { useState, Children, useRef, useLayoutEffect } from 'react';
-import { fluid, FluidValue, spring } from "@raidipesh78/re-motion";
+import { fluid, FluidValue } from '@raidipesh78/re-motion';
 
 const StaggerItem = ({ open, children, index }: any) => {
-  const animation = useRef(new FluidValue(0));
+  const animation = useRef(new FluidValue(0)).current;
 
   useLayoutEffect(() => {
-    spring(animation.current, { toValue: open ? 1 : 0, delay: index * 50 }).start()
+    animation.spring({ toValue: open ? 1 : 0, delay: index * 50 }).start();
   }, [open]);
 
   return (
     <div style={{ height: 80 }}>
       <fluid.div
         style={{
-          opacity: animation.current,
-          height: animation.current.interpolate([0, 1], [0, 80]),
-          translateX: animation.current.interpolate([0, 1], [20, 0]),
-          overflow: "hidden",
+          opacity: animation,
+          height: animation.interpolate([0, 1], [0, 80]),
+          translateX: animation.interpolate([0, 1], [20, 0]),
+          overflow: 'hidden',
         }}
       >
         {children}
@@ -48,22 +48,38 @@ export default function App() {
       <button onClick={() => setOpen((p) => !p)}>Toggle</button>
 
       <Stagger state={open}>
-        <div style={{
-          fontSize: 60,
-          color: 'white'
-        }}>Hey 👋</div>
-        <div style={{
-          fontSize: 60,
-          color: 'white'
-        }}>I'm</div>
-        <div style={{
-          fontSize: 60,
-          color: 'white'
-        }}>Dipesh</div>
-        <div style={{
-          fontSize: 60,
-          color: 'white'
-        }}>Rai</div>
+        <div
+          style={{
+            fontSize: 60,
+            color: 'white',
+          }}
+        >
+          Hey 👋
+        </div>
+        <div
+          style={{
+            fontSize: 60,
+            color: 'white',
+          }}
+        >
+          I'm
+        </div>
+        <div
+          style={{
+            fontSize: 60,
+            color: 'white',
+          }}
+        >
+          Dipesh
+        </div>
+        <div
+          style={{
+            fontSize: 60,
+            color: 'white',
+          }}
+        >
+          Rai
+        </div>
       </Stagger>
     </div>
   );
