@@ -1,11 +1,11 @@
 import { useLayoutEffect } from 'react';
 
-import Stagger from './Stagger';
+import Example from './FluidValueUpdate';
 
 const App = () => {
   useDark();
 
-  return <Stagger />;
+  return <Example />;
 };
 
 function useDark() {

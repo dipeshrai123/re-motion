@@ -37,29 +37,30 @@ export default function Callbacks() {
     <div>
       <button
         onClick={() =>
-          loop(
-            sequence([
-              timing(animation, {
-                toValue: 100,
-                onStart: (value) => console.log('start timing', value),
-                onChange: (value) => console.log('change timing', value),
-                onRest: (value) => console.log('rest timing', value),
-              }),
-              spring(animation, {
-                toValue: 200,
-                onStart: (value) => console.log('start spring', value),
-                onChange: (value) => console.log('change spring', value),
-                onRest: (value) => console.log('rest spring', value),
-              }),
-              decay(animation, {
-                velocity: 1,
-                onStart: (value) => console.log('start decay', value),
-                onChange: (value) => console.log('change decay', value),
-                onRest: (value) => console.log('rest decay', value),
-              }),
-            ]),
-            { iterations: 4 }
-          ).start()
+          // loop(
+          //   sequence([
+          //     timing(animation, {
+          //       toValue: 100,
+          //       onStart: (value) => console.log('start timing', value),
+          //       onChange: (value) => console.log('change timing', value),
+          //       onRest: (value) => console.log('rest timing', value),
+          //     }),
+          //     spring(animation, {
+          //       toValue: 200,
+          //       onStart: (value) => console.log('start spring', value),
+          //       onChange: (value) => console.log('change spring', value),
+          //       onRest: (value) => console.log('rest spring', value),
+          //     }),
+          //     decay(animation, {
+          //       velocity: 1,
+          //       onStart: (value) => console.log('start decay', value),
+          //       onChange: (value) => console.log('change decay', value),
+          //       onRest: (value) => console.log('rest decay', value),
+          //     }),
+          //   ]),
+          //   { iterations: 4 }
+          // ).start()
+          {}
         }
       >
         Toggle

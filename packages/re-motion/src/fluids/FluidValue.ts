@@ -1,6 +1,18 @@
 import { uniqueId } from '../helpers/uniqueId';
 import { EndResultType, FluidAnimation } from '../animations/FluidAnimation';
 import { ExtrapolateConfig, interpolate } from '../interpolation/Interpolation';
+import { SpringConfig } from '../animations/Spring';
+import { TimingConfig } from '../animations/Timing';
+import { LoopConfig } from '../controllers/loop';
+import type { ControllerAnimation } from '../controllers/types';
+import { spring as createSpring } from '../controllers/spring';
+import { timing as createTiming } from '../controllers/timing';
+import { sequence as createSequence } from '../controllers/sequence';
+import { parallel as createParallel } from '../controllers/parallel';
+import { delay as createDelay } from '../controllers/delay';
+import { decay as createDecay } from '../controllers/decay';
+import { loop as createLoop } from '../controllers/loop';
+import { stagger as createStagger } from '../controllers/stagger';
 import { FluidInterpolation } from './FluidInterpolation';
 import { FluidSubscriptions } from './FluidSubscriptions';
 import { Fluid } from './Fluid';
@@ -60,6 +72,7 @@ export class FluidValue extends FluidSubscriptions {
   public resetAnimation(callback?: (value: number) => void | null) {
     this.stopAnimation(callback);
     this.value = this.startingValue;
+    this.updateValue(this.value);
   }
 
   public animate(
@@ -124,5 +137,58 @@ export class FluidValue extends FluidSubscriptions {
 
   removeAllListeners(): void {
     this.listeners = {};
+  }
+
+  public set(value: { toValue: number | FluidValue }): void {
+    this.stopAnimation();
+    if (value.toValue instanceof Fluid) {
+      this.startTrack(value.toValue);
+    } else {
+      this.updateValue(value.toValue);
+    }
+  }
+
+  public spring(
+    config: Omit<SpringConfig, 'toValue'> & { toValue: number | FluidValue }
+  ): ControllerAnimation {
+    return createSpring(this, config);
+  }
+
+  public timing(
+    config: Omit<TimingConfig, 'toValue'> & { toValue: number | FluidValue }
+  ): ControllerAnimation {
+    return createTiming(this, config);
+  }
+
+  public decay(
+    config: Omit<TimingConfig, 'toValue'> & { toValue: number | FluidValue }
+  ): ControllerAnimation {
+    return createDecay(this, config);
+  }
+
+  public sequence(animations: ControllerAnimation[]): ControllerAnimation {
+    return createSequence(animations);
+  }
+
+  public parallel(animations: ControllerAnimation[]): ControllerAnimation {
+    return createParallel(animations);
+  }
+
+  public delay(time: number): ControllerAnimation {
+    return createDelay(time);
+  }
+
+  public stagger(
+    time: number,
+    animations: ControllerAnimation[]
+  ): ControllerAnimation {
+    return createStagger(time, animations);
+  }
+
+  public loop(
+    animation: ControllerAnimation,
+    config?: LoopConfig
+  ): ControllerAnimation {
+    return createLoop(animation, config);
   }
 }
