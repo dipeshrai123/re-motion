@@ -1,11 +1,11 @@
 import { useLayoutEffect } from 'react';
 
-import New from './New';
+import Stagger from './Stagger';
 
 const App = () => {
   useDark();
 
-  return <New />;
+  return <Stagger />;
 };
 
 function useDark() {

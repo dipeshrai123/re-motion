@@ -19,6 +19,7 @@ import {
 } from '../helpers';
 import { FluidValue } from './FluidValue';
 import { FluidInterpolation } from './FluidInterpolation';
+import { FluidCombine } from './FluidCombine';
 
 type WrappedComponentOrTag =
   | ComponentType<HTMLAttributes<HTMLElement>>
@@ -28,11 +29,13 @@ type FluidCSSProperties = {
   [key in keyof CSSProperties]:
     | CSSProperties[key]
     | FluidValue
-    | FluidInterpolation;
+    | FluidInterpolation
+    | FluidCombine;
 } & {
   [key in (typeof styleTrasformKeys)[number]]?:
     | FluidValue
     | FluidInterpolation
+    | FluidCombine
     | number
     | string;
 };
@@ -41,14 +44,16 @@ type FluidHTMLAttributes<T> = {
   [key in keyof HTMLAttributes<T>]:
     | HTMLAttributes<T>[key]
     | FluidValue
-    | FluidInterpolation;
+    | FluidInterpolation
+    | FluidCombine;
 };
 
 type FluidSVGAttributes<T> = {
   [key in keyof SVGAttributes<T>]:
     | SVGAttributes<T>[key]
     | FluidValue
-    | FluidInterpolation;
+    | FluidInterpolation
+    | FluidCombine;
 };
 
 type FluidAttributes<T extends EventTarget> = Omit<
