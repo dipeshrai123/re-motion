@@ -2,3 +2,4 @@ node_modules/
 *.log
 .nx
 .idea/
+.DS_STORE
