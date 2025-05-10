@@ -65,7 +65,6 @@ export function timing(
     },
   });
 }
-
 export interface SpringOpts {
   stiffness?: number;
   damping?: number;

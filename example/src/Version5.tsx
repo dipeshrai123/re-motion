@@ -7,7 +7,6 @@ const { useMotionValue, spring, timing, motion, sequence, decay } =
 
 export default function Version5() {
   // const [, setRe] = useState(0);
-  // const progress = useMotionValue(100);
   // const position = useMotionValue<'relative' | 'absolute'>('relative');
   // const obj = useMotionValue({ x: 10 });
   // const x = useMotionValue(0);
@@ -15,20 +14,11 @@ export default function Version5() {
   // const bind: any = useDrag(({ offset: [mx] }) => {
   //   spring(x, mx);
   // });
+  const progress = useMotionValue(100);
   const x = useMotionValue(0);
 
   return (
     <>
-      {/* <button onClick={() => setRe((p) => p + 1)}>Re-Render</button> */}
-      {/* <button
-        onClick={() => {
-          obj.set({ x: 200 });
-          // console.log(obj);
-        }}
-      >
-        Update object
-      </button>
-      <br />
       <button onClick={() => spring(progress, 500)}>Spring</button>
       <button onClick={() => timing(progress, 100, { duration: 5000 })}>
         Timing
@@ -41,6 +31,18 @@ export default function Version5() {
           backgroundColor: 'red',
         }}
       />
+
+      {/* <button onClick={() => setRe((p) => p + 1)}>Re-Render</button> */}
+      {/* <button
+        onClick={() => {
+          obj.set({ x: 200 });
+          // console.log(obj);
+        }}
+      >
+        Update object
+      </button>
+      <br />
+      
 
       <button
         onClick={() => {
