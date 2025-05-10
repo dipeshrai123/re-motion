@@ -6,6 +6,11 @@ import React, {
   ReactNode,
 } from 'react';
 import { FluidValue } from './value';
+import {
+  applyStyleProp,
+  setupTransformSubscriptions,
+  TRANSFORM_KEYS,
+} from './transformUtils';
 
 // type-guard
 function isFluidValue(v: any): v is FluidValue<any> {
@@ -17,13 +22,13 @@ function isFluidValue(v: any): v is FluidValue<any> {
  *  - static style props are applied once
  *  - FluidValue style props subscribe and update el.style directly
  */
-export function makeFluid<
+export function makeMotion<
   TagProps extends { style?: Record<string, any>; children?: ReactNode }
 >(Wrapped: React.ComponentType<TagProps> | keyof JSX.IntrinsicElements) {
   type Props = TagProps & HTMLAttributes<HTMLElement>;
 
   const FluidComp = forwardRef<HTMLElement, Props>((props, forwardedRef) => {
-    const { style = {}, ...rest } = props;
+    const { style = {}, children, ...rest } = props;
     const nodeRef = useRef<HTMLElement | null>(null);
 
     // callback ref that updates nodeRef (and forwards if needed)
@@ -42,34 +47,39 @@ export function makeFluid<
       const node = nodeRef.current;
       if (!node) return;
 
-      // 1) apply all static (non-FluidValue) styles once
-      for (const [key, val] of Object.entries(style)) {
-        if (!isFluidValue(val)) {
-          const cssValue = typeof val === 'number' ? `${val}px` : String(val);
-          (node.style as any)[key] = cssValue;
-        }
+      const normal: Record<string, any> = {};
+      const tx: Record<string, any> = {};
+
+      for (const [k, v] of Object.entries(style)) {
+        if (TRANSFORM_KEYS.has(k)) tx[k] = v;
+        else normal[k] = v;
       }
 
-      // 2) subscribe to each FluidValue style, updating nodeRef.current
-      const unsubs = Object.entries(style)
-        .filter(([, val]) => isFluidValue(val))
-        .map(([key, val]) =>
-          (val as FluidValue<any>).subscribe((v) => {
-            const str = typeof v === 'number' ? `${v}px` : v;
-            const cur = nodeRef.current;
-            if (cur) (cur.style as any)[key] = str;
-          })
+      for (const [k, v] of Object.entries(normal)) {
+        if (!isFluidValue(v)) applyStyleProp(node, k, v);
+      }
+
+      const unsubsStyle = Object.entries(normal)
+        .filter(([, v]) => isFluidValue(v))
+        .map(([k, v]) =>
+          (v as FluidValue<any>).subscribe((val) =>
+            applyStyleProp(node, k, val)
+          )
         );
 
+      const unsubsTransform = setupTransformSubscriptions(nodeRef, tx);
+
       return () => {
-        unsubs.forEach((u) => u());
+        unsubsStyle.forEach((u) => u());
+        unsubsTransform.forEach((u) => u());
       };
     }, [style]);
 
     // render the wrapped element with our ref and rest props
     return React.createElement(
       Wrapped as any,
-      { ref: refCallback, ...rest } as any
+      { ref: refCallback, ...rest },
+      children
     );
   });
 
@@ -87,7 +97,7 @@ export const motion = new Proxy(
   {},
   {
     get(_, tag: string) {
-      return makeFluid(tag as any);
+      return makeMotion(tag as keyof JSX.IntrinsicElements);
     },
   }
 ) as {
