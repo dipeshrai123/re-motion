@@ -1,6 +1,15 @@
 import { MotionValue } from '../MotionValue';
 import { AnimationController } from './AnimationController';
 
+export interface SpringOpts {
+  stiffness?: number;
+  damping?: number;
+  onStart?(): void;
+  onPause?(): void;
+  onResume?(): void;
+  onComplete?(): void;
+}
+
 class SpringController implements AnimationController {
   private velocity = 0;
   private frameId!: number;
@@ -9,14 +18,15 @@ class SpringController implements AnimationController {
   constructor(
     private mv: MotionValue<number>,
     private to: number,
-    private stiffness: number = 170,
-    private damping: number = 26,
-    private onComplete?: () => void
+    private stiffness: number,
+    private damping: number,
+    private hooks: SpringOpts
   ) {}
 
   start() {
-    this.mv.setAnimationController(this);
+    this.hooks.onStart?.();
 
+    this.mv.setAnimationController(this);
     this.cancelled = false;
     this.frameId = requestAnimationFrame(this.animate);
   }
@@ -34,7 +44,7 @@ class SpringController implements AnimationController {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
       this.mv.set(this.to);
-      this.onComplete?.();
+      this.hooks.onComplete?.();
     }
   };
 
@@ -42,10 +52,15 @@ class SpringController implements AnimationController {
     if (this.cancelled) return;
     this.cancelled = true;
     cancelAnimationFrame(this.frameId);
+
+    this.hooks.onPause?.();
   }
 
   resume() {
     if (!this.cancelled) return;
+
+    this.hooks.onResume?.();
+
     this.cancelled = false;
     this.frameId = requestAnimationFrame(this.animate);
   }
@@ -59,18 +74,14 @@ class SpringController implements AnimationController {
 export function spring(
   mv: MotionValue<number>,
   to: number,
-  opts: {
-    stiffness?: number;
-    damping?: number;
-    onComplete?: () => void;
-  } = {}
+  opts: SpringOpts = {}
 ): SpringController {
   const ctl = new SpringController(
     mv,
     to,
-    opts.stiffness,
-    opts.damping,
-    opts.onComplete
+    opts.stiffness ?? 170,
+    opts.damping ?? 26,
+    opts
   );
   return ctl;
 }

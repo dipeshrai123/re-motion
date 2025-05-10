@@ -11,12 +11,18 @@ export default function Version5() {
   const springMove = spring(springX, 500, {
     damping: 8,
     stiffness: 200,
+    onStart: () => console.log('SPRING ONLY START'),
+    onPause: () => console.log('SPRING ONLY PAUSE'),
+    onResume: () => console.log('SPRING ONLY RESUME'),
     onComplete: () => console.log('SPRING ONLY COMPLETE'),
   });
 
   const timingX = useMotionValue(0);
   const timingMove = timing(timingX, 500, {
     duration: 5000,
+    onStart: () => console.log('TIMING ONLY START'),
+    onPause: () => console.log('TIMING ONLY PAUSE'),
+    onResume: () => console.log('TIMING ONLY RESUME'),
     onComplete: () => console.log('TIMING ONLY COMPLETE'),
   });
 
@@ -36,7 +42,10 @@ export default function Version5() {
       driver: timing,
       mv: sequenceX,
       to: 100,
-      opts: { onComplete: () => console.log('TIMING DONE') },
+      opts: {
+        onStart: () => console.log('TIMING STARTED'),
+        onComplete: () => console.log('TIMING DONE'),
+      },
     },
     {
       driver: decay,

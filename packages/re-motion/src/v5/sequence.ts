@@ -1,25 +1,32 @@
 import { MotionValue } from './MotionValue';
-import { spring, timing, decay, type AnimationController } from './drivers';
+import { spring, timing, decay } from './drivers';
+
+import type {
+  AnimationController,
+  TimingOpts,
+  SpringOpts,
+  DecayOpts,
+} from './drivers';
 
 type TimingStep = {
   driver: typeof timing;
   mv: MotionValue<number>;
   to: number;
-  opts?: Parameters<typeof timing>['2'];
+  opts?: TimingOpts;
 };
 
 type SpringStep = {
   driver: typeof spring;
   mv: MotionValue<number>;
   to: number;
-  opts?: Parameters<typeof spring>[2];
+  opts?: SpringOpts;
 };
 
 type DecayStep = {
   driver: typeof decay;
   mv: MotionValue<number>;
   velocity: number;
-  opts?: Parameters<typeof decay>[2];
+  opts?: DecayOpts;
 };
 
 export type Step = TimingStep | SpringStep | DecayStep;

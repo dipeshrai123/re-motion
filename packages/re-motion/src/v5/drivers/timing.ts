@@ -2,6 +2,15 @@ import { Easing } from '../easing/easing';
 import { MotionValue } from '../MotionValue';
 import { AnimationController } from './AnimationController';
 
+export interface TimingOpts {
+  duration?: number;
+  easing?: (t: number) => number;
+  onStart?(): void;
+  onPause?(): void;
+  onResume?(): void;
+  onComplete?(): void;
+}
+
 class TimingController implements AnimationController {
   private from!: number;
   private startTime!: number;
@@ -15,11 +24,13 @@ class TimingController implements AnimationController {
     private to: number,
     private duration: number = 300,
     private easing: (t: number) => number = Easing.linear,
-    private onComplete?: () => void
+    private hooks: TimingOpts
   ) {}
 
   start() {
     this.mv.setAnimationController(this);
+
+    this.hooks.onStart?.();
 
     this.from = this.mv.current;
     this.startTime = performance.now();
@@ -41,21 +52,29 @@ class TimingController implements AnimationController {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
       this.mv.set(this.to);
-      this.onComplete?.();
+      this.hooks.onComplete?.();
     }
   };
 
   pause() {
     if (this.cancelled || this.pausedAt != null) return;
+
     this.pausedAt = performance.now();
     this.elapsedBeforePause += this.pausedAt - this.startTime;
+
     cancelAnimationFrame(this.frameId);
+
+    this.hooks.onPause?.();
   }
 
   resume() {
     if (this.cancelled || this.pausedAt == null) return;
+
+    this.hooks.onResume?.();
+
     this.startTime = performance.now();
     this.pausedAt = null;
+
     this.frameId = requestAnimationFrame(this.animate);
   }
 
@@ -68,18 +87,14 @@ class TimingController implements AnimationController {
 export function timing(
   mv: MotionValue<number>,
   to: number,
-  opts: {
-    duration?: number;
-    easing?: (t: number) => number;
-    onComplete?: () => void;
-  } = {}
+  opts: TimingOpts = {}
 ): TimingController {
   const ctl = new TimingController(
     mv,
     to,
-    opts.duration,
-    opts.easing,
-    opts.onComplete
+    opts.duration ?? 300,
+    opts.easing ?? Easing.linear,
+    opts
   );
   return ctl;
 }

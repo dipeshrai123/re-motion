@@ -1,6 +1,14 @@
 import { MotionValue } from '../MotionValue';
 import { AnimationController } from './AnimationController';
 
+export interface DecayOpts {
+  decay?: number;
+  onStart?(): void;
+  onPause?(): void;
+  onResume?(): void;
+  onComplete?(): void;
+}
+
 class DecayController implements AnimationController {
   private velocity: number;
   private frameId!: number;
@@ -9,15 +17,16 @@ class DecayController implements AnimationController {
   constructor(
     private mv: MotionValue<number>,
     initialVelocity: number,
-    private decayFactor: number = 0.998,
-    private onComplete?: () => void
+    private decayFactor: number,
+    private hooks: DecayOpts
   ) {
     this.velocity = initialVelocity;
   }
 
   start() {
-    this.mv.setAnimationController(this);
+    this.hooks.onStart?.();
 
+    this.mv.setAnimationController(this);
     this.cancelled = false;
     this.frameId = requestAnimationFrame(this.animate);
   }
@@ -32,7 +41,7 @@ class DecayController implements AnimationController {
     if (Math.abs(this.velocity) > 0.001) {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
-      this.onComplete?.();
+      this.hooks.onComplete?.();
     }
   };
 
@@ -40,10 +49,15 @@ class DecayController implements AnimationController {
     if (this.cancelled) return;
     this.cancelled = true;
     cancelAnimationFrame(this.frameId);
+
+    this.hooks.onPause?.();
   }
 
   resume() {
     if (!this.cancelled) return;
+
+    this.hooks.onResume?.();
+
     this.cancelled = false;
     this.frameId = requestAnimationFrame(this.animate);
   }
@@ -57,11 +71,8 @@ class DecayController implements AnimationController {
 export function decay(
   mv: MotionValue<number>,
   velocity: number,
-  opts: {
-    decay?: number;
-    onComplete?: () => void;
-  } = {}
+  opts: DecayOpts = {}
 ): DecayController {
-  const ctl = new DecayController(mv, velocity, opts.decay, opts.onComplete);
+  const ctl = new DecayController(mv, velocity, opts.decay ?? 0.998, opts);
   return ctl;
 }
