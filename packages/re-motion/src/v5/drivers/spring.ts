@@ -14,8 +14,11 @@ export interface SpringOpts {
 class SpringController implements AnimationController {
   private velocity = 0;
   private frameId!: number;
-  private cancelled = false;
-  private from!: number;
+  private originalVelocity = 0;
+  private originalFrom: number;
+
+  private isPaused = false;
+  private isCancelled = false;
 
   constructor(
     private mv: MotionValue<number>,
@@ -25,19 +28,23 @@ class SpringController implements AnimationController {
     private mass: number,
     private hooks: SpringOpts
   ) {
-    this.from = this.mv.current;
+    this.originalFrom = this.mv.current;
+    this.originalVelocity = 0;
   }
 
   start() {
     this.hooks.onStart?.();
-
     this.mv.setAnimationController(this);
-    this.cancelled = false;
+
+    this.isPaused = false;
+    this.isCancelled = false;
+    this.velocity = this.originalVelocity;
+
     this.frameId = requestAnimationFrame(this.animate);
   }
 
   private animate = () => {
-    if (this.cancelled) return;
+    if (this.isCancelled || this.isPaused) return;
 
     const x = this.mv.current;
     const F = -this.stiffness * (x - this.to) - this.damping * this.velocity;
@@ -55,31 +62,31 @@ class SpringController implements AnimationController {
   };
 
   pause() {
-    if (this.cancelled) return;
-    this.cancelled = true;
-    cancelAnimationFrame(this.frameId);
+    if (this.isCancelled || this.isPaused) return;
 
+    this.isPaused = true;
+    cancelAnimationFrame(this.frameId);
     this.hooks.onPause?.();
   }
 
   resume() {
-    if (!this.cancelled) return;
+    if (this.isCancelled || !this.isPaused) return;
 
+    this.isPaused = false;
     this.hooks.onResume?.();
-
-    this.cancelled = false;
     this.frameId = requestAnimationFrame(this.animate);
   }
 
   cancel() {
-    this.cancelled = true;
+    this.isCancelled = true;
     cancelAnimationFrame(this.frameId);
   }
 
   reset(): void {
-    this.cancelled = true;
-    cancelAnimationFrame(this.frameId);
-    this.mv.set(this.from);
+    this.cancel();
+    this.isPaused = false;
+    this.mv.set(this.originalFrom);
+    this.velocity = this.originalVelocity;
   }
 
   setOnComplete(fn: () => void): void {

@@ -13,8 +13,10 @@ class DecayController implements AnimationController {
   private velocity: number;
   private originalVelocity: number;
   private frameId!: number;
-  private cancelled = false;
   private from!: number;
+
+  private isPaused = false;
+  private isCancelled = false;
 
   constructor(
     private mv: MotionValue<number>,
@@ -28,15 +30,18 @@ class DecayController implements AnimationController {
   }
 
   start() {
+    this.isPaused = false;
+    this.isCancelled = false;
+
     this.hooks.onStart?.();
 
     this.mv.setAnimationController(this);
-    this.cancelled = false;
+    this.isCancelled = false;
     this.frameId = requestAnimationFrame(this.animate);
   }
 
   private animate = () => {
-    if (this.cancelled) return;
+    if (this.isCancelled || this.isPaused) return;
 
     this.velocity *= this.decayFactor;
     const next = this.mv.current + this.velocity * (1 / 60);
@@ -50,30 +55,29 @@ class DecayController implements AnimationController {
   };
 
   pause() {
-    if (this.cancelled) return;
-    this.cancelled = true;
-    cancelAnimationFrame(this.frameId);
+    if (this.isCancelled || this.isPaused) return;
 
+    this.isPaused = true;
+    cancelAnimationFrame(this.frameId);
     this.hooks.onPause?.();
   }
 
   resume() {
-    if (!this.cancelled) return;
+    if (this.isCancelled || !this.isPaused) return;
 
+    this.isPaused = false;
     this.hooks.onResume?.();
-
-    this.cancelled = false;
     this.frameId = requestAnimationFrame(this.animate);
   }
 
   cancel() {
-    this.cancelled = true;
+    this.isCancelled = true;
     cancelAnimationFrame(this.frameId);
   }
 
   reset() {
-    this.cancelled = true;
-    cancelAnimationFrame(this.frameId);
+    this.cancel();
+    this.isPaused = false;
 
     this.mv.set(this.from);
     this.velocity = this.originalVelocity;

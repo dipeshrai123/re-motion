@@ -15,7 +15,9 @@ class TimingController implements AnimationController {
   private from!: number;
   private startTime!: number;
   private frameId!: number;
-  private cancelled = false;
+
+  private isPaused = false;
+  private isCancelled = false;
   private pausedAt: number | null = null;
   private elapsedBeforePause = 0;
 
@@ -30,12 +32,13 @@ class TimingController implements AnimationController {
   }
 
   start() {
+    this.hooks.onStart?.();
     this.mv.setAnimationController(this);
 
-    this.hooks.onStart?.();
-
+    this.isPaused = false;
+    this.isCancelled = false;
+    this.from = this.mv.current;
     this.startTime = performance.now();
-    this.cancelled = false;
     this.pausedAt = null;
     this.elapsedBeforePause = 0;
 
@@ -43,7 +46,7 @@ class TimingController implements AnimationController {
   }
 
   private animate = (ts: number) => {
-    if (this.cancelled) return;
+    if (this.isCancelled || this.isPaused) return;
 
     const elapsed = this.elapsedBeforePause + (ts - this.startTime);
     const t = Math.min(1, elapsed / this.duration);
@@ -58,34 +61,34 @@ class TimingController implements AnimationController {
   };
 
   pause() {
-    if (this.cancelled || this.pausedAt != null) return;
+    if (this.isCancelled || this.isPaused) return;
 
+    this.isPaused = true;
     this.pausedAt = performance.now();
     this.elapsedBeforePause += this.pausedAt - this.startTime;
-
     cancelAnimationFrame(this.frameId);
-
     this.hooks.onPause?.();
   }
 
   resume() {
-    if (this.cancelled || this.pausedAt == null) return;
+    if (this.isCancelled || !this.isPaused) return;
 
+    this.isPaused = false;
     this.hooks.onResume?.();
-
     this.startTime = performance.now();
     this.pausedAt = null;
-
     this.frameId = requestAnimationFrame(this.animate);
   }
 
   cancel() {
-    this.cancelled = true;
+    this.isCancelled = true;
     cancelAnimationFrame(this.frameId);
   }
 
   reset(): void {
-    this.cancelled = true;
+    this.cancel();
+    this.isPaused = false;
+
     cancelAnimationFrame(this.frameId);
     this.mv.set(this.from);
   }
