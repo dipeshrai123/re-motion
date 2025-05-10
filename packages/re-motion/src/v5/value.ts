@@ -1,4 +1,6 @@
-// Core FluidValue primitive
+// v5/value.ts
+import { interpolate } from './transforms';
+
 export type Subscriber<T> = (v: T) => void;
 
 export class FluidValue<T = number> {
@@ -21,14 +23,46 @@ export class FluidValue<T = number> {
 
   subscribe(fn: Subscriber<T>): () => void {
     this.subs.add(fn);
-    // immediately emit current value
     fn(this._current);
     return () => {
       this.subs.delete(fn);
     };
   }
+
+  // ───────────────────────────────────────────────────────────────
+  // 1) to([inMin,inMax], [outMin,outMax], easing?) → number|string
+  // 2) to(mapperFn) → arbitrary U
+  // ───────────────────────────────────────────────────────────────
+  to(
+    inRange: [number, number],
+    outRange: [number, number],
+    easing?: (t: number) => number
+  ): FluidValue<number>;
+  to(
+    inRange: [number, number],
+    outRange: [string, string],
+    easing?: (t: number) => number
+  ): FluidValue<string>;
+  to<U>(mapperFn: (v: T) => U): FluidValue<U>;
+
+  to(arg1: any, arg2?: any, arg3?: any): FluidValue<any> {
+    // Case A: user provided a single mapping function
+    if (typeof arg1 === 'function') {
+      const mapFn = arg1 as (v: T) => any;
+      const out = new FluidValue(mapFn(this._current));
+      this.subscribe((v) => out.set(mapFn(v)));
+      return out;
+    }
+
+    // Case B: numeric‐ or string‐range interpolation
+    const inRange = arg1 as [number, number];
+    const outRange = arg2;
+    const easing = arg3 as ((t: number) => number) | undefined;
+    return interpolate(this as any, inRange, outRange, easing);
+  }
 }
 
+// helper to create a new FluidValue
 export function fluidValue<T = number>(initial: T): FluidValue<T> {
   return new FluidValue(initial);
 }
