@@ -4,4 +4,4 @@ export { fluid } from './fluids/tags';
 export { combine } from './fluids/FluidCombine';
 export { Easing } from './easing/Easing';
 
-export * as v5 from './v5';
+export * as __experimental__v5 from './v5';

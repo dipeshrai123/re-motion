@@ -1,9 +1,8 @@
-import { v5 } from '@raidipesh78/re-motion';
+import { __experimental__v5 } from '@raidipesh78/re-motion';
 import { useDrag } from '@use-gesture/react';
 import { useMemo, useState } from 'react';
 
-const { motion, spring, timing, useMotionValue, interpolate, decay, combine } =
-  v5;
+const { useMotionValue, spring, interpolate, motion } = __experimental__v5;
 
 export default function Version5() {
   const [, setRe] = useState(0);

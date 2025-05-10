@@ -1,6 +1,6 @@
 import { MotionValue } from './value';
 
-export const namedColors: Record<string, string> = {
+const namedColors: Record<string, string> = {
   transparent: '#00000000',
   aliceblue: '#f0f8ffff',
   antiquewhite: '#faebd7ff',
