@@ -1,4 +1,4 @@
-import { FluidValue } from './value';
+import { MotionValue } from './value';
 
 export const UNIT_LESS = new Set([
   'borderImageOutset',
@@ -70,8 +70,8 @@ export function setupTransformSubscriptions(
       const val = txProps[key];
       if (val == null) continue;
       const cur =
-        typeof (val as FluidValue<any>).subscribe === 'function'
-          ? (val as FluidValue<any>).current
+        typeof (val as MotionValue<any>).subscribe === 'function'
+          ? (val as MotionValue<any>).current
           : val;
       if (typeof cur === 'string') {
         parts.push(`${key}(${cur})`);
@@ -103,8 +103,8 @@ export function setupTransformSubscriptions(
   const unsubs: (() => void)[] = [];
   for (const key of Object.keys(txProps)) {
     const val = txProps[key];
-    if (val && typeof (val as FluidValue<any>).subscribe === 'function') {
-      unsubs.push((val as FluidValue<any>).subscribe(renderTransform));
+    if (val && typeof (val as MotionValue<any>).subscribe === 'function') {
+      unsubs.push((val as MotionValue<any>).subscribe(renderTransform));
     }
   }
 

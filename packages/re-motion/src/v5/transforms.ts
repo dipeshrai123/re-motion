@@ -1,5 +1,5 @@
 import { namedColors } from './colors';
-import { FluidValue } from './value';
+import { MotionValue } from './value';
 
 const numberRE = /-?\d+(\.\d+)?/g;
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
@@ -67,25 +67,25 @@ function parseCssColor(c: string): [number, number, number, number] {
 }
 
 export function interpolate(
-  input: FluidValue<number>,
+  input: MotionValue<number>,
   inRange: [number, number],
   outRange: [number, number],
   easing?: (t: number) => number
-): FluidValue<number>;
+): MotionValue<number>;
 
 export function interpolate(
-  input: FluidValue<number>,
+  input: MotionValue<number>,
   inRange: [number, number],
   outRange: [string, string],
   easing?: (t: number) => number
-): FluidValue<string>;
+): MotionValue<string>;
 
 export function interpolate(
-  input: FluidValue<number>,
+  input: MotionValue<number>,
   inRange: [number, number],
   outRange: [number | string, number | string],
   easing: (t: number) => number = (t) => t
-): FluidValue<number | string> {
+): MotionValue<number | string> {
   const [inMin, inMax] = inRange;
   const [fromOut, toOut] = outRange;
 
@@ -96,7 +96,7 @@ export function interpolate(
       p = easing(p);
       return fromOut + (toOut - fromOut) * p;
     };
-    const out = new FluidValue<number>(mapNum(input.current));
+    const out = new MotionValue<number>(mapNum(input.current));
     input.subscribe((t) => out.set(mapNum(t)));
     return out;
   }
@@ -121,7 +121,7 @@ export function interpolate(
         ? `rgba(${R},${G},${B},${A.toFixed(3)})`
         : `rgb(${R},${G},${B})`;
     };
-    const out = new FluidValue<string>(mapColor(input.current));
+    const out = new MotionValue<string>(mapColor(input.current));
     input.subscribe((t) => out.set(mapColor(t)));
     return out;
   }
@@ -187,17 +187,17 @@ export function interpolate(
     return mappers.map((fn) => fn(t)).join('');
   };
 
-  const out = new FluidValue<string>(mapper(input.current));
+  const out = new MotionValue<string>(mapper(input.current));
   input.subscribe((t) => out.set(mapper(t)));
   return out;
 }
 
 export function combine<T extends any[], U>(
-  inputs: { [K in keyof T]: FluidValue<T[K]> },
+  inputs: { [K in keyof T]: MotionValue<T[K]> },
   combiner: (...values: T) => U
-): FluidValue<U> {
+): MotionValue<U> {
   const initial = inputs.map((fv) => fv.current) as T;
-  const out = new FluidValue<U>(combiner(...initial));
+  const out = new MotionValue<U>(combiner(...initial));
 
   const update = () => {
     const vals = inputs.map((fv) => fv.current) as T;

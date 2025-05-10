@@ -3,7 +3,7 @@ import { interpolate } from './transforms';
 
 export type Subscriber<T> = (v: T) => void;
 
-export class FluidValue<T = number> {
+export class MotionValue<T = number> {
   private subs = new Set<Subscriber<T>>();
   private _current: T;
 
@@ -37,19 +37,19 @@ export class FluidValue<T = number> {
     inRange: [number, number],
     outRange: [number, number],
     easing?: (t: number) => number
-  ): FluidValue<number>;
+  ): MotionValue<number>;
   to(
     inRange: [number, number],
     outRange: [string, string],
     easing?: (t: number) => number
-  ): FluidValue<string>;
-  to<U>(mapperFn: (v: T) => U): FluidValue<U>;
+  ): MotionValue<string>;
+  to<U>(mapperFn: (v: T) => U): MotionValue<U>;
 
-  to(arg1: any, arg2?: any, arg3?: any): FluidValue<any> {
+  to(arg1: any, arg2?: any, arg3?: any): MotionValue<any> {
     // Case A: user provided a single mapping function
     if (typeof arg1 === 'function') {
       const mapFn = arg1 as (v: T) => any;
-      const out = new FluidValue(mapFn(this._current));
+      const out = new MotionValue(mapFn(this._current));
       this.subscribe((v) => out.set(mapFn(v)));
       return out;
     }
@@ -60,9 +60,4 @@ export class FluidValue<T = number> {
     const easing = arg3 as ((t: number) => number) | undefined;
     return interpolate(this as any, inRange, outRange, easing);
   }
-}
-
-// helper to create a new FluidValue
-export function fluidValue<T = number>(initial: T): FluidValue<T> {
-  return new FluidValue(initial);
 }

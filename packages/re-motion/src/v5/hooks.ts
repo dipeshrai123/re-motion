@@ -1,8 +1,8 @@
 import { useRef } from 'react';
-import { fluidValue, FluidValue } from './value';
+import { MotionValue } from './value';
 
-export function useFluidValue<T = number>(initial: T): FluidValue<T> {
-  const ref = useRef<FluidValue<T> | null>(null);
-  if (ref.current === null) ref.current = fluidValue(initial);
+export function useMotionValue<T = number>(initial: T): MotionValue<T> {
+  const ref = useRef<MotionValue<T> | null>(null);
+  if (ref.current === null) ref.current = new MotionValue(initial);
   return ref.current;
 }

@@ -1,14 +1,13 @@
-// v5/drivers.ts
-import { FluidValue } from './value';
+import { MotionValue } from './value';
 import { Easing } from './easing';
 
 // Per-value state maps for each driver
-const timingMap = new WeakMap<FluidValue<number>, { cancel(): void }>();
-const springMap = new WeakMap<FluidValue<number>, { cancel(): void }>();
-const decayMap = new WeakMap<FluidValue<number>, { cancel(): void }>();
+const timingMap = new WeakMap<MotionValue<number>, { cancel(): void }>();
+const springMap = new WeakMap<MotionValue<number>, { cancel(): void }>();
+const decayMap = new WeakMap<MotionValue<number>, { cancel(): void }>();
 
 /** Cancel *all* drivers on this progress */
-function cancelAll(progress: FluidValue<number>) {
+function cancelAll(progress: MotionValue<number>) {
   const t = timingMap.get(progress);
   if (t) {
     t.cancel();
@@ -36,7 +35,7 @@ interface TimingOpts {
   easing?: (t: number) => number;
 }
 export function timing(
-  progress: FluidValue<number>,
+  progress: MotionValue<number>,
   to: number,
   { duration = 300, easing = Easing.linear }: TimingOpts = {}
 ): void {
@@ -76,7 +75,7 @@ interface SpringOpts {
   damping?: number;
 }
 export function spring(
-  progress: FluidValue<number>,
+  progress: MotionValue<number>,
   to: number,
   { stiffness = 170, damping = 26 }: SpringOpts = {}
 ): void {
@@ -119,7 +118,7 @@ interface DecayOpts {
   decay?: number;
 }
 export function decay(
-  progress: FluidValue<number>,
+  progress: MotionValue<number>,
   initialVelocity: number,
   { decay = 0.998 }: DecayOpts = {}
 ): void {

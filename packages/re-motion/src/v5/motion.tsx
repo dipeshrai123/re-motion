@@ -5,23 +5,17 @@ import React, {
   HTMLAttributes,
   ReactNode,
 } from 'react';
-import { FluidValue } from './value';
+import { MotionValue } from './value';
 import {
   applyStyleProp,
   setupTransformSubscriptions,
   TRANSFORM_KEYS,
 } from './transformUtils';
 
-// type-guard
-function isFluidValue(v: any): v is FluidValue<any> {
+function isMotionValue(v: any): v is MotionValue<any> {
   return v != null && typeof v.subscribe === 'function';
 }
 
-/**
- * Wraps any intrinsic tag or component so that:
- *  - static style props are applied once
- *  - FluidValue style props subscribe and update el.style directly
- */
 export function makeMotion<
   TagProps extends { style?: Record<string, any>; children?: ReactNode }
 >(Wrapped: React.ComponentType<TagProps> | keyof JSX.IntrinsicElements) {
@@ -56,13 +50,13 @@ export function makeMotion<
       }
 
       for (const [k, v] of Object.entries(normal)) {
-        if (!isFluidValue(v)) applyStyleProp(node, k, v);
+        if (!isMotionValue(v)) applyStyleProp(node, k, v);
       }
 
       const unsubsStyle = Object.entries(normal)
-        .filter(([, v]) => isFluidValue(v))
+        .filter(([, v]) => isMotionValue(v))
         .map(([k, v]) =>
-          (v as FluidValue<any>).subscribe((val) =>
+          (v as MotionValue<any>).subscribe((val) =>
             applyStyleProp(node, k, val)
           )
         );
@@ -70,13 +64,11 @@ export function makeMotion<
       const unsubsTransform = setupTransformSubscriptions(nodeRef, tx);
 
       const unsubsAttr = Object.entries(rest).map(([key, val]) => {
-        if (isFluidValue(val)) {
-          // subscribe
+        if (isMotionValue(val)) {
           return val.subscribe((v) => {
             if (node) node.setAttribute(key, String(v));
           });
         } else {
-          // static primitive → initial attribute
           if (
             typeof val === 'string' ||
             typeof val === 'number' ||
@@ -95,7 +87,6 @@ export function makeMotion<
       };
     }, []);
 
-    // render the wrapped element with our ref and rest props
     return React.createElement(
       Wrapped as any,
       { ref: refCallback, ...rest },

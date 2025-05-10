@@ -67,6 +67,8 @@ export default function Version5() {
         }}
       /> */}
 
+      <button onClick={() => x.set(0)}>Click</button>
+
       <motion.div
         {...bind()}
         text={x}
