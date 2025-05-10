@@ -73,6 +73,7 @@ export function decay(
   velocity: number,
   opts: DecayOpts = {}
 ): DecayController {
-  const ctl = new DecayController(mv, velocity, opts.decay ?? 0.998, opts);
+  const { decay = 0.998, ...hooks } = opts;
+  const ctl = new DecayController(mv, velocity, decay, hooks);
   return ctl;
 }

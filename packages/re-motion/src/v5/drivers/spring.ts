@@ -4,6 +4,7 @@ import { AnimationController } from './AnimationController';
 export interface SpringOpts {
   stiffness?: number;
   damping?: number;
+  mass?: number;
   onStart?(): void;
   onPause?(): void;
   onResume?(): void;
@@ -20,6 +21,7 @@ class SpringController implements AnimationController {
     private to: number,
     private stiffness: number,
     private damping: number,
+    private mass: number,
     private hooks: SpringOpts
   ) {}
 
@@ -36,7 +38,8 @@ class SpringController implements AnimationController {
 
     const x = this.mv.current;
     const F = -this.stiffness * (x - this.to) - this.damping * this.velocity;
-    this.velocity += F * (1 / 60);
+    this.velocity += (F / this.mass) * (1 / 60);
+
     const next = x + this.velocity * (1 / 60);
     this.mv.set(next);
 
@@ -76,12 +79,7 @@ export function spring(
   to: number,
   opts: SpringOpts = {}
 ): SpringController {
-  const ctl = new SpringController(
-    mv,
-    to,
-    opts.stiffness ?? 170,
-    opts.damping ?? 26,
-    opts
-  );
+  const { stiffness = 170, damping = 26, mass = 1, ...hooks } = opts;
+  const ctl = new SpringController(mv, to, stiffness, damping, mass, hooks);
   return ctl;
 }

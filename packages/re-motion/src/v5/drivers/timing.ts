@@ -89,12 +89,7 @@ export function timing(
   to: number,
   opts: TimingOpts = {}
 ): TimingController {
-  const ctl = new TimingController(
-    mv,
-    to,
-    opts.duration ?? 300,
-    opts.easing ?? Easing.linear,
-    opts
-  );
+  const { duration = 300, easing = Easing.linear, ...hooks } = opts;
+  const ctl = new TimingController(mv, to, duration, easing, hooks);
   return ctl;
 }
