@@ -2,7 +2,7 @@ import { v5 } from '@raidipesh78/re-motion';
 import { useDrag } from '@use-gesture/react';
 import { useState } from 'react';
 
-const { motion, spring, timing, useFluidValue, interpolate, decay, combine } =
+const { motion, spring, timing, useMotionValue, interpolate, decay, combine } =
   v5;
 
 export default function Version5() {
@@ -10,7 +10,7 @@ export default function Version5() {
   // const progress = useFluidValue(100);
   // const position = useFluidValue<'relative' | 'absolute'>('relative');
   // const obj = useFluidValue({ x: 10 });
-  const x = useFluidValue(20);
+  const x = useMotionValue(20);
 
   const bind: any = useDrag(({ offset: [mx] }) => {
     spring(x, mx);
@@ -67,7 +67,7 @@ export default function Version5() {
         }}
       /> */}
 
-      <button onClick={() => x.set(0)}>Click</button>
+      <button onClick={() => spring(x, 0)}>Click</button>
 
       <motion.div
         {...bind()}
@@ -79,7 +79,7 @@ export default function Version5() {
           // transform: combine([x], (x) => `translateX(${x}px)`),
           translateX: x,
           // translateY: x,
-          rotateZ: combine([x], (x) => `${x + 0.5}deg`),
+          rotateZ: combine([x], (x) => `${x}deg`),
         }}
       >
         FOLLOW

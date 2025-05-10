@@ -54,6 +54,7 @@ export function timing(
     if (t < 1) {
       frameId = requestAnimationFrame(animate);
     } else {
+      progress.set(to);
       timingMap.delete(progress);
     }
   };
@@ -98,6 +99,7 @@ export function spring(
     if (Math.abs(velocity) > 0.001 || Math.abs(x - to) > 0.001) {
       frameId = requestAnimationFrame(animate);
     } else {
+      progress.set(to);
       springMap.delete(progress);
     }
   };
