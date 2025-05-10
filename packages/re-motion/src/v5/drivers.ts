@@ -87,7 +87,6 @@ export function timing(
     opts.easing,
     opts.onComplete
   );
-  ctl.start();
   return ctl;
 }
 
@@ -162,7 +161,6 @@ export function spring(
     opts.damping,
     opts.onComplete
   );
-  ctl.start();
   return ctl;
 }
 
@@ -228,6 +226,5 @@ export function decay(
   } = {}
 ): DecayController {
   const ctl = new DecayController(mv, velocity, opts.decay, opts.onComplete);
-  ctl.start();
   return ctl;
 }

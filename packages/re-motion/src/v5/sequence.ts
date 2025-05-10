@@ -25,7 +25,12 @@ type DecayStep = {
 
 export type Step = TimingStep | SpringStep | DecayStep;
 
-export function sequence(steps: Step[]): { cancel(): void } {
+export function sequence(steps: Step[]): {
+  start(): void;
+  pause(): void;
+  resume(): void;
+  cancel(): void;
+} {
   let idx = 0;
   let isCancelled = false;
   let currentCtrl: AnimationController | null = null;
@@ -47,11 +52,23 @@ export function sequence(steps: Step[]): { cancel(): void } {
       const { to, opts } = step as TimingStep | SpringStep;
       currentCtrl = driver(mv, to, { ...(opts ?? {}), onComplete });
     }
+
+    currentCtrl.start();
   }
 
-  runNext();
-
   return {
+    start() {
+      isCancelled = false;
+      idx = 0;
+      currentCtrl = null;
+      runNext();
+    },
+    pause() {
+      if (!isCancelled) currentCtrl?.pause();
+    },
+    resume() {
+      if (!isCancelled) currentCtrl?.resume();
+    },
     cancel() {
       isCancelled = true;
       currentCtrl?.cancel();

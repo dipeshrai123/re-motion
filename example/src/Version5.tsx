@@ -12,14 +12,18 @@ export default function Version5() {
   const moveX = useMotionValue(0);
 
   const bind: any = useDrag(({ offset: [mx] }) => {
-    const ctrl = spring(moveX, mx);
-
-    if (mx > 200) {
-      ctrl.pause();
-    }
+    spring(moveX, mx);
   });
   // const progress = useMotionValue(100);
   const x = useMotionValue(0);
+
+  const timingMove = timing(moveX, 500, { duration: 5000 });
+
+  const sequenceMove = sequence([
+    { driver: spring, mv: x, to: 300, opts: { damping: 10 } },
+    { driver: timing, mv: x, to: 100 },
+    { driver: decay, mv: x, velocity: 40 },
+  ]);
 
   return (
     <>
@@ -80,29 +84,19 @@ export default function Version5() {
        */}
 
       <motion.div
-        {...bind()}
         style={{
           width: 100,
           height: 100,
           backgroundColor: 'red',
-          // transform: combine([x], (x) => `translateX(${x}px)`),
           translateX: moveX,
-          // translateY: x,
           rotateZ: combine([moveX], (moveX) => `${moveX}deg`),
         }}
-      />
-
-      <button
-        onClick={() => {
-          sequence([
-            { driver: spring, mv: x, to: 300, opts: { damping: 10 } },
-            { driver: timing, mv: x, to: 100 },
-            { driver: decay, mv: x, velocity: 40 },
-          ]);
-        }}
       >
-        RUN ANIMATION
-      </button>
+        <button onClick={() => timingMove.start()}>Start</button>
+        <button onClick={() => timingMove.pause()}>Pause</button>
+        <button onClick={() => timingMove.resume()}>Resume</button>
+        <button onClick={() => timingMove.cancel()}>Cancel</button>
+      </motion.div>
 
       <motion.div
         style={{
@@ -112,7 +106,10 @@ export default function Version5() {
           translateX: x,
         }}
       >
-        FOLLOW
+        <button onClick={() => sequenceMove.start()}>Start</button>
+        <button onClick={() => sequenceMove.pause()}>Pause</button>
+        <button onClick={() => sequenceMove.resume()}>Resume</button>
+        <button onClick={() => sequenceMove.cancel()}>Cancel</button>
       </motion.div>
     </>
   );
