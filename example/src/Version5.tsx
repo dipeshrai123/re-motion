@@ -19,18 +19,23 @@ export default function Version5() {
       driver: spring,
       mv: sequenceX,
       to: 300,
-      opts: { damping: 8, stiffness: 200 },
+      opts: {
+        damping: 8,
+        stiffness: 200,
+        onComplete: () => console.log('SPRING DONE'),
+      },
     },
     {
       driver: timing,
       mv: sequenceX,
       to: 100,
-      opts: { onComplete: () => console.log('AYAY') },
+      opts: { onComplete: () => console.log('TIMING DONE') },
     },
     {
       driver: decay,
       mv: sequenceX,
       velocity: 40,
+      opts: { onComplete: () => console.log('Finally complete') },
     },
   ]);
 

@@ -40,7 +40,13 @@ export function sequence(steps: Step[]): {
     if (!step) return;
 
     const { driver, mv } = step;
+
+    const userOnComplete = (step.opts as any)?.onComplete as
+      | (() => void)
+      | undefined;
+
     const onComplete = () => {
+      if (userOnComplete) userOnComplete();
       if (!isCancelled) runNext();
     };
 
