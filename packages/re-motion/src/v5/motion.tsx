@@ -5,7 +5,7 @@ import React, {
   HTMLAttributes,
   ReactNode,
 } from 'react';
-import { isTransformKey } from './transformUtils';
+import { isTransformKey } from './styleTransformUtils';
 import { applyAttrs, applyStyles, applyTransforms } from './apply';
 
 export function makeMotion<

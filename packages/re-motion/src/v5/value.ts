@@ -1,7 +1,6 @@
-// v5/value.ts
 import { interpolate } from './transforms';
 
-export type Subscriber<T> = (v: T) => void;
+type Subscriber<T> = (v: T) => void;
 
 export class MotionValue<T = number> {
   private subs = new Set<Subscriber<T>>();
@@ -29,15 +28,12 @@ export class MotionValue<T = number> {
     };
   }
 
-  // ───────────────────────────────────────────────────────────────
-  // 1) to([inMin,inMax], [outMin,outMax], easing?) → number|string
-  // 2) to(mapperFn) → arbitrary U
-  // ───────────────────────────────────────────────────────────────
   to(
     inRange: [number, number],
     outRange: [number, number],
     easing?: (t: number) => number
   ): MotionValue<number>;
+
   to(
     inRange: [number, number],
     outRange: [string, string],
@@ -46,7 +42,6 @@ export class MotionValue<T = number> {
   to<U>(mapperFn: (v: T) => U): MotionValue<U>;
 
   to(arg1: any, arg2?: any, arg3?: any): MotionValue<any> {
-    // Case A: user provided a single mapping function
     if (typeof arg1 === 'function') {
       const mapFn = arg1 as (v: T) => any;
       const out = new MotionValue(mapFn(this._current));
@@ -54,7 +49,6 @@ export class MotionValue<T = number> {
       return out;
     }
 
-    // Case B: numeric‐ or string‐range interpolation
     const inRange = arg1 as [number, number];
     const outRange = arg2;
     const easing = arg3 as ((t: number) => number) | undefined;

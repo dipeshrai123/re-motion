@@ -1,12 +1,10 @@
 import { MotionValue } from './value';
 import { Easing } from './easing';
 
-// Per-value state maps for each driver
 const timingMap = new WeakMap<MotionValue<number>, { cancel(): void }>();
 const springMap = new WeakMap<MotionValue<number>, { cancel(): void }>();
 const decayMap = new WeakMap<MotionValue<number>, { cancel(): void }>();
 
-/** Cancel *all* drivers on this progress */
 function cancelAll(progress: MotionValue<number>) {
   const t = timingMap.get(progress);
   if (t) {
@@ -27,9 +25,6 @@ function cancelAll(progress: MotionValue<number>) {
   }
 }
 
-// ————————————————————————————————————————————————
-// timing: numeric animation over `duration` with `easing`
-// ————————————————————————————————————————————————
 interface TimingOpts {
   duration?: number;
   easing?: (t: number) => number;
@@ -68,9 +63,6 @@ export function timing(
   });
 }
 
-// ————————————————————————————————————————————————
-// spring: damped‐spring physics to `to`
-// ————————————————————————————————————————————————
 interface SpringOpts {
   stiffness?: number;
   damping?: number;
@@ -113,9 +105,6 @@ export function spring(
   });
 }
 
-// ————————————————————————————————————————————————
-// decay: inertial decay from `initialVelocity`
-// ————————————————————————————————————————————————
 interface DecayOpts {
   decay?: number;
 }

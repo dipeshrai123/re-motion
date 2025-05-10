@@ -1,6 +1,3 @@
-// easing.ts
-// Pure easing functions for timing interpolations
-
 export const Easing = {
   linear: (t: number) => t,
   easeInQuad: (t: number) => t * t,

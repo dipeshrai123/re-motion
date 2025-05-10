@@ -1,6 +1,6 @@
 import { applyStyleProps } from './applyStyleProp';
 import { isMotionValue } from './isMotionValue';
-import { applyTransformsStyle } from './transformUtils';
+import { applyTransformsStyle } from './styleTransformUtils';
 
 export function applyStyles(
   node: HTMLElement,
