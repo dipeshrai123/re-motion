@@ -1,11 +1,6 @@
 import { MotionValue } from './value';
 import { Easing } from './easing';
 
-const activeController = new WeakMap<
-  MotionValue<number>,
-  AnimationController
->();
-
 export interface AnimationController {
   start(): void;
   pause(): void;
@@ -13,15 +8,7 @@ export interface AnimationController {
   cancel(): void;
 }
 
-function cancelAll(mv: MotionValue<number>) {
-  const ctl = activeController.get(mv);
-  if (ctl) {
-    ctl.cancel();
-    activeController.delete(mv);
-  }
-}
-
-export class TimingController implements AnimationController {
+class TimingController implements AnimationController {
   private from!: number;
   private startTime!: number;
   private frameId!: number;
@@ -38,8 +25,7 @@ export class TimingController implements AnimationController {
   ) {}
 
   start() {
-    cancelAll(this.mv);
-    activeController.set(this.mv, this);
+    this.mv.setAnimationController(this);
 
     this.from = this.mv.current;
     this.startTime = performance.now();
@@ -61,7 +47,6 @@ export class TimingController implements AnimationController {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
       this.mv.set(this.to);
-      activeController.delete(this.mv);
       this.onComplete?.();
     }
   };
@@ -83,7 +68,6 @@ export class TimingController implements AnimationController {
   cancel() {
     this.cancelled = true;
     cancelAnimationFrame(this.frameId);
-    activeController.delete(this.mv);
   }
 }
 
@@ -107,7 +91,7 @@ export function timing(
   return ctl;
 }
 
-export class SpringController implements AnimationController {
+class SpringController implements AnimationController {
   private velocity = 0;
   private frameId!: number;
   private cancelled = false;
@@ -121,8 +105,7 @@ export class SpringController implements AnimationController {
   ) {}
 
   start() {
-    cancelAll(this.mv);
-    activeController.set(this.mv, this);
+    this.mv.setAnimationController(this);
 
     this.cancelled = false;
     this.frameId = requestAnimationFrame(this.animate);
@@ -141,7 +124,6 @@ export class SpringController implements AnimationController {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
       this.mv.set(this.to);
-      activeController.delete(this.mv);
       this.onComplete?.();
     }
   };
@@ -161,7 +143,6 @@ export class SpringController implements AnimationController {
   cancel() {
     this.cancelled = true;
     cancelAnimationFrame(this.frameId);
-    activeController.delete(this.mv);
   }
 }
 
@@ -185,7 +166,7 @@ export function spring(
   return ctl;
 }
 
-export class DecayController implements AnimationController {
+class DecayController implements AnimationController {
   private velocity: number;
   private frameId!: number;
   private cancelled = false;
@@ -200,8 +181,7 @@ export class DecayController implements AnimationController {
   }
 
   start() {
-    cancelAll(this.mv);
-    activeController.set(this.mv, this);
+    this.mv.setAnimationController(this);
 
     this.cancelled = false;
     this.frameId = requestAnimationFrame(this.animate);
@@ -217,7 +197,6 @@ export class DecayController implements AnimationController {
     if (Math.abs(this.velocity) > 0.001) {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
-      activeController.delete(this.mv);
       this.onComplete?.();
     }
   };
@@ -237,7 +216,6 @@ export class DecayController implements AnimationController {
   cancel() {
     this.cancelled = true;
     cancelAnimationFrame(this.frameId);
-    activeController.delete(this.mv);
   }
 }
 

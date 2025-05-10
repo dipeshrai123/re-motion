@@ -12,7 +12,11 @@ export default function Version5() {
   const moveX = useMotionValue(0);
 
   const bind: any = useDrag(({ offset: [mx] }) => {
-    spring(moveX, mx);
+    const ctrl = spring(moveX, mx);
+
+    if (mx > 200) {
+      ctrl.pause();
+    }
   });
   // const progress = useMotionValue(100);
   const x = useMotionValue(0);

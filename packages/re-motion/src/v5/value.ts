@@ -1,3 +1,4 @@
+import type { AnimationController } from './drivers';
 import { interpolate } from './transforms';
 
 type Subscriber<T> = (v: T) => void;
@@ -5,6 +6,7 @@ type Subscriber<T> = (v: T) => void;
 export class MotionValue<T = number> {
   private subs = new Set<Subscriber<T>>();
   private _current: T;
+  private currentController?: AnimationController;
 
   constructor(initial: T) {
     this._current = initial;
@@ -53,5 +55,10 @@ export class MotionValue<T = number> {
     const outRange = arg2;
     const easing = arg3 as ((t: number) => number) | undefined;
     return interpolate(this as any, inRange, outRange, easing);
+  }
+
+  setAnimationController(ctrl: AnimationController) {
+    this.currentController?.cancel();
+    this.currentController = ctrl;
   }
 }
