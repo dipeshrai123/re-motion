@@ -2,7 +2,7 @@ import { v5 } from '@raidipesh78/re-motion';
 import { useDrag } from '@use-gesture/react';
 import { useState } from 'react';
 
-const { motion, spring, timing, useFluidValue } = v5;
+const { motion, spring, timing, useFluidValue, interpolate } = v5;
 
 export default function Version5() {
   const [, setRe] = useState(0);
@@ -35,8 +35,10 @@ export default function Version5() {
         style={{
           width: 100,
           height: 100,
-          backgroundColor: 'red',
-          position: 'absolute',
+          backgroundColor: interpolate(x, [0, 500], ['red', 'blue']),
+          border: '0px solid purple',
+          borderWidth: interpolate(x, [0, 500], [0, 10]),
+          position: 'relative',
           left: x,
         }}
       />
