@@ -2,13 +2,14 @@ import { v5 } from '@raidipesh78/re-motion';
 import { useDrag } from '@use-gesture/react';
 import { useState } from 'react';
 
-const { motion, spring, timing, useFluidValue, interpolate, decay } = v5;
+const { motion, spring, timing, useFluidValue, interpolate, decay, combine } =
+  v5;
 
 export default function Version5() {
   const [, setRe] = useState(0);
   const progress = useFluidValue(100);
   const x = useFluidValue(0);
-  const position = useFluidValue('relative');
+  const position = useFluidValue<'relative' | 'absolute'>('relative');
   const obj = useFluidValue({ x: 10 });
 
   const bind: any = useDrag(({ offset: [mx] }) => {
@@ -43,7 +44,6 @@ export default function Version5() {
       <button
         onClick={() => {
           position.set('absolute');
-          // console.log(position);
         }}
       >
         Make Absolute
@@ -66,6 +66,18 @@ export default function Version5() {
           left: x,
         }}
       />
+
+      <motion.div
+        style={{
+          width: 100,
+          height: 100,
+          backgroundColor: 'teal',
+          transform: combine([x], (x) => `translateX(${x}px)`),
+        }}
+      >
+        {/* FOLLOW {x.to((v) => `${v}px`)} */}
+        FOLLOW
+      </motion.div>
     </>
   );
 }

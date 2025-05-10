@@ -206,3 +206,26 @@ export function interpolate(
   input.subscribe((t) => out.set(mapper(t)));
   return out;
 }
+
+export function combine<T extends any[], U>(
+  inputs: { [K in keyof T]: FluidValue<T[K]> },
+  combiner: (...values: T) => U
+): FluidValue<U> {
+  // Initialize with the current values
+  const initial = inputs.map((fv) => fv.current) as T;
+  const out = new FluidValue<U>(combiner(...initial));
+
+  // Whenever any input changes, re-run the combiner
+  const update = () => {
+    const vals = inputs.map((fv) => fv.current) as T;
+    out.set(combiner(...vals));
+  };
+
+  // Subscribe to all inputs
+  inputs.map((fv) => fv.subscribe(() => update()));
+
+  // (Optional) If you want auto-cleanup, return an object with a stop method:
+  // return { value: out, unsubscribe: () => unsubs.forEach(u => u()) }
+
+  return out;
+}
