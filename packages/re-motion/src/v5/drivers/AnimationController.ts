@@ -3,4 +3,6 @@ export interface AnimationController {
   pause(): void;
   resume(): void;
   cancel(): void;
+  reset(): void;
+  setOnComplete?(fn: () => void): void;
 }

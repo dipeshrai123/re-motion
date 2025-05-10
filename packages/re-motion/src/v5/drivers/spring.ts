@@ -15,6 +15,7 @@ class SpringController implements AnimationController {
   private velocity = 0;
   private frameId!: number;
   private cancelled = false;
+  private from!: number;
 
   constructor(
     private mv: MotionValue<number>,
@@ -23,7 +24,9 @@ class SpringController implements AnimationController {
     private damping: number,
     private mass: number,
     private hooks: SpringOpts
-  ) {}
+  ) {
+    this.from = this.mv.current;
+  }
 
   start() {
     this.hooks.onStart?.();
@@ -71,6 +74,16 @@ class SpringController implements AnimationController {
   cancel() {
     this.cancelled = true;
     cancelAnimationFrame(this.frameId);
+  }
+
+  reset(): void {
+    this.cancelled = true;
+    cancelAnimationFrame(this.frameId);
+    this.mv.set(this.from);
+  }
+
+  setOnComplete(fn: () => void): void {
+    this.hooks.onComplete = fn;
   }
 }
 

@@ -1,12 +1,7 @@
-import { MotionValue } from './MotionValue';
-import { spring, timing, decay } from './drivers';
+import { MotionValue } from '../MotionValue';
+import { spring, timing, decay } from '.';
 
-import type {
-  AnimationController,
-  TimingOpts,
-  SpringOpts,
-  DecayOpts,
-} from './drivers';
+import type { AnimationController, TimingOpts, SpringOpts, DecayOpts } from '.';
 
 type TimingStep = {
   driver: typeof timing;
@@ -31,12 +26,7 @@ type DecayStep = {
 
 export type Step = TimingStep | SpringStep | DecayStep;
 
-export function sequence(steps: Step[]): {
-  start(): void;
-  pause(): void;
-  resume(): void;
-  cancel(): void;
-} {
+export function sequence(steps: Step[]): AnimationController {
   let idx = 0;
   let isCancelled = false;
   let currentCtrl: AnimationController | null = null;
@@ -84,6 +74,12 @@ export function sequence(steps: Step[]): {
     cancel() {
       isCancelled = true;
       currentCtrl?.cancel();
+    },
+    reset() {
+      currentCtrl?.reset();
+    },
+    setOnComplete() {
+      // No-op: onComplete is handled in the sequence
     },
   };
 }

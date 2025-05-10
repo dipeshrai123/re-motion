@@ -1,7 +1,15 @@
 import { __experimental__v5 } from '@raidipesh78/re-motion';
 
-const { useMotionValue, spring, timing, motion, sequence, decay, combine } =
-  __experimental__v5;
+const {
+  useMotionValue,
+  spring,
+  timing,
+  motion,
+  sequence,
+  decay,
+  combine,
+  loop,
+} = __experimental__v5;
 
 export default function Version5() {
   // const position = useMotionValue<'relative' | 'absolute'>('relative');
@@ -54,6 +62,10 @@ export default function Version5() {
       opts: { onComplete: () => console.log('Finally complete with Decay') },
     },
   ]);
+
+  const loopX = useMotionValue(0);
+
+  const loopMove = loop(timing(loopX, 500, { duration: 1000 }), 5);
 
   return (
     <>
@@ -114,6 +126,7 @@ export default function Version5() {
         <button onClick={() => springMove.pause()}>Pause</button>
         <button onClick={() => springMove.resume()}>Resume</button>
         <button onClick={() => springMove.cancel()}>Cancel</button>
+        <button onClick={() => springMove.reset()}>Reset</button>
         <motion.div
           style={{
             width: 100,
@@ -130,6 +143,7 @@ export default function Version5() {
         <button onClick={() => timingMove.pause()}>Pause</button>
         <button onClick={() => timingMove.resume()}>Resume</button>
         <button onClick={() => timingMove.cancel()}>Cancel</button>
+        <button onClick={() => timingMove.reset()}>Reset</button>
         <motion.div
           style={{
             width: 100,
@@ -147,12 +161,29 @@ export default function Version5() {
         <button onClick={() => sequenceMove.pause()}>Pause</button>
         <button onClick={() => sequenceMove.resume()}>Resume</button>
         <button onClick={() => sequenceMove.cancel()}>Cancel</button>
+        <button onClick={() => sequenceMove.reset()}>Reset</button>
         <motion.div
           style={{
             width: 100,
             height: 100,
             backgroundColor: 'teal',
             translateX: sequenceX,
+          }}
+        />
+      </div>
+
+      <div>
+        <h2>Loop ( with controls )</h2>
+        <button onClick={() => loopMove.start()}>Start</button>
+        <button onClick={() => loopMove.pause()}>Pause</button>
+        <button onClick={() => loopMove.resume()}>Resume</button>
+        <button onClick={() => loopMove.cancel()}>Cancel</button>
+        <motion.div
+          style={{
+            width: 100,
+            height: 100,
+            backgroundColor: '#3399ff',
+            translateX: loopX,
           }}
         />
       </div>

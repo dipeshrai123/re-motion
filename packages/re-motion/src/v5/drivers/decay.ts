@@ -13,6 +13,7 @@ class DecayController implements AnimationController {
   private velocity: number;
   private frameId!: number;
   private cancelled = false;
+  private from!: number;
 
   constructor(
     private mv: MotionValue<number>,
@@ -21,6 +22,7 @@ class DecayController implements AnimationController {
     private hooks: DecayOpts
   ) {
     this.velocity = initialVelocity;
+    this.from = this.mv.current;
   }
 
   start() {
@@ -65,6 +67,16 @@ class DecayController implements AnimationController {
   cancel() {
     this.cancelled = true;
     cancelAnimationFrame(this.frameId);
+  }
+
+  reset() {
+    this.cancelled = true;
+    cancelAnimationFrame(this.frameId);
+    this.mv.set(this.from);
+  }
+
+  setOnComplete(fn: () => void): void {
+    this.hooks.onComplete = fn;
   }
 }
 
