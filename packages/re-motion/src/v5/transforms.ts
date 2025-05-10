@@ -1,4 +1,3 @@
-// v5/transforms.ts
 import { namedColors } from './colors';
 import { FluidValue } from './value';
 
@@ -9,7 +8,6 @@ const RGB_RE =
 const HSL_RE =
   /^hsla?\(\s*\d+(\.\d+)?(?:\s*,\s*\d+(\.\d+)?%){2}(?:\s*,\s*(0|1|0?\.\d+))?\s*\)$/i;
 
-// Helpers to detect & parse CSS colors
 function isCssColorLiteral(s: string): boolean {
   const c = s.trim().toLowerCase();
   return (
@@ -23,7 +21,6 @@ function parseCssColor(c: string): [number, number, number, number] {
   let color = c.trim().toLowerCase();
   if (namedColors[color]) color = namedColors[color];
 
-  // — Hex —
   if (HEX_RE.test(color)) {
     let hex = color.slice(1);
     if (hex.length === 3)
@@ -39,13 +36,11 @@ function parseCssColor(c: string): [number, number, number, number] {
     const a = hasA ? (v & 0xff) / 255 : 1;
     return [r, g, b, a];
   }
-  // — rgb/rgba —
   if (RGB_RE.test(color)) {
     const nums = [...color.matchAll(numberRE)].map((m) => +m[0]);
     const [r, g, b, a = 1] = nums;
     return [r, g, b, a];
   }
-  // — hsl/hsla —
   if (HSL_RE.test(color)) {
     const nums = [...color.matchAll(numberRE)].map((m) => +m[0]);
     let [h, s, l, a = 1] = nums;
@@ -71,13 +66,13 @@ function parseCssColor(c: string): [number, number, number, number] {
   throw new Error(`Unrecognized CSS color: ${c}`);
 }
 
-/** TypeScript overloads */
 export function interpolate(
   input: FluidValue<number>,
   inRange: [number, number],
   outRange: [number, number],
   easing?: (t: number) => number
 ): FluidValue<number>;
+
 export function interpolate(
   input: FluidValue<number>,
   inRange: [number, number],
@@ -85,7 +80,6 @@ export function interpolate(
   easing?: (t: number) => number
 ): FluidValue<string>;
 
-/** Implementation */
 export function interpolate(
   input: FluidValue<number>,
   inRange: [number, number],
@@ -95,7 +89,6 @@ export function interpolate(
   const [inMin, inMax] = inRange;
   const [fromOut, toOut] = outRange;
 
-  // — Numeric → Numeric —
   if (typeof fromOut === 'number' && typeof toOut === 'number') {
     const mapNum = (t: number) => {
       let p = (t - inMin) / (inMax - inMin);
@@ -108,11 +101,9 @@ export function interpolate(
     return out;
   }
 
-  // Cast to strings
   const fromStr = String(fromOut);
   const toStr = String(toOut);
 
-  // — CSS-Color → CSS-Color —
   if (isCssColorLiteral(fromStr) && isCssColorLiteral(toStr)) {
     const c1 = parseCssColor(fromStr);
     const c2 = parseCssColor(toStr);
@@ -135,8 +126,6 @@ export function interpolate(
     return out;
   }
 
-  // — Template → Template —
-  // split by whitespace, keeping the separators
   const fromParts = fromStr.split(/(\s+)/);
   const toParts = toStr.split(/(\s+)/);
   if (fromParts.length !== toParts.length) {
@@ -145,15 +134,12 @@ export function interpolate(
     );
   }
 
-  // For each part, decide how to interpolate
   type PartMapper = (t: number) => string;
   const mappers: PartMapper[] = fromParts.map((fp, i) => {
     const tp = toParts[i];
-    // identical whitespace or literals:
     if (fp === tp && /\s+/.test(fp)) {
       return () => fp;
     }
-    // Number+unit, e.g. "1px" ↔ "10px"
     const numUnitRE = /^(-?\d+(\.\d+)?)([a-zA-Z%]*)$/;
     const m1 = fp.match(numUnitRE);
     const m2 = tp.match(numUnitRE);
@@ -169,7 +155,6 @@ export function interpolate(
         return `${val.toFixed(3)}${unit}`;
       };
     }
-    // CSS color tokens:
     if (isCssColorLiteral(fp) && isCssColorLiteral(tp)) {
       const c1 = parseCssColor(fp),
         c2 = parseCssColor(tp);
@@ -188,16 +173,16 @@ export function interpolate(
           : `rgb(${R},${G},${B})`;
       };
     }
-    // identical literal (e.g. "solid"):
+
     if (fp === tp) {
       return () => fp;
     }
+
     throw new Error(
       `interpolate: cannot interpolate tokens "${fp}" vs "${tp}"`
     );
   });
 
-  // combine mappers
   const mapper = (t: number) => {
     return mappers.map((fn) => fn(t)).join('');
   };
@@ -211,21 +196,15 @@ export function combine<T extends any[], U>(
   inputs: { [K in keyof T]: FluidValue<T[K]> },
   combiner: (...values: T) => U
 ): FluidValue<U> {
-  // Initialize with the current values
   const initial = inputs.map((fv) => fv.current) as T;
   const out = new FluidValue<U>(combiner(...initial));
 
-  // Whenever any input changes, re-run the combiner
   const update = () => {
     const vals = inputs.map((fv) => fv.current) as T;
     out.set(combiner(...vals));
   };
 
-  // Subscribe to all inputs
   inputs.map((fv) => fv.subscribe(() => update()));
-
-  // (Optional) If you want auto-cleanup, return an object with a stop method:
-  // return { value: out, unsubscribe: () => unsubs.forEach(u => u()) }
 
   return out;
 }

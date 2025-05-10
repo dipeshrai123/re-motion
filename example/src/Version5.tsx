@@ -72,7 +72,10 @@ export default function Version5() {
           width: 100,
           height: 100,
           backgroundColor: 'teal',
-          transform: combine([x], (x) => `translateX(${x}px)`),
+          // transform: combine([x], (x) => `translateX(${x}px)`),
+          translateX: x,
+          // translateY: x,
+          rotateX: combine([x], (x) => `${x}deg`),
         }}
       >
         {/* FOLLOW {x.to((v) => `${v}px`)} */}
