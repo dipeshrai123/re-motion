@@ -82,14 +82,14 @@ class SpringController implements AnimationController {
     cancelAnimationFrame(this.frameId);
   }
 
-  reset(): void {
+  reset() {
     this.cancel();
     this.isPaused = false;
     this.mv.set(this.originalFrom);
     this.velocity = this.originalVelocity;
   }
 
-  setOnComplete(fn: () => void): void {
+  setOnComplete(fn: () => void) {
     this.hooks.onComplete = fn;
   }
 }

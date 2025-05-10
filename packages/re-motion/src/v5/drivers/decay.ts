@@ -83,6 +83,8 @@ class DecayController implements AnimationController {
     this.velocity = this.originalVelocity;
   }
 
+  reverse() {}
+
   setOnComplete(fn: () => void): void {
     this.hooks.onComplete = fn;
   }

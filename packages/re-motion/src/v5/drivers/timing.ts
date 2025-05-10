@@ -12,9 +12,10 @@ export interface TimingOpts {
 }
 
 class TimingController implements AnimationController {
-  private from!: number;
   private startTime!: number;
   private frameId!: number;
+  private from!: number;
+  private originalFrom: number;
 
   private isPaused = false;
   private isCancelled = false;
@@ -28,7 +29,7 @@ class TimingController implements AnimationController {
     private easing: (t: number) => number = Easing.linear,
     private hooks: TimingOpts
   ) {
-    this.from = this.mv.current;
+    this.originalFrom = mv.current;
   }
 
   start() {
@@ -85,15 +86,15 @@ class TimingController implements AnimationController {
     cancelAnimationFrame(this.frameId);
   }
 
-  reset(): void {
+  reset() {
     this.cancel();
     this.isPaused = false;
 
     cancelAnimationFrame(this.frameId);
-    this.mv.set(this.from);
+    this.mv.set(this.originalFrom);
   }
 
-  setOnComplete(fn: () => void): void {
+  setOnComplete(fn: () => void) {
     this.hooks.onComplete = fn;
   }
 }

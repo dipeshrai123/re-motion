@@ -15,6 +15,15 @@ export default function Version5() {
   // const position = useMotionValue<'relative' | 'absolute'>('relative');
   // const obj = useMotionValue({ x: 10 });
 
+  const timingX = useMotionValue(0);
+  const timingMove = timing(timingX, 500, {
+    duration: 5000,
+    onStart: () => console.log('TIMING ONLY START'),
+    onPause: () => console.log('TIMING ONLY PAUSE'),
+    onResume: () => console.log('TIMING ONLY RESUME'),
+    onComplete: () => console.log('TIMING ONLY COMPLETE'),
+  });
+
   const springX = useMotionValue(0);
   const springMove = spring(springX, 500, {
     damping: 8,
@@ -23,15 +32,6 @@ export default function Version5() {
     onPause: () => console.log('SPRING ONLY PAUSE'),
     onResume: () => console.log('SPRING ONLY RESUME'),
     onComplete: () => console.log('SPRING ONLY COMPLETE'),
-  });
-
-  const timingX = useMotionValue(0);
-  const timingMove = timing(timingX, 500, {
-    duration: 5000,
-    onStart: () => console.log('TIMING ONLY START'),
-    onPause: () => console.log('TIMING ONLY PAUSE'),
-    onResume: () => console.log('TIMING ONLY RESUME'),
-    onComplete: () => console.log('TIMING ONLY COMPLETE'),
   });
 
   const decayX = useMotionValue(0);
@@ -135,23 +135,6 @@ export default function Version5() {
       /> */}
 
       <div>
-        <h2>Spring</h2>
-        <button onClick={() => springMove.start()}>Start</button>
-        <button onClick={() => springMove.pause()}>Pause</button>
-        <button onClick={() => springMove.resume()}>Resume</button>
-        <button onClick={() => springMove.cancel()}>Cancel</button>
-        <button onClick={() => springMove.reset()}>Reset</button>
-        <motion.div
-          style={{
-            width: 100,
-            height: 100,
-            backgroundColor: 'teal',
-            translateX: springX,
-          }}
-        />
-      </div>
-
-      <div>
         <h2>Timing</h2>
         <button onClick={() => timingMove.start()}>Start</button>
         <button onClick={() => timingMove.pause()}>Pause</button>
@@ -165,6 +148,23 @@ export default function Version5() {
             backgroundColor: 'red',
             translateX: timingX,
             rotateZ: combine([timingX], (moveX) => `${moveX}deg`),
+          }}
+        />
+      </div>
+
+      <div>
+        <h2>Spring</h2>
+        <button onClick={() => springMove.start()}>Start</button>
+        <button onClick={() => springMove.pause()}>Pause</button>
+        <button onClick={() => springMove.resume()}>Resume</button>
+        <button onClick={() => springMove.cancel()}>Cancel</button>
+        <button onClick={() => springMove.reset()}>Reset</button>
+        <motion.div
+          style={{
+            width: 100,
+            height: 100,
+            backgroundColor: 'teal',
+            translateX: springX,
           }}
         />
       </div>
