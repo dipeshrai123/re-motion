@@ -8,8 +8,8 @@ export default function Version5() {
   const [, setRe] = useState(0);
   const progress = useFluidValue(100);
   const x = useFluidValue(0);
-
-  console.log('RE-RENDER');
+  const position = useFluidValue('relative');
+  const obj = useFluidValue({ x: 10 });
 
   const bind: any = useDrag(({ offset: [mx] }) => {
     spring(x, mx);
@@ -17,12 +17,21 @@ export default function Version5() {
 
   return (
     <>
+      <button onClick={() => setRe((p) => p + 1)}>Re-Render</button>
+      <button
+        onClick={() => {
+          obj.set({ x: 200 });
+          // console.log(obj);
+        }}
+      >
+        Update object
+      </button>
+      <br />
       <button onClick={() => spring(progress, 500)}>Spring</button>
       <button onClick={() => timing(progress, 100, { duration: 5000 })}>
         Timing
       </button>
       <button onClick={() => decay(progress, 20)}>Decay</button>
-      <button onClick={() => setRe((p) => p + 1)}>Re-Render</button>
       <motion.div
         style={{
           width: progress,
@@ -30,6 +39,16 @@ export default function Version5() {
           backgroundColor: 'red',
         }}
       />
+
+      <button
+        onClick={() => {
+          position.set('absolute');
+          // console.log(position);
+        }}
+      >
+        Make Absolute
+      </button>
+
       <motion.div
         {...bind()}
         style={{
@@ -42,7 +61,8 @@ export default function Version5() {
             ['0px solid red', '10px solid #3399ffff']
           ),
           backgroundColor: interpolate(x, [0, 500], ['#3399ff', 'yellow']),
-          position: x.to((v) => (v > 100 ? 'absolute' : 'relative')),
+          // position: x.to((v) => (v > 100 ? 'absolute' : 'relative')), // conditional
+          position,
           left: x,
         }}
       />
