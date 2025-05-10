@@ -1,151 +1,255 @@
 import { MotionValue } from './value';
 import { Easing } from './easing';
 
-const timingMap = new WeakMap<MotionValue<number>, { cancel(): void }>();
-const springMap = new WeakMap<MotionValue<number>, { cancel(): void }>();
-const decayMap = new WeakMap<MotionValue<number>, { cancel(): void }>();
+const activeController = new WeakMap<
+  MotionValue<number>,
+  AnimationController
+>();
 
-function cancelAll(progress: MotionValue<number>) {
-  const t = timingMap.get(progress);
-  if (t) {
-    t.cancel();
-    timingMap.delete(progress);
-  }
+export interface AnimationController {
+  start(): void;
+  pause(): void;
+  resume(): void;
+  cancel(): void;
+}
 
-  const s = springMap.get(progress);
-  if (s) {
-    s.cancel();
-    springMap.delete(progress);
-  }
-
-  const d = decayMap.get(progress);
-  if (d) {
-    d.cancel();
-    decayMap.delete(progress);
+function cancelAll(mv: MotionValue<number>) {
+  const ctl = activeController.get(mv);
+  if (ctl) {
+    ctl.cancel();
+    activeController.delete(mv);
   }
 }
 
-export interface TimingOpts {
-  duration?: number;
-  easing?: (t: number) => number;
-  onComplete?: () => void;
+export class TimingController implements AnimationController {
+  private from!: number;
+  private startTime!: number;
+  private frameId!: number;
+  private cancelled = false;
+  private pausedAt: number | null = null;
+  private elapsedBeforePause = 0;
+
+  constructor(
+    private mv: MotionValue<number>,
+    private to: number,
+    private duration: number = 300,
+    private easing: (t: number) => number = Easing.linear,
+    private onComplete?: () => void
+  ) {}
+
+  start() {
+    cancelAll(this.mv);
+    activeController.set(this.mv, this);
+
+    this.from = this.mv.current;
+    this.startTime = performance.now();
+    this.cancelled = false;
+    this.pausedAt = null;
+    this.elapsedBeforePause = 0;
+
+    this.frameId = requestAnimationFrame(this.animate);
+  }
+
+  private animate = (ts: number) => {
+    if (this.cancelled) return;
+
+    const elapsed = this.elapsedBeforePause + (ts - this.startTime);
+    const t = Math.min(1, elapsed / this.duration);
+    this.mv.set(this.from + (this.to - this.from) * this.easing(t));
+
+    if (t < 1) {
+      this.frameId = requestAnimationFrame(this.animate);
+    } else {
+      this.mv.set(this.to);
+      activeController.delete(this.mv);
+      this.onComplete?.();
+    }
+  };
+
+  pause() {
+    if (this.cancelled || this.pausedAt != null) return;
+    this.pausedAt = performance.now();
+    this.elapsedBeforePause += this.pausedAt - this.startTime;
+    cancelAnimationFrame(this.frameId);
+  }
+
+  resume() {
+    if (this.cancelled || this.pausedAt == null) return;
+    this.startTime = performance.now();
+    this.pausedAt = null;
+    this.frameId = requestAnimationFrame(this.animate);
+  }
+
+  cancel() {
+    this.cancelled = true;
+    cancelAnimationFrame(this.frameId);
+    activeController.delete(this.mv);
+  }
 }
 
 export function timing(
-  progress: MotionValue<number>,
+  mv: MotionValue<number>,
   to: number,
-  { duration = 300, easing = Easing.linear, onComplete }: TimingOpts = {}
-): void {
-  cancelAll(progress);
+  opts: {
+    duration?: number;
+    easing?: (t: number) => number;
+    onComplete?: () => void;
+  } = {}
+): TimingController {
+  const ctl = new TimingController(
+    mv,
+    to,
+    opts.duration,
+    opts.easing,
+    opts.onComplete
+  );
+  ctl.start();
+  return ctl;
+}
 
-  let cancelled = false;
-  const start = performance.now();
-  const from = progress.current;
-  let frameId: number;
+export class SpringController implements AnimationController {
+  private velocity = 0;
+  private frameId!: number;
+  private cancelled = false;
 
-  const animate = (now: number) => {
-    if (cancelled) return;
-    const t = Math.min(1, (now - start) / duration);
-    progress.set(from + (to - from) * easing(t));
+  constructor(
+    private mv: MotionValue<number>,
+    private to: number,
+    private stiffness: number = 170,
+    private damping: number = 26,
+    private onComplete?: () => void
+  ) {}
 
-    if (t < 1) {
-      frameId = requestAnimationFrame(animate);
+  start() {
+    cancelAll(this.mv);
+    activeController.set(this.mv, this);
+
+    this.cancelled = false;
+    this.frameId = requestAnimationFrame(this.animate);
+  }
+
+  private animate = () => {
+    if (this.cancelled) return;
+
+    const x = this.mv.current;
+    const F = -this.stiffness * (x - this.to) - this.damping * this.velocity;
+    this.velocity += F * (1 / 60);
+    const next = x + this.velocity * (1 / 60);
+    this.mv.set(next);
+
+    if (Math.abs(this.velocity) > 0.001 || Math.abs(x - this.to) > 0.001) {
+      this.frameId = requestAnimationFrame(this.animate);
     } else {
-      progress.set(to);
-      timingMap.delete(progress);
-      if (onComplete) onComplete();
+      this.mv.set(this.to);
+      activeController.delete(this.mv);
+      this.onComplete?.();
     }
   };
 
-  frameId = requestAnimationFrame(animate);
-  timingMap.set(progress, {
-    cancel: () => {
-      cancelled = true;
-      cancelAnimationFrame(frameId);
-    },
-  });
-}
-export interface SpringOpts {
-  stiffness?: number;
-  damping?: number;
-  onComplete?: () => void;
+  pause() {
+    if (this.cancelled) return;
+    this.cancelled = true;
+    cancelAnimationFrame(this.frameId);
+  }
+
+  resume() {
+    if (!this.cancelled) return;
+    this.cancelled = false;
+    this.frameId = requestAnimationFrame(this.animate);
+  }
+
+  cancel() {
+    this.cancelled = true;
+    cancelAnimationFrame(this.frameId);
+    activeController.delete(this.mv);
+  }
 }
 
 export function spring(
-  progress: MotionValue<number>,
+  mv: MotionValue<number>,
   to: number,
-  { stiffness = 170, damping = 26, onComplete }: SpringOpts = {}
-): void {
-  cancelAll(progress);
+  opts: {
+    stiffness?: number;
+    damping?: number;
+    onComplete?: () => void;
+  } = {}
+): SpringController {
+  const ctl = new SpringController(
+    mv,
+    to,
+    opts.stiffness,
+    opts.damping,
+    opts.onComplete
+  );
+  ctl.start();
+  return ctl;
+}
 
-  let velocity = 0;
-  let cancelled = false;
-  let frameId: number;
+export class DecayController implements AnimationController {
+  private velocity: number;
+  private frameId!: number;
+  private cancelled = false;
 
-  const animate = () => {
-    if (cancelled) return;
+  constructor(
+    private mv: MotionValue<number>,
+    initialVelocity: number,
+    private decayFactor: number = 0.998,
+    private onComplete?: () => void
+  ) {
+    this.velocity = initialVelocity;
+  }
 
-    const x = progress.current;
-    const F = -stiffness * (x - to) - damping * velocity;
-    velocity += F * (1 / 60);
-    const next = x + velocity * (1 / 60);
+  start() {
+    cancelAll(this.mv);
+    activeController.set(this.mv, this);
 
-    progress.set(next);
+    this.cancelled = false;
+    this.frameId = requestAnimationFrame(this.animate);
+  }
 
-    if (Math.abs(velocity) > 0.001 || Math.abs(x - to) > 0.001) {
-      frameId = requestAnimationFrame(animate);
+  private animate = () => {
+    if (this.cancelled) return;
+
+    this.velocity *= this.decayFactor;
+    const next = this.mv.current + this.velocity * (1 / 60);
+    this.mv.set(next);
+
+    if (Math.abs(this.velocity) > 0.001) {
+      this.frameId = requestAnimationFrame(this.animate);
     } else {
-      progress.set(to);
-      springMap.delete(progress);
-      if (onComplete) onComplete();
+      activeController.delete(this.mv);
+      this.onComplete?.();
     }
   };
 
-  frameId = requestAnimationFrame(animate);
-  springMap.set(progress, {
-    cancel: () => {
-      cancelled = true;
-      cancelAnimationFrame(frameId);
-    },
-  });
-}
+  pause() {
+    if (this.cancelled) return;
+    this.cancelled = true;
+    cancelAnimationFrame(this.frameId);
+  }
 
-export interface DecayOpts {
-  decay?: number;
-  onComplete?: () => void;
+  resume() {
+    if (!this.cancelled) return;
+    this.cancelled = false;
+    this.frameId = requestAnimationFrame(this.animate);
+  }
+
+  cancel() {
+    this.cancelled = true;
+    cancelAnimationFrame(this.frameId);
+    activeController.delete(this.mv);
+  }
 }
 
 export function decay(
-  progress: MotionValue<number>,
-  initialVelocity: number,
-  { decay = 0.998, onComplete }: DecayOpts = {}
-): void {
-  cancelAll(progress);
-
-  let velocity = initialVelocity;
-  let cancelled = false;
-  let frameId: number;
-
-  const animate = () => {
-    if (cancelled) return;
-
-    velocity *= decay;
-    const next = progress.current + velocity * (1 / 60);
-    progress.set(next);
-
-    if (Math.abs(velocity) > 0.001) {
-      frameId = requestAnimationFrame(animate);
-    } else {
-      decayMap.delete(progress);
-      if (onComplete) onComplete();
-    }
-  };
-
-  frameId = requestAnimationFrame(animate);
-  decayMap.set(progress, {
-    cancel: () => {
-      cancelled = true;
-      cancelAnimationFrame(frameId);
-    },
-  });
+  mv: MotionValue<number>,
+  velocity: number,
+  opts: {
+    decay?: number;
+    onComplete?: () => void;
+  } = {}
+): DecayController {
+  const ctl = new DecayController(mv, velocity, opts.decay, opts.onComplete);
+  ctl.start();
+  return ctl;
 }

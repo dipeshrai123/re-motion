@@ -1,25 +1,25 @@
 import { __experimental__v5 } from '@raidipesh78/re-motion';
-// import { useDrag } from '@use-gesture/react';
+import { useDrag } from '@use-gesture/react';
 // import { useMemo, useState } from 'react';
 
-const { useMotionValue, spring, timing, motion, sequence, decay } =
+const { useMotionValue, spring, timing, motion, sequence, decay, combine } =
   __experimental__v5;
 
 export default function Version5() {
   // const [, setRe] = useState(0);
   // const position = useMotionValue<'relative' | 'absolute'>('relative');
   // const obj = useMotionValue({ x: 10 });
-  // const x = useMotionValue(0);
+  const moveX = useMotionValue(0);
 
-  // const bind: any = useDrag(({ offset: [mx] }) => {
-  //   spring(x, mx);
-  // });
-  const progress = useMotionValue(100);
+  const bind: any = useDrag(({ offset: [mx] }) => {
+    spring(moveX, mx);
+  });
+  // const progress = useMotionValue(100);
   const x = useMotionValue(0);
 
   return (
     <>
-      <button onClick={() => spring(progress, 500)}>Spring</button>
+      {/* <button onClick={() => spring(progress, 500)}>Spring</button>
       <button onClick={() => timing(progress, 100, { duration: 5000 })}>
         Timing
       </button>
@@ -30,7 +30,7 @@ export default function Version5() {
           height: 100,
           backgroundColor: 'red',
         }}
-      />
+      /> */}
 
       {/* <button onClick={() => setRe((p) => p + 1)}>Re-Render</button> */}
       {/* <button
@@ -73,21 +73,20 @@ export default function Version5() {
 
       {/* <button onClick={() => spring(x, 0)}>Click</button>
 
+       */}
+
       <motion.div
         {...bind()}
-        text={x}
         style={{
           width: 100,
           height: 100,
-          backgroundColor: 'teal',
+          backgroundColor: 'red',
           // transform: combine([x], (x) => `translateX(${x}px)`),
-          translateX: x,
+          translateX: moveX,
           // translateY: x,
-          rotateZ: combine([x], (x) => `${x}deg`),
+          rotateZ: combine([moveX], (moveX) => `${moveX}deg`),
         }}
-      >
-        FOLLOW
-      </motion.div> */}
+      />
 
       <button
         onClick={() => {

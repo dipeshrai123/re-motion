@@ -1,32 +1,25 @@
 import { MotionValue } from './value';
-import {
-  timing,
-  spring,
-  decay,
-  TimingOpts,
-  SpringOpts,
-  DecayOpts,
-} from './drivers';
+import { timing, spring, decay } from './drivers';
 
 type TimingStep = {
   driver: typeof timing;
   mv: MotionValue<number>;
   to: number;
-  opts?: Omit<TimingOpts, 'onComplete'>;
+  opts?: any;
 };
 
 type SpringStep = {
   driver: typeof spring;
   mv: MotionValue<number>;
   to: number;
-  opts?: Omit<SpringOpts, 'onComplete'>;
+  opts?: any;
 };
 
 type DecayStep = {
   driver: typeof decay;
   mv: MotionValue<number>;
   velocity: number;
-  opts?: Omit<DecayOpts, 'onComplete'>;
+  opts?: any;
 };
 
 export type Step = TimingStep | SpringStep | DecayStep;
@@ -55,7 +48,6 @@ export function sequence(steps: Step[]): { cancel(): void } {
     }
   }
 
-  // kick off
   runNext();
 
   return {
