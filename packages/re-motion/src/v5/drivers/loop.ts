@@ -6,17 +6,22 @@ export function loop(
 ): AnimationController {
   let count = 0;
   let cancelled = false;
+  const originalOnComplete = (driver as any).hooks?.onComplete as
+    | (() => void)
+    | undefined;
 
   function runAnimation() {
-    if (cancelled || count >= iterations) return;
-    count++;
+    if (cancelled || (iterations !== Infinity && count >= iterations)) return;
 
     driver.setOnComplete?.(() => {
-      if (count !== iterations) {
-        driver.reset();
-      }
+      originalOnComplete?.();
 
-      runAnimation();
+      count++;
+
+      if (count < iterations) {
+        driver.reset();
+        runAnimation();
+      }
     });
 
     driver.start();
@@ -35,6 +40,7 @@ export function loop(
       driver.resume();
     },
     reset() {
+      count = 0;
       driver.reset();
     },
     cancel() {

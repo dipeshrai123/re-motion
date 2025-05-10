@@ -11,6 +11,7 @@ export interface DecayOpts {
 
 class DecayController implements AnimationController {
   private velocity: number;
+  private originalVelocity: number;
   private frameId!: number;
   private cancelled = false;
   private from!: number;
@@ -21,6 +22,7 @@ class DecayController implements AnimationController {
     private decayFactor: number,
     private hooks: DecayOpts
   ) {
+    this.originalVelocity = initialVelocity;
     this.velocity = initialVelocity;
     this.from = this.mv.current;
   }
@@ -72,7 +74,9 @@ class DecayController implements AnimationController {
   reset() {
     this.cancelled = true;
     cancelAnimationFrame(this.frameId);
+
     this.mv.set(this.from);
+    this.velocity = this.originalVelocity;
   }
 
   setOnComplete(fn: () => void): void {

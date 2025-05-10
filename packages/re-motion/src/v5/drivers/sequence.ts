@@ -30,6 +30,7 @@ export function sequence(steps: Step[]): AnimationController {
   let idx = 0;
   let isCancelled = false;
   let currentCtrl: AnimationController | null = null;
+  const initialMap = new Map<MotionValue<number>, number>();
 
   function runNext() {
     if (isCancelled) return;
@@ -60,6 +61,11 @@ export function sequence(steps: Step[]): AnimationController {
 
   return {
     start() {
+      initialMap.clear();
+      for (const { mv } of steps) {
+        initialMap.set(mv, mv.current);
+      }
+
       isCancelled = false;
       idx = 0;
       currentCtrl = null;
@@ -76,10 +82,14 @@ export function sequence(steps: Step[]): AnimationController {
       currentCtrl?.cancel();
     },
     reset() {
-      currentCtrl?.reset();
-    },
-    setOnComplete() {
-      // No-op: onComplete is handled in the sequence
+      isCancelled = true;
+      currentCtrl?.cancel();
+
+      for (const [mv, val] of initialMap) {
+        mv.set(val);
+      }
+
+      idx = 0;
     },
   };
 }

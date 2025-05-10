@@ -34,6 +34,14 @@ export default function Version5() {
     onComplete: () => console.log('TIMING ONLY COMPLETE'),
   });
 
+  const decayX = useMotionValue(0);
+  const decayMove = decay(decayX, 20, {
+    onStart: () => console.log('DECAY ONLY START'),
+    onPause: () => console.log('DECAY ONLY PAUSE'),
+    onResume: () => console.log('DECAY ONLY RESUME'),
+    onComplete: () => console.log('DECAY ONLY COMPLETE'),
+  });
+
   const sequenceX = useMotionValue(0);
   const sequenceMove = sequence([
     {
@@ -65,7 +73,13 @@ export default function Version5() {
 
   const loopX = useMotionValue(0);
 
-  const loopMove = loop(timing(loopX, 500, { duration: 1000 }), 5);
+  const loopMove = loop(
+    timing(loopX, 500, {
+      duration: 1000,
+      onComplete: () => console.log('COMPLETE'),
+    }),
+    5
+  );
 
   return (
     <>
@@ -121,7 +135,7 @@ export default function Version5() {
       /> */}
 
       <div>
-        <h2>Spring Controls</h2>
+        <h2>Spring</h2>
         <button onClick={() => springMove.start()}>Start</button>
         <button onClick={() => springMove.pause()}>Pause</button>
         <button onClick={() => springMove.resume()}>Resume</button>
@@ -138,7 +152,7 @@ export default function Version5() {
       </div>
 
       <div>
-        <h2>Timing Controls</h2>
+        <h2>Timing</h2>
         <button onClick={() => timingMove.start()}>Start</button>
         <button onClick={() => timingMove.pause()}>Pause</button>
         <button onClick={() => timingMove.resume()}>Resume</button>
@@ -156,7 +170,24 @@ export default function Version5() {
       </div>
 
       <div>
-        <h2>Sequence ( with controls )</h2>
+        <h2>Decay</h2>
+        <button onClick={() => decayMove.start()}>Start</button>
+        <button onClick={() => decayMove.pause()}>Pause</button>
+        <button onClick={() => decayMove.resume()}>Resume</button>
+        <button onClick={() => decayMove.cancel()}>Cancel</button>
+        <button onClick={() => decayMove.reset()}>Reset</button>
+        <motion.div
+          style={{
+            width: 100,
+            height: 100,
+            backgroundColor: 'tomato',
+            translateX: decayX,
+          }}
+        />
+      </div>
+
+      <div>
+        <h2>Sequence</h2>
         <button onClick={() => sequenceMove.start()}>Start</button>
         <button onClick={() => sequenceMove.pause()}>Pause</button>
         <button onClick={() => sequenceMove.resume()}>Resume</button>
@@ -173,11 +204,12 @@ export default function Version5() {
       </div>
 
       <div>
-        <h2>Loop ( with controls )</h2>
+        <h2>Loop</h2>
         <button onClick={() => loopMove.start()}>Start</button>
         <button onClick={() => loopMove.pause()}>Pause</button>
         <button onClick={() => loopMove.resume()}>Resume</button>
         <button onClick={() => loopMove.cancel()}>Cancel</button>
+        <button onClick={() => loopMove.reset()}>Reset</button>
         <motion.div
           style={{
             width: 100,
