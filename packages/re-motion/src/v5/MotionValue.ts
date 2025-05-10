@@ -1,4 +1,4 @@
-import type { AnimationController } from './drivers';
+import type { AnimationController } from './drivers/AnimationController';
 import { interpolate } from './transforms';
 
 type Subscriber<T> = (v: T) => void;

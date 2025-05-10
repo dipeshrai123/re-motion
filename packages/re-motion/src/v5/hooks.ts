@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { MotionValue } from './value';
+import { MotionValue } from './MotionValue';
 
 export function useMotionValue<T = number>(initial: T): MotionValue<T> {
   const ref = useRef<MotionValue<T> | null>(null);

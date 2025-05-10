@@ -1,4 +1,4 @@
-import { MotionValue } from './value';
+import { MotionValue } from './MotionValue';
 
 const TRANSFORM_KEYS = new Set([
   'translateX',

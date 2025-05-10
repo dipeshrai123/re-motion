@@ -1,4 +1,4 @@
-import { MotionValue } from './value';
+import { MotionValue } from './MotionValue';
 
 const namedColors: Record<string, string> = {
   transparent: '#00000000',

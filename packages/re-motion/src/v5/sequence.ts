@@ -1,6 +1,5 @@
-import { MotionValue } from './value';
-import { timing, spring, decay } from './drivers';
-import type { AnimationController } from './drivers';
+import { MotionValue } from './MotionValue';
+import { spring, timing, decay, type AnimationController } from './drivers';
 
 type TimingStep = {
   driver: typeof timing;
