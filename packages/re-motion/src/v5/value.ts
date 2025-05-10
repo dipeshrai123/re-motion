@@ -1,5 +1,4 @@
-// value.ts
-// Core FluidValue primitive: tiny pub/sub with get/set
+// Core FluidValue primitive
 export type Subscriber<T> = (v: T) => void;
 
 export class FluidValue<T = number> {
@@ -22,7 +21,7 @@ export class FluidValue<T = number> {
 
   subscribe(fn: Subscriber<T>): () => void {
     this.subs.add(fn);
-    // immediately emit current
+    // immediately emit current value
     fn(this._current);
     return () => {
       this.subs.delete(fn);

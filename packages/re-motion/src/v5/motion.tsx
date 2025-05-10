@@ -1,71 +1,88 @@
-// motion.tsx
 import React, {
   useRef,
   useLayoutEffect,
   forwardRef,
   HTMLAttributes,
+  ReactNode,
 } from 'react';
 import { FluidValue } from './value';
 
-// type‐guard for FluidValue
-function isFluidValue<T>(v: any): v is FluidValue<T> {
+// type-guard
+function isFluidValue(v: any): v is FluidValue<any> {
   return v != null && typeof v.subscribe === 'function';
 }
 
-// HOC factory that wires any tag name or component to fluid styles
-export function makeFluid<ComponentProps extends {}>(
-  Wrapped: keyof JSX.IntrinsicElements | React.ComponentType<ComponentProps>
-) {
-  type Props = ComponentProps &
-    HTMLAttributes<HTMLElement> & {
-      style?: Record<string, any>;
-    };
+/**
+ * Wraps any intrinsic tag or component so that:
+ *  - static style props are applied once
+ *  - FluidValue style props subscribe and update el.style directly
+ */
+export function makeFluid<
+  TagProps extends { style?: Record<string, any>; children?: ReactNode }
+>(Wrapped: React.ComponentType<TagProps> | keyof JSX.IntrinsicElements) {
+  type Props = TagProps & HTMLAttributes<HTMLElement>;
 
   const FluidComp = forwardRef<HTMLElement, Props>((props, forwardedRef) => {
     const { style = {}, ...rest } = props;
-    // ref to the underlying DOM node
-    const localRef = useRef<HTMLElement>(null);
-    const ref = (forwardedRef as React.RefObject<HTMLElement>) || localRef;
+    const nodeRef = useRef<HTMLElement | null>(null);
+
+    // callback ref that updates nodeRef (and forwards if needed)
+    const refCallback = (node: HTMLElement | null) => {
+      nodeRef.current = node;
+      if (!forwardedRef) return;
+      if (typeof forwardedRef === 'function') {
+        forwardedRef(node);
+      } else {
+        (forwardedRef as React.MutableRefObject<HTMLElement | null>).current =
+          node;
+      }
+    };
 
     useLayoutEffect(() => {
-      // apply initial (non‐fluid) styles
-      Object.entries(style).forEach(([key, val]) => {
-        if (!isFluidValue(val) && ref.current) {
-          (ref.current.style as any)[key] = val;
-        }
-      });
+      const node = nodeRef.current;
+      if (!node) return;
 
-      // subscribe to all FluidValue styles
+      // 1) apply all static (non-FluidValue) styles once
+      for (const [key, val] of Object.entries(style)) {
+        if (!isFluidValue(val)) {
+          const cssValue = typeof val === 'number' ? `${val}px` : String(val);
+          (node.style as any)[key] = cssValue;
+        }
+      }
+
+      // 2) subscribe to each FluidValue style, updating nodeRef.current
       const unsubs = Object.entries(style)
         .filter(([, val]) => isFluidValue(val))
-        .map(([key, val]) => {
-          return (val as FluidValue<any>).subscribe((v: any) => {
-            if (ref.current) {
-              // numbers get "px" by default; strings pass through
-              const str = typeof v === 'number' ? `${v}px` : v;
-              (ref.current.style as any)[key] = str;
-            }
-          });
-        });
+        .map(([key, val]) =>
+          (val as FluidValue<any>).subscribe((v) => {
+            const str = typeof v === 'number' ? `${v}px` : v;
+            const cur = nodeRef.current;
+            if (cur) (cur.style as any)[key] = str;
+          })
+        );
 
       return () => {
-        unsubs.forEach((unsub) => unsub());
+        unsubs.forEach((u) => u());
       };
     }, [style]);
 
-    // Render the wrapped component / tag with our ref and rest props
-    return React.createElement(Wrapped as any, { ref, ...rest } as any);
+    // render the wrapped element with our ref and rest props
+    return React.createElement(
+      Wrapped as any,
+      { ref: refCallback, ...rest } as any
+    );
   });
 
   FluidComp.displayName =
     typeof Wrapped === 'string'
       ? `Fluid.${Wrapped}`
-      : `Fluid(${Wrapped.displayName || Wrapped.name})`;
+      : `Fluid(${
+          (Wrapped as any).displayName || (Wrapped as any).name || 'Component'
+        })`;
 
   return FluidComp;
 }
 
-// a proxy so you can do motion.div, motion.span, etc.
 export const motion = new Proxy(
   {},
   {
