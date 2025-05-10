@@ -1,23 +1,25 @@
 import { __experimental__v5 } from '@raidipesh78/re-motion';
-import { useDrag } from '@use-gesture/react';
-import { useMemo, useState } from 'react';
+// import { useDrag } from '@use-gesture/react';
+// import { useMemo, useState } from 'react';
 
-const { useMotionValue, spring, interpolate, motion } = __experimental__v5;
+const { useMotionValue, spring, timing, motion, sequence, decay } =
+  __experimental__v5;
 
 export default function Version5() {
-  const [, setRe] = useState(0);
-  const progress = useMotionValue(100);
-  const position = useMotionValue<'relative' | 'absolute'>('relative');
-  const obj = useMotionValue({ x: 10 });
-  const x = useMotionValue(0);
+  // const [, setRe] = useState(0);
+  // const progress = useMotionValue(100);
+  // const position = useMotionValue<'relative' | 'absolute'>('relative');
+  // const obj = useMotionValue({ x: 10 });
+  // const x = useMotionValue(0);
 
-  const bind: any = useDrag(({ offset: [mx] }) => {
-    spring(x, mx);
-  });
+  // const bind: any = useDrag(({ offset: [mx] }) => {
+  //   spring(x, mx);
+  // });
+  const x = useMotionValue(0);
 
   return (
     <>
-      <button onClick={() => setRe((p) => p + 1)}>Re-Render</button>
+      {/* <button onClick={() => setRe((p) => p + 1)}>Re-Render</button> */}
       {/* <button
         onClick={() => {
           obj.set({ x: 200 });
@@ -48,7 +50,7 @@ export default function Version5() {
         Make Absolute
       </button> */}
 
-      <motion.div
+      {/* <motion.div
         {...bind()}
         style={{
           width: 100,
@@ -65,7 +67,7 @@ export default function Version5() {
           left: x,
           rotate: x.to([0, 500], [0, 360]),
         }}
-      />
+      /> */}
 
       {/* <button onClick={() => spring(x, 0)}>Click</button>
 
@@ -84,6 +86,29 @@ export default function Version5() {
       >
         FOLLOW
       </motion.div> */}
+
+      <button
+        onClick={() => {
+          sequence([
+            { driver: spring, mv: x, to: 300, opts: { damping: 10 } },
+            { driver: timing, mv: x, to: 100 },
+            { driver: decay, mv: x, velocity: 40 },
+          ]);
+        }}
+      >
+        RUN ANIMATION
+      </button>
+
+      <motion.div
+        style={{
+          width: 100,
+          height: 100,
+          backgroundColor: 'teal',
+          translateX: x,
+        }}
+      >
+        FOLLOW
+      </motion.div>
     </>
   );
 }

@@ -25,14 +25,16 @@ function cancelAll(progress: MotionValue<number>) {
   }
 }
 
-interface TimingOpts {
+export interface TimingOpts {
   duration?: number;
   easing?: (t: number) => number;
+  onComplete?: () => void;
 }
+
 export function timing(
   progress: MotionValue<number>,
   to: number,
-  { duration = 300, easing = Easing.linear }: TimingOpts = {}
+  { duration = 300, easing = Easing.linear, onComplete }: TimingOpts = {}
 ): void {
   cancelAll(progress);
 
@@ -51,6 +53,7 @@ export function timing(
     } else {
       progress.set(to);
       timingMap.delete(progress);
+      if (onComplete) onComplete();
     }
   };
 
@@ -63,14 +66,16 @@ export function timing(
   });
 }
 
-interface SpringOpts {
+export interface SpringOpts {
   stiffness?: number;
   damping?: number;
+  onComplete?: () => void;
 }
+
 export function spring(
   progress: MotionValue<number>,
   to: number,
-  { stiffness = 170, damping = 26 }: SpringOpts = {}
+  { stiffness = 170, damping = 26, onComplete }: SpringOpts = {}
 ): void {
   cancelAll(progress);
 
@@ -93,6 +98,7 @@ export function spring(
     } else {
       progress.set(to);
       springMap.delete(progress);
+      if (onComplete) onComplete();
     }
   };
 
@@ -105,13 +111,15 @@ export function spring(
   });
 }
 
-interface DecayOpts {
+export interface DecayOpts {
   decay?: number;
+  onComplete?: () => void;
 }
+
 export function decay(
   progress: MotionValue<number>,
   initialVelocity: number,
-  { decay = 0.998 }: DecayOpts = {}
+  { decay = 0.998, onComplete }: DecayOpts = {}
 ): void {
   cancelAll(progress);
 
@@ -130,6 +138,7 @@ export function decay(
       frameId = requestAnimationFrame(animate);
     } else {
       decayMap.delete(progress);
+      if (onComplete) onComplete();
     }
   };
 
