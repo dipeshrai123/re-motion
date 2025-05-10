@@ -7,10 +7,17 @@ export default function Version5() {
   // const position = useMotionValue<'relative' | 'absolute'>('relative');
   // const obj = useMotionValue({ x: 10 });
 
+  const springX = useMotionValue(0);
+  const springMove = spring(springX, 500, {
+    damping: 8,
+    stiffness: 200,
+    onComplete: () => console.log('SPRING ONLY COMPLETE'),
+  });
+
   const timingX = useMotionValue(0);
   const timingMove = timing(timingX, 500, {
     duration: 5000,
-    onComplete: () => console.log('AYAY'),
+    onComplete: () => console.log('TIMING ONLY COMPLETE'),
   });
 
   const sequenceX = useMotionValue(0);
@@ -35,7 +42,7 @@ export default function Version5() {
       driver: decay,
       mv: sequenceX,
       velocity: 40,
-      opts: { onComplete: () => console.log('Finally complete') },
+      opts: { onComplete: () => console.log('Finally complete with Decay') },
     },
   ]);
 
@@ -91,6 +98,22 @@ export default function Version5() {
           rotate: x.to([0, 500], [0, 360]),
         }}
       /> */}
+
+      <div>
+        <h2>Spring Controls</h2>
+        <button onClick={() => springMove.start()}>Start</button>
+        <button onClick={() => springMove.pause()}>Pause</button>
+        <button onClick={() => springMove.resume()}>Resume</button>
+        <button onClick={() => springMove.cancel()}>Cancel</button>
+        <motion.div
+          style={{
+            width: 100,
+            height: 100,
+            backgroundColor: 'teal',
+            translateX: springX,
+          }}
+        />
+      </div>
 
       <div>
         <h2>Timing Controls</h2>
