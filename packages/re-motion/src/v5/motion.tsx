@@ -5,16 +5,8 @@ import React, {
   HTMLAttributes,
   ReactNode,
 } from 'react';
-import { MotionValue } from './value';
-import {
-  applyStyleProp,
-  setupTransformSubscriptions,
-  TRANSFORM_KEYS,
-} from './transformUtils';
-
-function isMotionValue(v: any): v is MotionValue<any> {
-  return v != null && typeof v.subscribe === 'function';
-}
+import { isTransformKey } from './transformUtils';
+import { applyAttrs, applyStyles, applyTransforms } from './apply';
 
 export function makeMotion<
   TagProps extends { style?: Record<string, any>; children?: ReactNode }
@@ -25,7 +17,6 @@ export function makeMotion<
     const { style = {}, children, ...rest } = props;
     const nodeRef = useRef<HTMLElement | null>(null);
 
-    // callback ref that updates nodeRef (and forwards if needed)
     const refCallback = (node: HTMLElement | null) => {
       nodeRef.current = node;
       if (!forwardedRef) return;
@@ -45,40 +36,13 @@ export function makeMotion<
       const tx: Record<string, any> = {};
 
       for (const [k, v] of Object.entries(style)) {
-        if (TRANSFORM_KEYS.has(k)) tx[k] = v;
+        if (isTransformKey(k)) tx[k] = v;
         else normal[k] = v;
       }
 
-      for (const [k, v] of Object.entries(normal)) {
-        if (!isMotionValue(v)) applyStyleProp(node, k, v);
-      }
-
-      const unsubsStyle = Object.entries(normal)
-        .filter(([, v]) => isMotionValue(v))
-        .map(([k, v]) =>
-          (v as MotionValue<any>).subscribe((val) =>
-            applyStyleProp(node, k, val)
-          )
-        );
-
-      const unsubsTransform = setupTransformSubscriptions(nodeRef, tx);
-
-      const unsubsAttr = Object.entries(rest).map(([key, val]) => {
-        if (isMotionValue(val)) {
-          return val.subscribe((v) => {
-            if (node) node.setAttribute(key, String(v));
-          });
-        } else {
-          if (
-            typeof val === 'string' ||
-            typeof val === 'number' ||
-            typeof val === 'boolean'
-          ) {
-            node.setAttribute(key, String(val));
-          }
-          return () => {};
-        }
-      });
+      const unsubsStyle = applyStyles(node, normal);
+      const unsubsTransform = applyTransforms(node, tx);
+      const unsubsAttr = applyAttrs(node, rest);
 
       return () => {
         unsubsStyle.forEach((u) => u());

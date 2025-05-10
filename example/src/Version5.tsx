@@ -1,16 +1,16 @@
 import { v5 } from '@raidipesh78/re-motion';
 import { useDrag } from '@use-gesture/react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 const { motion, spring, timing, useMotionValue, interpolate, decay, combine } =
   v5;
 
 export default function Version5() {
-  // const [, setRe] = useState(0);
-  // const progress = useFluidValue(100);
-  // const position = useFluidValue<'relative' | 'absolute'>('relative');
-  // const obj = useFluidValue({ x: 10 });
-  const x = useMotionValue(20);
+  const [, setRe] = useState(0);
+  const progress = useMotionValue(100);
+  const position = useMotionValue<'relative' | 'absolute'>('relative');
+  const obj = useMotionValue({ x: 10 });
+  const x = useMotionValue(0);
 
   const bind: any = useDrag(({ offset: [mx] }) => {
     spring(x, mx);
@@ -18,8 +18,8 @@ export default function Version5() {
 
   return (
     <>
-      {/* <button onClick={() => setRe((p) => p + 1)}>Re-Render</button>
-      <button
+      <button onClick={() => setRe((p) => p + 1)}>Re-Render</button>
+      {/* <button
         onClick={() => {
           obj.set({ x: 200 });
           // console.log(obj);
@@ -47,14 +47,14 @@ export default function Version5() {
         }}
       >
         Make Absolute
-      </button>
+      </button> */}
 
       <motion.div
         {...bind()}
         style={{
           width: 100,
           height: x.to([0, 500], [100, 200]),
-          transform: x.to([0, 500], [0, 360]).to((v) => `rotate(${v}deg)`),
+          // transform: x.to([0, 500], [0, 360]).to((v) => `rotate(${v}deg)`),
           border: interpolate(
             x,
             [0, 500],
@@ -64,10 +64,11 @@ export default function Version5() {
           // position: x.to((v) => (v > 100 ? 'absolute' : 'relative')), // conditional
           position,
           left: x,
+          rotate: x.to([0, 500], [0, 360]),
         }}
-      /> */}
+      />
 
-      <button onClick={() => spring(x, 0)}>Click</button>
+      {/* <button onClick={() => spring(x, 0)}>Click</button>
 
       <motion.div
         {...bind()}
@@ -83,7 +84,7 @@ export default function Version5() {
         }}
       >
         FOLLOW
-      </motion.div>
+      </motion.div> */}
     </>
   );
 }
