@@ -72,12 +72,28 @@ export default function Version5() {
   ]);
 
   const loopX = useMotionValue(0);
-
   const loopMove = loop(
     timing(loopX, 500, {
       duration: 1000,
       onComplete: () => console.log('COMPLETE'),
     }),
+    5
+  );
+
+  const loopSequenceX = useMotionValue(0);
+  const loopSequenceMove = loop(
+    sequence([
+      {
+        driver: timing,
+        mv: loopSequenceX,
+        to: 300,
+      },
+      {
+        driver: timing,
+        mv: loopSequenceX,
+        to: 0,
+      },
+    ]),
     5
   );
 
@@ -135,7 +151,7 @@ export default function Version5() {
       /> */}
 
       <div>
-        <h2>Timing</h2>
+        <h4>Timing</h4>
         <button onClick={() => timingMove.start()}>Start</button>
         <button onClick={() => timingMove.pause()}>Pause</button>
         <button onClick={() => timingMove.resume()}>Resume</button>
@@ -143,8 +159,8 @@ export default function Version5() {
         <button onClick={() => timingMove.reset()}>Reset</button>
         <motion.div
           style={{
-            width: 100,
-            height: 100,
+            width: 50,
+            height: 50,
             backgroundColor: 'red',
             translateX: timingX,
             rotateZ: combine([timingX], (moveX) => `${moveX}deg`),
@@ -153,7 +169,7 @@ export default function Version5() {
       </div>
 
       <div>
-        <h2>Spring</h2>
+        <h4>Spring</h4>
         <button onClick={() => springMove.start()}>Start</button>
         <button onClick={() => springMove.pause()}>Pause</button>
         <button onClick={() => springMove.resume()}>Resume</button>
@@ -161,8 +177,8 @@ export default function Version5() {
         <button onClick={() => springMove.reset()}>Reset</button>
         <motion.div
           style={{
-            width: 100,
-            height: 100,
+            width: 50,
+            height: 50,
             backgroundColor: 'teal',
             translateX: springX,
           }}
@@ -170,7 +186,7 @@ export default function Version5() {
       </div>
 
       <div>
-        <h2>Decay</h2>
+        <h4>Decay</h4>
         <button onClick={() => decayMove.start()}>Start</button>
         <button onClick={() => decayMove.pause()}>Pause</button>
         <button onClick={() => decayMove.resume()}>Resume</button>
@@ -178,8 +194,8 @@ export default function Version5() {
         <button onClick={() => decayMove.reset()}>Reset</button>
         <motion.div
           style={{
-            width: 100,
-            height: 100,
+            width: 50,
+            height: 50,
             backgroundColor: 'tomato',
             translateX: decayX,
           }}
@@ -187,7 +203,7 @@ export default function Version5() {
       </div>
 
       <div>
-        <h2>Sequence</h2>
+        <h4>Sequence</h4>
         <button onClick={() => sequenceMove.start()}>Start</button>
         <button onClick={() => sequenceMove.pause()}>Pause</button>
         <button onClick={() => sequenceMove.resume()}>Resume</button>
@@ -195,8 +211,8 @@ export default function Version5() {
         <button onClick={() => sequenceMove.reset()}>Reset</button>
         <motion.div
           style={{
-            width: 100,
-            height: 100,
+            width: 50,
+            height: 50,
             backgroundColor: 'teal',
             translateX: sequenceX,
           }}
@@ -204,7 +220,7 @@ export default function Version5() {
       </div>
 
       <div>
-        <h2>Loop</h2>
+        <h4>Loop</h4>
         <button onClick={() => loopMove.start()}>Start</button>
         <button onClick={() => loopMove.pause()}>Pause</button>
         <button onClick={() => loopMove.resume()}>Resume</button>
@@ -212,10 +228,27 @@ export default function Version5() {
         <button onClick={() => loopMove.reset()}>Reset</button>
         <motion.div
           style={{
-            width: 100,
-            height: 100,
+            width: 50,
+            height: 50,
             backgroundColor: '#3399ff',
             translateX: loopX,
+          }}
+        />
+      </div>
+
+      <div>
+        <h4>Loop with sequence</h4>
+        <button onClick={() => loopSequenceMove.start()}>Start</button>
+        <button onClick={() => loopSequenceMove.pause()}>Pause</button>
+        <button onClick={() => loopSequenceMove.resume()}>Resume</button>
+        <button onClick={() => loopSequenceMove.cancel()}>Cancel</button>
+        <button onClick={() => loopSequenceMove.reset()}>Reset</button>
+        <motion.div
+          style={{
+            width: 50,
+            height: 50,
+            backgroundColor: '#b9d141',
+            translateX: loopSequenceX,
           }}
         />
       </div>
