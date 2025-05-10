@@ -1,11 +1,11 @@
 import { useLayoutEffect } from 'react';
 
-import Example from './FluidValueUpdate';
+import Version5 from './Version5';
 
 const App = () => {
   useDark();
 
-  return <Example />;
+  return <Version5 />;
 };
 
 function useDark() {
