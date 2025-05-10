@@ -69,11 +69,31 @@ export function makeMotion<
 
       const unsubsTransform = setupTransformSubscriptions(nodeRef, tx);
 
+      const unsubsAttr = Object.entries(rest).map(([key, val]) => {
+        if (isFluidValue(val)) {
+          // subscribe
+          return val.subscribe((v) => {
+            if (node) node.setAttribute(key, String(v));
+          });
+        } else {
+          // static primitive → initial attribute
+          if (
+            typeof val === 'string' ||
+            typeof val === 'number' ||
+            typeof val === 'boolean'
+          ) {
+            node.setAttribute(key, String(val));
+          }
+          return () => {};
+        }
+      });
+
       return () => {
         unsubsStyle.forEach((u) => u());
         unsubsTransform.forEach((u) => u());
+        unsubsAttr.forEach((u) => u());
       };
-    }, [style]);
+    }, []);
 
     // render the wrapped element with our ref and rest props
     return React.createElement(

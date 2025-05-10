@@ -69,17 +69,17 @@ export default function Version5() {
 
       <motion.div
         {...bind()}
+        text={x}
         style={{
           width: 100,
           height: 100,
           backgroundColor: 'teal',
           // transform: combine([x], (x) => `translateX(${x}px)`),
           translateX: x,
-          translateY: x,
-          rotateX: combine([x], (x) => `${x + 100}deg`),
+          // translateY: x,
+          rotateZ: combine([x], (x) => `${x + 0.5}deg`),
         }}
       >
-        {/* FOLLOW {x.to((v) => `${v}px`)} */}
         FOLLOW
       </motion.div>
     </>
