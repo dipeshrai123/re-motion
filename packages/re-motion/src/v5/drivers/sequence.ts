@@ -1,60 +1,64 @@
 import type { AnimationController } from './AnimationController';
 
-export function sequence(
-  controllers: Array<AnimationController>
-): AnimationController {
-  let idx = 0;
-  let isPaused = false;
-  let isCancelled = false;
-  let current: AnimationController | null = null;
-  let onAllDone: (() => void) | undefined;
+class SequenceController implements AnimationController {
+  private idx = 0;
+  private isPaused = false;
+  private isCancelled = false;
+  private current: AnimationController | null = null;
+  private onAllDone?: () => void;
 
-  function runNext() {
-    if (isCancelled || isPaused) return;
+  constructor(private controllers: AnimationController[]) {}
 
-    const ctrl = controllers[idx++];
+  private runNext() {
+    if (this.isCancelled || this.isPaused) return;
+    const ctrl = this.controllers[this.idx++];
     if (!ctrl) {
-      onAllDone?.();
+      this.onAllDone?.();
       return;
     }
-
-    current = ctrl;
-    ctrl.setOnComplete?.(() => {
-      runNext();
-    });
-
+    this.current = ctrl;
+    ctrl.setOnComplete?.(() => this.runNext());
     ctrl.start();
   }
 
-  return {
-    start() {
-      idx = 0;
-      isPaused = false;
-      isCancelled = false;
-      runNext();
-    },
-    pause() {
-      if (isCancelled) return;
-      isPaused = true;
-      current?.pause();
-    },
-    resume() {
-      if (isCancelled || !isPaused) return;
-      isPaused = false;
-      current?.resume();
-    },
-    cancel() {
-      isCancelled = true;
-      current?.cancel();
-    },
-    reset() {
-      isCancelled = false;
-      isPaused = false;
-      idx = 0;
-      controllers.forEach((c) => c.reset?.());
-    },
-    setOnComplete(fn: () => void) {
-      onAllDone = fn;
-    },
-  };
+  start() {
+    this.idx = 0;
+    this.isPaused = false;
+    this.isCancelled = false;
+    this.runNext();
+  }
+
+  pause() {
+    if (this.isCancelled) return;
+    this.isPaused = true;
+    this.current?.pause();
+  }
+
+  resume() {
+    if (this.isCancelled || !this.isPaused) return;
+    this.isPaused = false;
+    this.current?.resume();
+  }
+
+  cancel() {
+    this.isCancelled = true;
+    this.current?.cancel();
+  }
+
+  reset() {
+    this.isCancelled = false;
+    this.isPaused = false;
+    this.idx = 0;
+    this.controllers.forEach((c) => c.reset?.());
+  }
+
+  setOnComplete(fn: () => void) {
+    this.onAllDone = fn;
+  }
+}
+
+export function sequence(
+  controllers: AnimationController[]
+): AnimationController {
+  return new SequenceController(controllers);
 }
