@@ -4,3 +4,4 @@ export * from './timing';
 export * from './AnimationController';
 export * from './sequence';
 export * from './loop';
+export * from './delay';
