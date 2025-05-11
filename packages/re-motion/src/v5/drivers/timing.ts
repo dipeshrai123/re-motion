@@ -3,6 +3,7 @@ import { MotionValue } from '../MotionValue';
 import { AnimationController } from './AnimationController';
 
 export interface TimingOpts {
+  delay?: number;
   duration?: number;
   easing?: (t: number) => number;
   onStart?(): void;
@@ -12,6 +13,7 @@ export interface TimingOpts {
 }
 
 class TimingController implements AnimationController {
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
   private startTime!: number;
   private frameId!: number;
   private from!: number;
@@ -27,7 +29,8 @@ class TimingController implements AnimationController {
     private to: number,
     private duration: number = 300,
     private easing: (t: number) => number = Easing.linear,
-    private hooks: TimingOpts
+    private hooks: Omit<TimingOpts, 'duration' | 'easing' | 'delay'>,
+    private delay: number
   ) {
     this.originalFrom = mv.current;
   }
@@ -39,11 +42,21 @@ class TimingController implements AnimationController {
     this.isPaused = false;
     this.isCancelled = false;
     this.from = this.mv.current;
-    this.startTime = performance.now();
     this.pausedAt = null;
     this.elapsedBeforePause = 0;
 
-    this.frameId = requestAnimationFrame(this.animate);
+    const beginAnimation = () => {
+      if (this.isCancelled) return;
+      this.startTime = performance.now();
+      this.frameId = requestAnimationFrame(this.animate);
+      this.timeoutId = null;
+    };
+
+    if (this.delay > 0) {
+      this.timeoutId = setTimeout(beginAnimation, this.delay);
+    } else {
+      beginAnimation();
+    }
   }
 
   private animate = (ts: number) => {
@@ -63,34 +76,42 @@ class TimingController implements AnimationController {
 
   pause() {
     if (this.isCancelled || this.isPaused) return;
-
     this.isPaused = true;
-    this.pausedAt = performance.now();
-    this.elapsedBeforePause += this.pausedAt - this.startTime;
-    cancelAnimationFrame(this.frameId);
+
+    if (this.timeoutId !== null) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    } else {
+      this.pausedAt = performance.now();
+      this.elapsedBeforePause += this.pausedAt - this.startTime;
+      cancelAnimationFrame(this.frameId);
+    }
+
     this.hooks.onPause?.();
   }
 
   resume() {
     if (this.isCancelled || !this.isPaused) return;
-
     this.isPaused = false;
     this.hooks.onResume?.();
-    this.startTime = performance.now();
-    this.pausedAt = null;
-    this.frameId = requestAnimationFrame(this.animate);
+
+    if (this.timeoutId === null && this.startTime === undefined) {
+      this.start();
+    } else {
+      this.startTime = performance.now();
+      this.frameId = requestAnimationFrame(this.animate);
+    }
   }
 
   cancel() {
     this.isCancelled = true;
+    if (this.timeoutId != null) clearTimeout(this.timeoutId);
     cancelAnimationFrame(this.frameId);
   }
 
   reset() {
     this.cancel();
     this.isPaused = false;
-
-    cancelAnimationFrame(this.frameId);
     this.mv.set(this.originalFrom);
   }
 
@@ -104,7 +125,7 @@ export function timing(
   to: number,
   opts: TimingOpts = {}
 ): TimingController {
-  const { duration = 300, easing = Easing.linear, ...hooks } = opts;
-  const ctl = new TimingController(mv, to, duration, easing, hooks);
+  const { delay = 0, duration = 300, easing = Easing.linear, ...hooks } = opts;
+  const ctl = new TimingController(mv, to, duration, easing, hooks, delay);
   return ctl;
 }
