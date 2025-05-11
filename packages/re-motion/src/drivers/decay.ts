@@ -1,7 +1,7 @@
 import { MotionValue } from '../MotionValue';
 import { AnimationController } from './AnimationController';
 
-export interface DecayOpts {
+interface DecayOpts {
   decay?: number;
   onStart?(): void;
   onPause?(): void;

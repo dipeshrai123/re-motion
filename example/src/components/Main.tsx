@@ -1,8 +1,4 @@
-import { __experimental__v5 } from '@raidipesh78/re-motion';
-import { useDrag } from '@use-gesture/react';
-import { useEffect, useRef, useState } from 'react';
-
-const {
+import {
   useMotionValue,
   spring,
   timing,
@@ -12,31 +8,8 @@ const {
   combine,
   loop,
   delay,
-  MotionValue,
-} = __experimental__v5;
-
-/**
- * Wire up mvs[1] to follow mvs[0], mvs[2] to follow mvs[1], ...
- * Returns a cleanup fn.
- */
-export function chainFollow(mvs: any[]): () => void {
-  const unsubscribers: Array<() => void> = [];
-
-  for (let i = 1; i < mvs.length; i++) {
-    const leader = mvs[i - 1];
-    const follower = mvs[i];
-
-    // whenever the leader changes, re-start a spring on the follower
-    const unsub = leader.subscribe((latest: any) => {
-      spring(follower, latest).start();
-    });
-
-    unsubscribers.push(unsub);
-  }
-
-  // return a single cleanup that tears down all subs
-  return () => unsubscribers.forEach((unsub) => unsub());
-}
+} from '@raidipesh78/re-motion';
+import { useState } from 'react';
 
 export default function Version5() {
   const [, setRe] = useState(0);
@@ -94,22 +67,6 @@ export default function Version5() {
     spring(sequenceLoopX, 400, { damping: 8 }),
   ]);
 
-  const xs = useRef(Array.from({ length: 4 }, () => new MotionValue(0)));
-  const ys = useRef(Array.from({ length: 4 }, () => new MotionValue(0)));
-  const bind: any = useDrag(({ offset: [mx, my] }) => {
-    spring(xs.current[0], mx).start();
-    spring(ys.current[0], my).start();
-  });
-
-  useEffect(() => {
-    const cleanup1 = chainFollow(xs.current);
-    const cleanup2 = chainFollow(ys.current);
-    return () => {
-      cleanup1();
-      cleanup2();
-    };
-  }, [xs]);
-
   return (
     <>
       {/* <button onClick={() => spring(progress, 500)}>Spring</button>
@@ -162,27 +119,6 @@ export default function Version5() {
           rotate: x.to([0, 500], [0, 360]),
         }}
       /> */}
-
-      {xs.current
-        .map((x, i) => {
-          const s = {
-            width: 50,
-            height: 50,
-            borderRadius: 25,
-            backgroundColor: 'red',
-            translateX: x,
-            translateY: ys.current[i],
-            position: 'absolute',
-            left: 0,
-            top: 0,
-          };
-          return i === 0 ? (
-            <motion.div key={i} {...bind()} style={s} />
-          ) : (
-            <motion.div key={i} style={s} />
-          );
-        })
-        .reverse()}
 
       <div style={{ position: 'fixed', right: 0, top: 0 }}>
         <button onClick={() => setRe((p) => p + 1)}>Re Render</button>
