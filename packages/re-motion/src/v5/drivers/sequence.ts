@@ -1,118 +1,60 @@
-import { MotionValue } from '../MotionValue';
-import { spring, timing, decay } from '.';
-import type { AnimationController, TimingOpts, SpringOpts, DecayOpts } from '.';
+import type { AnimationController } from './AnimationController';
 
-type TimingStep = {
-  driver: typeof timing;
-  mv: MotionValue<number>;
-  to: number;
-  opts?: TimingOpts;
-};
-type SpringStep = {
-  driver: typeof spring;
-  mv: MotionValue<number>;
-  to: number;
-  opts?: SpringOpts;
-};
-type DecayStep = {
-  driver: typeof decay;
-  mv: MotionValue<number>;
-  velocity: number;
-  opts?: DecayOpts;
-};
-export type Step = TimingStep | SpringStep | DecayStep;
-
-export function sequence(steps: Step[]): AnimationController {
+export function sequence(
+  controllers: Array<AnimationController>
+): AnimationController {
   let idx = 0;
   let isPaused = false;
   let isCancelled = false;
-  let currentCtrl: AnimationController | null = null;
-  let onSeqComplete: (() => void) | undefined;
-  const initialMap = new Map<MotionValue<number>, number>();
+  let current: AnimationController | null = null;
+  let onAllDone: (() => void) | undefined;
 
   function runNext() {
-    if (isPaused || isCancelled) return;
+    if (isCancelled || isPaused) return;
 
-    const step = steps[idx++];
-    if (!step) {
-      onSeqComplete?.();
+    const ctrl = controllers[idx++];
+    if (!ctrl) {
+      onAllDone?.();
       return;
     }
 
-    const { driver, mv } = step;
-
-    const userOnComplete = (step.opts as any)?.onComplete as
-      | (() => void)
-      | undefined;
-
-    const stepOnComplete = () => {
-      userOnComplete?.();
+    current = ctrl;
+    ctrl.setOnComplete?.(() => {
       runNext();
-    };
+    });
 
-    if (driver === decay) {
-      const { velocity, opts } = step as DecayStep;
-      currentCtrl = driver(mv, velocity, {
-        ...(opts ?? {}),
-        onComplete: stepOnComplete,
-      });
-    } else {
-      const { to, opts } = step as TimingStep | SpringStep;
-      currentCtrl = driver(mv, to, {
-        ...(opts ?? {}),
-        onComplete: stepOnComplete,
-      });
-    }
-
-    currentCtrl.start();
+    ctrl.start();
   }
 
   return {
     start() {
-      initialMap.clear();
-      for (const { mv } of steps) {
-        initialMap.set(mv, mv.current);
-      }
-
+      idx = 0;
       isPaused = false;
       isCancelled = false;
-      idx = 0;
-      currentCtrl = null;
       runNext();
     },
-
     pause() {
       if (isCancelled) return;
       isPaused = true;
-      currentCtrl?.pause();
+      current?.pause();
     },
-
     resume() {
       if (isCancelled || !isPaused) return;
       isPaused = false;
-      currentCtrl?.resume();
+      current?.resume();
     },
-
     cancel() {
       isCancelled = true;
-      currentCtrl?.cancel();
+      current?.cancel();
     },
-
     reset() {
-      isCancelled = true;
-      currentCtrl?.cancel();
-
-      for (const [mv, val] of initialMap) {
-        mv.set(val);
-      }
-
-      idx = 0;
-      isPaused = false;
       isCancelled = false;
+      isPaused = false;
+      idx = 0;
+      controllers.forEach((c) => c.reset?.());
     },
-
     setOnComplete(fn: () => void) {
-      onSeqComplete = fn;
+      onAllDone = fn;
     },
   };
 }

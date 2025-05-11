@@ -44,56 +44,17 @@ export default function Version5() {
 
   const sequenceX = useMotionValue(0);
   const sequenceMove = sequence([
-    {
-      driver: spring,
-      mv: sequenceX,
-      to: 300,
-      opts: {
-        damping: 8,
-        stiffness: 200,
-        onComplete: () => console.log('SPRING DONE'),
-      },
-    },
-    {
-      driver: timing,
-      mv: sequenceX,
-      to: 100,
-      opts: {
-        onStart: () => console.log('TIMING STARTED'),
-        onComplete: () => console.log('TIMING DONE'),
-      },
-    },
-    {
-      driver: decay,
-      mv: sequenceX,
-      velocity: 40,
-      opts: { onComplete: () => console.log('Finally complete with Decay') },
-    },
+    spring(sequenceX, 300),
+    timing(sequenceX, 200),
+    decay(sequenceX, 20),
   ]);
 
   const loopX = useMotionValue(0);
-  const loopMove = loop(
-    timing(loopX, 500, {
-      duration: 1000,
-      onComplete: () => console.log('COMPLETE'),
-    }),
-    5
-  );
+  const loopMove = loop(timing(loopX, 500), 5);
 
   const loopSequenceX = useMotionValue(0);
   const loopSequenceMove = loop(
-    sequence([
-      {
-        driver: timing,
-        mv: loopSequenceX,
-        to: 300,
-      },
-      {
-        driver: timing,
-        mv: loopSequenceX,
-        to: 0,
-      },
-    ]),
+    sequence([timing(loopSequenceX, 200), timing(loopSequenceX, 0)]),
     5
   );
 
