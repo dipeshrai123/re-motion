@@ -62,8 +62,9 @@ export default function Version5() {
 
   const sequenceLoopX = useMotionValue(0);
   const sequenceLoopMove = sequence([
-    loop(spring(sequenceLoopX, 200), 5),
+    // loop(spring(sequenceLoopX, 200), 5),
     timing(sequenceLoopX, 300, { duration: 5000 }),
+    timing(sequenceLoopX, sequenceLoopX.current, { delay: 3000 }),
     spring(sequenceLoopX, 400, { damping: 8 }),
   ]);
 
