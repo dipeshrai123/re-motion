@@ -9,20 +9,21 @@ export function loop(
   let isPaused = false;
   let onAllDone: (() => void) | undefined;
 
+  const onIterationComplete = () => {
+    count++;
+
+    if (count < iterations) {
+      controller.reset?.();
+      runOne();
+    } else {
+      onAllDone?.();
+    }
+  };
+
   function runOne() {
     if (cancelled || isPaused) return;
 
-    if (iterations !== Infinity && count >= iterations) {
-      onAllDone?.();
-      return;
-    }
-
-    controller.setOnComplete?.(() => {
-      count++;
-      controller.reset();
-      runOne();
-    });
-
+    controller.setOnComplete?.(onIterationComplete);
     controller.start();
   }
 

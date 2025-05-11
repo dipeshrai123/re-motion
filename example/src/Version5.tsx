@@ -60,6 +60,13 @@ export default function Version5() {
     5
   );
 
+  const sequenceLoopX = useMotionValue(0);
+  const sequenceLoopMove = sequence([
+    loop(spring(sequenceLoopX, 200), 5),
+    timing(sequenceLoopX, 300, { duration: 5000 }),
+    spring(sequenceLoopX, 400, { damping: 8 }),
+  ]);
+
   return (
     <>
       {/* <button onClick={() => spring(progress, 500)}>Spring</button>
@@ -216,6 +223,23 @@ export default function Version5() {
             height: 50,
             backgroundColor: '#b9d141',
             translateX: loopSequenceX,
+          }}
+        />
+      </div>
+
+      <div>
+        <h4>Sequence with loop inside</h4>
+        <button onClick={() => sequenceLoopMove.start()}>Start</button>
+        <button onClick={() => sequenceLoopMove.pause()}>Pause</button>
+        <button onClick={() => sequenceLoopMove.resume()}>Resume</button>
+        <button onClick={() => sequenceLoopMove.cancel()}>Cancel</button>
+        <button onClick={() => sequenceLoopMove.reset()}>Reset</button>
+        <motion.div
+          style={{
+            width: 50,
+            height: 50,
+            backgroundColor: 'tomato',
+            translateX: sequenceLoopX,
           }}
         />
       </div>
