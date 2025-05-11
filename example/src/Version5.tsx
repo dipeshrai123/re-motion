@@ -1,4 +1,5 @@
 import { __experimental__v5 } from '@raidipesh78/re-motion';
+import { useState } from 'react';
 
 const {
   useMotionValue,
@@ -12,6 +13,7 @@ const {
 } = __experimental__v5;
 
 export default function Version5() {
+  const [, setRe] = useState(0);
   // const position = useMotionValue<'relative' | 'absolute'>('relative');
   // const obj = useMotionValue({ x: 10 });
 
@@ -110,6 +112,10 @@ export default function Version5() {
           rotate: x.to([0, 500], [0, 360]),
         }}
       /> */}
+
+      <div style={{ position: 'fixed', right: 0, top: 0 }}>
+        <button onClick={() => setRe((p) => p + 1)}>Re Render</button>
+      </div>
 
       <div>
         <h4>Timing</h4>
