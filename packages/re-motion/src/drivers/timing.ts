@@ -1,35 +1,35 @@
+import { Easing } from '../easing/easing';
 import { MotionValue } from '../MotionValue';
 import { AnimationController } from './AnimationController';
 
-export interface SpringOpts {
-  stiffness?: number;
-  damping?: number;
-  mass?: number;
+interface TimingOpts {
+  duration?: number;
+  easing?: (t: number) => number;
   onStart?(): void;
   onPause?(): void;
   onResume?(): void;
   onComplete?(): void;
 }
 
-class SpringController implements AnimationController {
-  private velocity = 0;
+class TimingController implements AnimationController {
+  private startTime!: number;
   private frameId!: number;
-  private originalVelocity = 0;
+  private from!: number;
   private originalFrom: number;
 
   private isPaused = false;
   private isCancelled = false;
+  private pausedAt: number | null = null;
+  private elapsedBeforePause = 0;
 
   constructor(
     private mv: MotionValue<number>,
     private to: number,
-    private stiffness: number,
-    private damping: number,
-    private mass: number,
-    private hooks: SpringOpts
+    private duration: number = 300,
+    private easing: (t: number) => number = Easing.linear,
+    private hooks: Omit<TimingOpts, 'duration' | 'easing' | 'delay'>
   ) {
-    this.originalFrom = this.mv.current;
-    this.originalVelocity = 0;
+    this.originalFrom = mv.current;
   }
 
   start() {
@@ -38,22 +38,22 @@ class SpringController implements AnimationController {
 
     this.isPaused = false;
     this.isCancelled = false;
-    this.velocity = this.originalVelocity;
+    this.from = this.mv.current;
+    this.startTime = performance.now();
+    this.pausedAt = null;
+    this.elapsedBeforePause = 0;
 
     this.frameId = requestAnimationFrame(this.animate);
   }
 
-  private animate = () => {
+  private animate = (ts: number) => {
     if (this.isCancelled || this.isPaused) return;
 
-    const x = this.mv.current;
-    const F = -this.stiffness * (x - this.to) - this.damping * this.velocity;
-    this.velocity += (F / this.mass) * (1 / 60);
+    const elapsed = this.elapsedBeforePause + (ts - this.startTime);
+    const t = Math.min(1, elapsed / this.duration);
+    this.mv.set(this.from + (this.to - this.from) * this.easing(t));
 
-    const next = x + this.velocity * (1 / 60);
-    this.mv.set(next);
-
-    if (Math.abs(this.velocity) > 0.001 || Math.abs(x - this.to) > 0.001) {
+    if (t < 1) {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
       this.mv.set(this.to);
@@ -65,6 +65,8 @@ class SpringController implements AnimationController {
     if (this.isCancelled || this.isPaused) return;
 
     this.isPaused = true;
+    this.pausedAt = performance.now();
+    this.elapsedBeforePause += this.pausedAt - this.startTime;
     cancelAnimationFrame(this.frameId);
     this.hooks.onPause?.();
   }
@@ -74,6 +76,8 @@ class SpringController implements AnimationController {
 
     this.isPaused = false;
     this.hooks.onResume?.();
+    this.startTime = performance.now();
+    this.pausedAt = null;
     this.frameId = requestAnimationFrame(this.animate);
   }
 
@@ -85,8 +89,9 @@ class SpringController implements AnimationController {
   reset() {
     this.cancel();
     this.isPaused = false;
+
+    cancelAnimationFrame(this.frameId);
     this.mv.set(this.originalFrom);
-    this.velocity = this.originalVelocity;
   }
 
   setOnComplete(fn: () => void) {
@@ -94,12 +99,12 @@ class SpringController implements AnimationController {
   }
 }
 
-export function spring(
+export function timing(
   mv: MotionValue<number>,
   to: number,
-  opts: SpringOpts = {}
-): SpringController {
-  const { stiffness = 170, damping = 26, mass = 1, ...hooks } = opts;
-  const ctl = new SpringController(mv, to, stiffness, damping, mass, hooks);
+  opts: TimingOpts = {}
+): TimingController {
+  const { duration = 300, easing = Easing.linear, ...hooks } = opts;
+  const ctl = new TimingController(mv, to, duration, easing, hooks);
   return ctl;
 }

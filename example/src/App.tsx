@@ -1,11 +1,11 @@
 import { useLayoutEffect } from 'react';
 
-import Version5 from './Version5';
+import Main from './components/Main';
 
 const App = () => {
   useDark();
 
-  return <Version5 />;
+  return <Main />;
 };
 
 function useDark() {
