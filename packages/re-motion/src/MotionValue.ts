@@ -30,7 +30,7 @@ export class MotionValue<T = number> {
     };
   }
 
-  cleanup() {
+  destroy() {
     this.subs.clear();
     this.currentController?.cancel();
     this.currentController = undefined;

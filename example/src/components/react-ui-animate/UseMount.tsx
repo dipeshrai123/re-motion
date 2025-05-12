@@ -34,7 +34,7 @@ export const useMount = (state: boolean, config?: UseMountConfig) => {
 
         (animation.value as any).currentController.setOnComplete(() => {
           setMounted(false);
-          animation.value.cleanup();
+          animation.value.destroy();
         });
       });
     }
