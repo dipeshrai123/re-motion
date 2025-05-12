@@ -1,4 +1,4 @@
-import { MotionValue } from './MotionValue';
+import type { MotionValue } from './MotionValue';
 
 export const transformKeys = [
   'translateX',
