@@ -1,5 +1,5 @@
 import type { AnimationController } from './drivers/AnimationController';
-import { isCssColorLiteral, parseCssColor } from './colors';
+import { isCssColorLiteral, parseCssColor } from './colorsUtils';
 
 type Subscriber<T> = (v: T) => void;
 
