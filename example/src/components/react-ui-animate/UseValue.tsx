@@ -1,74 +1,83 @@
 import {
-  motion,
+  MotionValue,
   spring,
   timing,
   useMotionValue,
-  type MotionValue,
+  motion,
 } from '@raidipesh78/re-motion';
+import { useCallback, useRef } from 'react';
 
-import { useCallback } from 'react';
+type DriverConfig = {
+  driver: (
+    mv: MotionValue<number>,
+    to: number,
+    opts?: any
+  ) => { start(): void };
+  to: number;
+  duration?: number;
+  stiffness?: number;
+  damping?: number;
+  mass?: number;
+};
 
-const animated = motion;
+type ToValue<V> = DriverConfig | V;
 
-export function useValue(initialValue: number | string) {
-  // Create (or reuse) a MotionValue under the hood
-  const animation = useMotionValue<number | string>(initialValue);
+export function useValue<V extends number | string>(initialValue: V) {
+  const animation = useMotionValue<V>(initialValue);
+  const previousTo = useRef<number | string | null>(null);
 
-  // This is the same updater you had before
-  const updateValue = useCallback(
-    (to: any) => {
-      // const { controller, callback } = getToValue(to)(animation);
-      // controller.start(callback);
-      if (to.type === 'spring' && typeof to.to === 'number') {
-        spring(animation as MotionValue<number>, to.to).start();
-      } else if (to.type === 'timing' && typeof to.to === 'number') {
-        timing(animation as MotionValue<number>, to.to).start();
-      } else if (typeof to === 'string') {
-        animation.set(to);
+  const doSet = useCallback(
+    (u: ToValue<V>) => {
+      if (
+        u !== null &&
+        typeof u === 'object' &&
+        'driver' in u &&
+        typeof u.to === 'number'
+      ) {
+        const { driver, to, ...cfg } = u as DriverConfig;
+        if (previousTo.current !== to) {
+          driver(animation as MotionValue<number>, to, cfg).start();
+          previousTo.current = to;
+        }
+      } else {
+        animation.set(u as V);
+        previousTo.current = u as number | string;
       }
     },
     [animation]
   );
 
   return {
-    // When you write `width.value = ...`, we kick off an animation
-    set value(to: any) {
-      updateValue(to);
+    get value(): MotionValue<V> {
+      return animation;
     },
-
-    // When you read `width.value`, you get the raw MotionValue
-    get value() {
-      return animation as any;
+    set value(u: MotionValue<V> | ToValue<V>) {
+      if (u instanceof MotionValue) return;
+      doSet(u);
     },
-
-    // And here's the current numeric/string value
-    get currentValue(): number | string {
-      return animation.current; // MotionValue.current :contentReference[oaicite:2]{index=2}:contentReference[oaicite:3]{index=3}
+    get currentValue(): V {
+      return animation.current;
     },
   };
 }
 
-const withSpring = (value: number) => {
-  return {
-    type: 'spring',
-    stiffness: 100,
-    damping: 10,
-    mass: 1,
-    to: value,
-  };
-};
+const withSpring = (to: number): DriverConfig => ({
+  driver: spring,
+  to,
+  stiffness: 100,
+  damping: 10,
+  mass: 1,
+});
 
-const withTiming = (value: number) => {
-  return {
-    type: 'timing',
-    duration: 500,
-    to: value,
-  };
-};
+const withTiming = (to: number): DriverConfig => ({
+  driver: timing,
+  to,
+  duration: 500,
+});
 
 export default function Example() {
   const x = useValue(0);
-  const position = useValue('relative');
+  const pos = useValue<'relative' | 'absolute'>('relative');
 
   return (
     <>
@@ -76,16 +85,21 @@ export default function Example() {
         ANIMATE SPRING
       </button>
       <button onClick={() => (x.value = withTiming(0))}>ANIMATE TIMING</button>
-      <button onClick={() => (position.value = 'absolute')}>
+      <button
+        onClick={() => {
+          pos.value = pos.currentValue === 'relative' ? 'absolute' : 'relative';
+        }}
+      >
         MAKE ABSOLUTE
       </button>
-      <animated.div
+
+      <motion.div
         style={{
           width: 100,
           height: 100,
           backgroundColor: 'teal',
           translateX: x.value,
-          position: position.value,
+          position: pos.value,
         }}
       />
     </>
