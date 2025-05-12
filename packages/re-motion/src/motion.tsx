@@ -3,60 +3,82 @@ import React, {
   useLayoutEffect,
   forwardRef,
   HTMLAttributes,
-  ReactNode,
+  RefObject,
+  SVGAttributes,
+  CSSProperties,
 } from 'react';
 import { isTransformKey } from './styleTransformUtils';
 import { applyAttrs, applyStyles, applyTransforms } from './apply';
 
-export function makeMotion<
-  TagProps extends { style?: Record<string, any>; children?: ReactNode }
->(Wrapped: React.ComponentType<TagProps> | keyof JSX.IntrinsicElements) {
-  type Props = TagProps & HTMLAttributes<HTMLElement>;
+type MotionStyle = {
+  [K in keyof CSSProperties]?: CSSProperties[K] | string | number;
+} & {
+  [key: string]: any;
+};
 
-  const MotionComp = forwardRef<HTMLElement, Props>((props, forwardedRef) => {
-    const { style = {}, children, ...rest } = props;
-    const nodeRef = useRef<HTMLElement | null>(null);
+type MotionHTMLAttributes<T> = {
+  [K in keyof HTMLAttributes<T>]?: HTMLAttributes<T>[K] | string | number;
+};
 
-    const refCallback = (node: HTMLElement | null) => {
-      nodeRef.current = node;
-      if (!forwardedRef) return;
-      if (typeof forwardedRef === 'function') {
-        forwardedRef(node);
-      } else {
-        (forwardedRef as React.MutableRefObject<HTMLElement | null>).current =
-          node;
-      }
-    };
+type MotionSVGAttributes<T> = {
+  [K in keyof SVGAttributes<T>]?: SVGAttributes<T>[K] | string | number;
+};
 
-    useLayoutEffect(() => {
-      const node = nodeRef.current;
-      if (!node) return;
+type MotionAttributes<T extends EventTarget> = Omit<
+  MotionHTMLAttributes<T> & MotionSVGAttributes<T>,
+  'style'
+> & {
+  style?: MotionStyle;
+};
 
-      const normal: Record<string, any> = {};
-      const tx: Record<string, any> = {};
+function combineRefs<T>(
+  ...refs: Array<RefObject<T> | ((el: T | null) => void) | null | undefined>
+) {
+  return (element: T | null) => {
+    for (const ref of refs) {
+      if (!ref) continue;
+      if (typeof ref === 'function') ref(element);
+      else if ('current' in ref) (ref.current as T | null) = element;
+    }
+  };
+}
 
-      for (const [k, v] of Object.entries(style)) {
-        if (isTransformKey(k)) tx[k] = v;
-        else normal[k] = v;
-      }
+export function makeMotion<Tag extends keyof JSX.IntrinsicElements>(
+  Wrapped: Tag
+) {
+  const MotionComp = forwardRef<HTMLElement, MotionAttributes<HTMLElement>>(
+    (givenProps, givenRef) => {
+      const nodeRef = useRef<HTMLElement | null>(null);
 
-      const unsubsStyle = applyStyles(node, normal);
-      const unsubsTransform = applyTransforms(node, tx);
-      const unsubsAttr = applyAttrs(node, rest);
+      useLayoutEffect(() => {
+        const node = nodeRef.current;
+        if (!node) return;
 
-      return () => {
-        unsubsStyle.forEach((u) => u());
-        unsubsTransform.forEach((u) => u());
-        unsubsAttr.forEach((u) => u());
-      };
-    }, []);
+        const { style = {}, ...rest } = givenProps;
 
-    return React.createElement(
-      Wrapped as any,
-      { ref: refCallback, ...rest },
-      children
-    );
-  });
+        const normal: Record<string, any> = {};
+        const tx: Record<string, any> = {};
+
+        for (const [k, v] of Object.entries(style)) {
+          if (isTransformKey(k)) tx[k] = v;
+          else normal[k] = v;
+        }
+
+        const cleanSubs = [
+          ...applyStyles(node, normal),
+          ...applyTransforms(node, style),
+          ...applyAttrs(node, rest),
+        ];
+
+        return () => cleanSubs.forEach((c) => c());
+      }, []);
+
+      return React.createElement(Wrapped, {
+        ...givenProps,
+        ref: combineRefs(nodeRef, givenRef),
+      });
+    }
+  );
 
   MotionComp.displayName =
     typeof Wrapped === 'string'
@@ -76,7 +98,5 @@ export const motion = new Proxy(
     },
   }
 ) as {
-  [K in keyof JSX.IntrinsicElements]: React.ForwardRefExoticComponent<
-    JSX.IntrinsicElements[K] & { style?: Record<string, any> }
-  >;
+  [K in keyof JSX.IntrinsicElements]: ReturnType<typeof makeMotion<K>>;
 };
