@@ -8,6 +8,7 @@ import {
   combine,
   loop,
   delay,
+  interpolate,
 } from '@raidipesh78/re-motion';
 import { useState } from 'react';
 
@@ -137,6 +138,7 @@ export default function Version5() {
             height: 50,
             backgroundColor: 'red',
             translateX: timingX,
+            rotateX: interpolate(timingX, [0, 300], [0, 360]),
             rotateZ: combine([timingX], (moveX) => `${moveX}deg`),
           }}
         />

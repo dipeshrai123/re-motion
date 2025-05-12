@@ -1,25 +1,29 @@
 import * as React from 'react';
-import { isTransformKey } from './styleTransformUtils';
+import { isTransformKey, transformKeys } from './styleTransformUtils';
 import { applyAttrs, applyStyles, applyTransforms } from './apply';
+import { MotionValue } from './MotionValue';
 
 type MotionStyle = {
-  [K in keyof React.CSSProperties]?: React.CSSProperties[K] | string | number;
+  [K in keyof React.CSSProperties]?:
+    | React.CSSProperties[K]
+    | MotionValue<number | string>;
 } & {
-  [key: string]: any;
+  [key in (typeof transformKeys)[number]]?:
+    | MotionValue<number | string>
+    | number
+    | string;
 };
 
 type MotionHTMLAttributes<T> = {
   [K in keyof React.HTMLAttributes<T>]?:
     | React.HTMLAttributes<T>[K]
-    | string
-    | number;
+    | MotionValue<number | string>;
 };
 
 type MotionSVGAttributes<T> = {
   [K in keyof React.SVGAttributes<T>]?:
     | React.SVGAttributes<T>[K]
-    | string
-    | number;
+    | MotionValue<number | string>;
 };
 
 type MotionAttributes<T extends EventTarget> = Omit<
