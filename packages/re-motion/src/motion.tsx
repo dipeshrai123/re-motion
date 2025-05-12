@@ -13,7 +13,7 @@ export function makeMotion<
 >(Wrapped: React.ComponentType<TagProps> | keyof JSX.IntrinsicElements) {
   type Props = TagProps & HTMLAttributes<HTMLElement>;
 
-  const FluidComp = forwardRef<HTMLElement, Props>((props, forwardedRef) => {
+  const MotionComp = forwardRef<HTMLElement, Props>((props, forwardedRef) => {
     const { style = {}, children, ...rest } = props;
     const nodeRef = useRef<HTMLElement | null>(null);
 
@@ -58,14 +58,14 @@ export function makeMotion<
     );
   });
 
-  FluidComp.displayName =
+  MotionComp.displayName =
     typeof Wrapped === 'string'
-      ? `Fluid.${Wrapped}`
-      : `Fluid(${
+      ? `Motion.${Wrapped}`
+      : `Motion(${
           (Wrapped as any).displayName || (Wrapped as any).name || 'Component'
         })`;
 
-  return FluidComp;
+  return MotionComp;
 }
 
 export const motion = new Proxy(
