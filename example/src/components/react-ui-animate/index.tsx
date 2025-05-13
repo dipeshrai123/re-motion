@@ -1,4 +1,10 @@
-import { withDecay, withSequence, withSpring, withTiming } from './controllers';
+import {
+  withDecay,
+  withDelay,
+  withSequence,
+  withSpring,
+  withTiming,
+} from './controllers';
 import { useValue } from './hooks';
 import { animate } from './animate';
 import * as React from 'react';
@@ -49,7 +55,11 @@ export default function Example() {
 
       <button
         onClick={() => {
-          x.value = withSequence([withTiming(100), withSpring(200)]);
+          x.value = withSequence([
+            withTiming(100),
+            withDelay(2000),
+            withSpring(400),
+          ]);
         }}
       >
         SEQUENCE

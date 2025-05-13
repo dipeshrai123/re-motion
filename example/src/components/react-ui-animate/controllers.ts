@@ -73,3 +73,10 @@ export const withSequence = (steps: DriverConfig[]): DriverConfig => ({
     steps,
   },
 });
+
+export const withDelay = (delay: number): DriverConfig => ({
+  type: 'delay',
+  options: {
+    delay,
+  },
+});

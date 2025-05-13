@@ -1,5 +1,6 @@
 import {
   decay,
+  delay,
   MotionValue,
   sequence,
   spring,
@@ -56,6 +57,12 @@ export function useValue<V extends number | string>(initialValue: V) {
           const seqCtrl = sequence(controllers);
           seqCtrl.start();
 
+          return;
+        }
+
+        if (type === 'delay') {
+          const { delay: ms } = options;
+          delay(ms).start();
           return;
         }
 

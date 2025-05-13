@@ -1,7 +1,8 @@
 export type DriverConfig = {
-  type: 'spring' | 'timing' | 'decay' | 'sequence';
+  type: 'spring' | 'timing' | 'decay' | 'sequence' | 'delay';
   to?: number;
   options?: {
+    delay?: number;
     duration?: number;
     easing?: (t: number) => number;
     stiffness?: number;
