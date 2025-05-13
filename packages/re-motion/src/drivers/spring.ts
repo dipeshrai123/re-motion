@@ -51,12 +51,12 @@ class SpringController implements AnimationController {
     this.velocity += (F / this.mass) * (1 / 60);
 
     const next = x + this.velocity * (1 / 60);
-    this.mv.set(next);
+    this.mv.internalSet(next);
 
     if (Math.abs(this.velocity) > 0.001 || Math.abs(x - this.to) > 0.001) {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
-      this.mv.set(this.to);
+      this.mv.internalSet(this.to);
       this.hooks.onComplete?.();
     }
   };
@@ -85,7 +85,7 @@ class SpringController implements AnimationController {
   reset() {
     this.cancel();
     this.isPaused = false;
-    this.mv.set(this.originalFrom);
+    this.mv.internalSet(this.originalFrom);
     this.velocity = this.originalVelocity;
   }
 

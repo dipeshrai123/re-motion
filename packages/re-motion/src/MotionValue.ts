@@ -17,6 +17,18 @@ export class MotionValue<T = number> {
   }
 
   set(v: T): void {
+    this.currentController?.cancel();
+    this.currentController = undefined;
+
+    if (v === this._current) return;
+    this._current = v;
+    for (const sub of this.subs) sub(v);
+  }
+
+  /**
+   * @internal only use internally
+   */
+  internalSet(v: T): void {
     if (v === this._current) return;
     this._current = v;
     for (const sub of this.subs) sub(v);

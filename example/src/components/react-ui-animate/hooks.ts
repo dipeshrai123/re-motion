@@ -14,21 +14,19 @@ export function useValue<V extends number | string>(initialValue: V) {
 
   const doSet = useCallback(
     (u: ToValue<V>) => {
-      if (u !== null && typeof u === 'object' && typeof u.to === 'number') {
+      if (u !== null && typeof u === 'object') {
         const { type, to, options } = u as DriverConfig;
 
         if (previousTo.current !== to) {
-          let driver = null;
-
           if (type === 'spring') {
-            driver = spring;
+            spring(animation as MotionValue<number>, to, options).start();
           } else if (type === 'timing') {
-            driver = timing;
+            timing(animation as MotionValue<number>, to, options).start();
           } else if (type === 'decay') {
-            driver = decay;
+            const { velocity, ...rest } = options;
+            decay(animation as MotionValue<number>, velocity, rest).start();
           }
 
-          driver(animation as MotionValue<number>, to, options).start();
           previousTo.current = to;
         }
       } else {
