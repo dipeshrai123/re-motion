@@ -1,5 +1,5 @@
 export type DriverConfig = {
-  type: 'spring' | 'timing' | 'decay';
+  type: 'spring' | 'timing' | 'decay' | 'sequence';
   to?: number;
   options?: {
     duration?: number;
@@ -11,6 +11,7 @@ export type DriverConfig = {
     onStart?: () => void;
     onChange?: (v: string | number) => void;
     onComplete?: () => void;
+    steps?: DriverConfig[];
   };
 };
 

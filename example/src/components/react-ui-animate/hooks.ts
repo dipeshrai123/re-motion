@@ -1,6 +1,7 @@
 import {
   decay,
   MotionValue,
+  sequence,
   spring,
   timing,
   useMotionValue,
@@ -20,6 +21,17 @@ export function useValue<V extends number | string>(initialValue: V) {
   const previousTo = useRef<number | string | null>(null);
   const unsubscribeRef = useRef<() => void>();
 
+  const getAnimationDriver = (type: DriverConfig['type']) => {
+    if (type === 'spring') {
+      return spring;
+    } else if (type === 'timing') {
+      return timing;
+    } else if (type === 'decay') {
+      return decay;
+    }
+    return null;
+  };
+
   const doSet = useCallback(
     (u: ToValue<V>) => {
       unsubscribeRef.current?.();
@@ -36,12 +48,43 @@ export function useValue<V extends number | string>(initialValue: V) {
 
         if (previousTo.current !== to) {
           if (type === 'spring') {
-            spring(animation as MotionValue<number>, to, restOptions).start();
+            const animationDriver = getAnimationDriver(type);
+            animationDriver(
+              animation as MotionValue<number>,
+              to,
+              restOptions
+            ).start();
           } else if (type === 'timing') {
-            timing(animation as MotionValue<number>, to, restOptions).start();
+            const animationDriver = getAnimationDriver(type);
+            animationDriver(
+              animation as MotionValue<number>,
+              to,
+              restOptions
+            ).start();
           } else if (type === 'decay') {
             const { velocity, ...rest } = restOptions;
-            decay(animation as MotionValue<number>, velocity, rest).start();
+            const animationDriver = getAnimationDriver(type);
+            animationDriver(
+              animation as MotionValue<number>,
+              velocity,
+              rest
+            ).start();
+          } else if (type === 'sequence') {
+            const { steps } = restOptions;
+            const animationDrivers = steps.map((s) => {
+              const d = getAnimationDriver(s.type);
+              if (s.type === 'decay') {
+                return d(
+                  animation as MotionValue<number>,
+                  s.options.velocity,
+                  s.options
+                );
+              } else {
+                return d(animation as MotionValue<number>, s.to, s.options);
+              }
+            });
+
+            sequence(animationDrivers).start();
           }
 
           previousTo.current = to;

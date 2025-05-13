@@ -66,3 +66,10 @@ export const withDecay = (options: WithDecayOptions): DriverConfig => ({
     onComplete: options?.onRest,
   },
 });
+
+export const withSequence = (steps: DriverConfig[]): DriverConfig => ({
+  type: 'sequence',
+  options: {
+    steps,
+  },
+});

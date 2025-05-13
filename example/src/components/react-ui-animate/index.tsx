@@ -1,4 +1,4 @@
-import { withDecay, withSpring, withTiming } from './controllers';
+import { withDecay, withSequence, withSpring, withTiming } from './controllers';
 import { useValue } from './hooks';
 import { animate } from './animate';
 import * as React from 'react';
@@ -45,6 +45,14 @@ export default function Example() {
         }}
       >
         MAKE ABSOLUTE
+      </button>
+
+      <button
+        onClick={() => {
+          x.value = withSequence([withTiming(100), withSpring(200)]);
+        }}
+      >
+        SEQUENCE
       </button>
 
       <animate.div
