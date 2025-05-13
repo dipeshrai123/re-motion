@@ -46,6 +46,11 @@ export function useValue<V extends number | string>(initialValue: V) {
                 step.options
               );
             }
+
+            if (step.type === 'delay') {
+              return delay(step.options.delay);
+            }
+
             const driver = step.type === 'spring' ? spring : timing;
             return driver(
               animation as MotionValue<number>,
@@ -57,12 +62,6 @@ export function useValue<V extends number | string>(initialValue: V) {
           const seqCtrl = sequence(controllers);
           seqCtrl.start();
 
-          return;
-        }
-
-        if (type === 'delay') {
-          const { delay: ms } = options;
-          delay(ms).start();
           return;
         }
 
