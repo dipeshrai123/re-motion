@@ -53,7 +53,7 @@ export default function Example() {
             backgroundColor: 'red',
             translateX: x,
             translateY: ys.current[i],
-            position: 'absolute',
+            position: 'absolute' as React.CSSProperties['position'],
             left: 0,
             top: 0,
           };

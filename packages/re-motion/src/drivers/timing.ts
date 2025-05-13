@@ -1,4 +1,4 @@
-import { Easing } from '../easing/easing';
+import { Easing } from '../easing/Easing';
 import { MotionValue } from '../MotionValue';
 import { AnimationController } from './AnimationController';
 

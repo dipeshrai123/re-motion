@@ -137,6 +137,7 @@ export default function Version5() {
             height: 50,
             backgroundColor: 'red',
             translateX: timingX,
+            rotateX: timingX.to([0, 300], [0, 360]),
             rotateZ: combine([timingX], (moveX) => `${moveX}deg`),
           }}
         />

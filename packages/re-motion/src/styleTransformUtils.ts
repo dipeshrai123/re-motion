@@ -1,6 +1,6 @@
-import { MotionValue } from './MotionValue';
+import type { MotionValue } from './MotionValue';
 
-const TRANSFORM_KEYS = new Set([
+export const transformKeys = [
   'translateX',
   'translateY',
   'translateZ',
@@ -14,7 +14,7 @@ const TRANSFORM_KEYS = new Set([
   'skewX',
   'skewY',
   'perspective',
-]);
+];
 
 function splitCSSValueAndUnit(raw: string) {
   const numMatch = raw.match(/-?\d+(\.\d+)?/)?.[0] ?? '0';
@@ -47,7 +47,7 @@ function formatTransformFunction(key: string, raw: any) {
 }
 
 export function isTransformKey(key: string) {
-  return TRANSFORM_KEYS.has(key);
+  return transformKeys.includes(key);
 }
 
 export function applyTransformsStyle(

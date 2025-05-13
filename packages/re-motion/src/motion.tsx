@@ -1,36 +1,67 @@
-import React, {
-  useRef,
-  useLayoutEffect,
-  forwardRef,
-  HTMLAttributes,
-  ReactNode,
-} from 'react';
-import { isTransformKey } from './styleTransformUtils';
+import * as React from 'react';
+
+import { isTransformKey, transformKeys } from './styleTransformUtils';
 import { applyAttrs, applyStyles, applyTransforms } from './apply';
+import { MotionValue } from './MotionValue';
 
-export function makeMotion<
-  TagProps extends { style?: Record<string, any>; children?: ReactNode }
->(Wrapped: React.ComponentType<TagProps> | keyof JSX.IntrinsicElements) {
-  type Props = TagProps & HTMLAttributes<HTMLElement>;
+type MotionStyle = {
+  [K in keyof React.CSSProperties]?:
+    | React.CSSProperties[K]
+    | MotionValue<number | string>;
+} & {
+  [key in (typeof transformKeys)[number]]?:
+    | MotionValue<number | string>
+    | number
+    | string;
+};
 
-  const FluidComp = forwardRef<HTMLElement, Props>((props, forwardedRef) => {
-    const { style = {}, children, ...rest } = props;
-    const nodeRef = useRef<HTMLElement | null>(null);
+type MotionHTMLAttributes<T> = {
+  [K in keyof React.HTMLAttributes<T>]?:
+    | React.HTMLAttributes<T>[K]
+    | MotionValue<number | string>;
+};
 
-    const refCallback = (node: HTMLElement | null) => {
-      nodeRef.current = node;
-      if (!forwardedRef) return;
-      if (typeof forwardedRef === 'function') {
-        forwardedRef(node);
-      } else {
-        (forwardedRef as React.MutableRefObject<HTMLElement | null>).current =
-          node;
-      }
-    };
+type MotionSVGAttributes<T> = {
+  [K in keyof React.SVGAttributes<T>]?:
+    | React.SVGAttributes<T>[K]
+    | MotionValue<number | string>;
+};
 
-    useLayoutEffect(() => {
+type MotionAttributes<T extends EventTarget> = Omit<
+  MotionHTMLAttributes<T> & MotionSVGAttributes<T>,
+  'style'
+> & {
+  style?: MotionStyle;
+};
+
+function combineRefs<T>(
+  ...refs: Array<
+    React.RefObject<T> | ((el: T | null) => void) | null | undefined
+  >
+) {
+  return (element: T | null) => {
+    for (const ref of refs) {
+      if (!ref) continue;
+      if (typeof ref === 'function') ref(element);
+      else if ('current' in ref) (ref.current as T | null) = element;
+    }
+  };
+}
+
+export function makeMotion<Tag extends keyof JSX.IntrinsicElements>(
+  Wrapped: Tag
+) {
+  const MotionComp = React.forwardRef<
+    HTMLElement,
+    MotionAttributes<HTMLElement>
+  >((givenProps, givenRef) => {
+    const nodeRef = React.useRef<HTMLElement | null>(null);
+
+    React.useLayoutEffect(() => {
       const node = nodeRef.current;
       if (!node) return;
+
+      const { style = {}, ...rest } = givenProps;
 
       const normal: Record<string, any> = {};
       const tx: Record<string, any> = {};
@@ -40,32 +71,29 @@ export function makeMotion<
         else normal[k] = v;
       }
 
-      const unsubsStyle = applyStyles(node, normal);
-      const unsubsTransform = applyTransforms(node, tx);
-      const unsubsAttr = applyAttrs(node, rest);
+      const cleanSubs = [
+        ...applyStyles(node, normal),
+        ...applyTransforms(node, style),
+        ...applyAttrs(node, rest),
+      ];
 
-      return () => {
-        unsubsStyle.forEach((u) => u());
-        unsubsTransform.forEach((u) => u());
-        unsubsAttr.forEach((u) => u());
-      };
+      return () => cleanSubs.forEach((c) => c());
     }, []);
 
-    return React.createElement(
-      Wrapped as any,
-      { ref: refCallback, ...rest },
-      children
-    );
+    return React.createElement(Wrapped, {
+      ...givenProps,
+      ref: combineRefs(nodeRef, givenRef),
+    });
   });
 
-  FluidComp.displayName =
+  MotionComp.displayName =
     typeof Wrapped === 'string'
-      ? `Fluid.${Wrapped}`
-      : `Fluid(${
+      ? `Motion.${Wrapped}`
+      : `Motion(${
           (Wrapped as any).displayName || (Wrapped as any).name || 'Component'
         })`;
 
-  return FluidComp;
+  return MotionComp;
 }
 
 export const motion = new Proxy(
@@ -76,7 +104,5 @@ export const motion = new Proxy(
     },
   }
 ) as {
-  [K in keyof JSX.IntrinsicElements]: React.ForwardRefExoticComponent<
-    JSX.IntrinsicElements[K] & { style?: Record<string, any> }
-  >;
+  [K in keyof JSX.IntrinsicElements]: ReturnType<typeof makeMotion<K>>;
 };
