@@ -2,30 +2,36 @@ import { DriverConfig } from './types';
 
 export const withSpring = (
   to: number,
-  options?: { onComplete?: () => void }
-): DriverConfig => ({
-  type: 'spring',
-  to,
-  stiffness: 100,
-  damping: 10,
-  mass: 1,
-  options,
-});
+  options?: DriverConfig['options']
+): DriverConfig => {
+  return {
+    type: 'spring',
+    to,
+    options: {
+      stiffness: options?.stiffness ?? 100,
+      damping: options?.damping ?? 10,
+      mass: options?.mass ?? 1,
+      onComplete: options?.onComplete,
+    },
+  };
+};
 
 export const withTiming = (
   to: number,
-  options?: { onComplete?: () => void }
+  options?: DriverConfig['options']
 ): DriverConfig => ({
   type: 'timing',
   to,
-  duration: 500,
-  options,
+  options: {
+    duration: options?.duration ?? 300,
+    onComplete: options?.onComplete,
+  },
 });
 
-export const withDecay = (options?: {
-  onComplete?: () => void;
-}): DriverConfig => ({
+export const withDecay = (options?: DriverConfig['options']): DriverConfig => ({
   type: 'decay',
-  velocity: 20,
-  options,
+  options: {
+    velocity: options?.velocity ?? 0,
+    onComplete: options?.onComplete,
+  },
 });

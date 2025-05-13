@@ -31,12 +31,17 @@ export const useMount = (state: boolean, config?: UseMountConfig) => {
       });
     } else {
       queueMicrotask(() => {
-        animation.value = exitAnimation;
-
-        console.log(exitAnimation);
-        // (animation.value as any).currentController.setOnComplete(() => {
-        //   setMounted(false);
-        // });
+        animation.value = {
+          ...exitAnimation,
+          options: {
+            ...exitAnimation.options,
+            onComplete: () => {
+              setMounted(false);
+              exitAnimation.options.onComplete?.();
+              animation.value.destroy(); // HACK - destroy the subscriptions to avoid exponential subscription growth
+            },
+          },
+        };
       });
     }
   }, [state, enterAnimation, exitAnimation, animation]);

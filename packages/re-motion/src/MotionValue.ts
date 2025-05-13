@@ -30,6 +30,12 @@ export class MotionValue<T = number> {
     };
   }
 
+  destroy() {
+    this.subs.clear();
+    this.currentController?.cancel();
+    this.currentController = undefined;
+  }
+
   to(
     inRange: [number, number],
     outRange: [number, number],

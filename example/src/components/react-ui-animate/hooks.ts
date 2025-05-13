@@ -15,7 +15,8 @@ export function useValue<V extends number | string>(initialValue: V) {
   const doSet = useCallback(
     (u: ToValue<V>) => {
       if (u !== null && typeof u === 'object' && typeof u.to === 'number') {
-        const { type, to, ...cfg } = u as DriverConfig;
+        const { type, to, options } = u as DriverConfig;
+
         if (previousTo.current !== to) {
           let driver = null;
 
@@ -27,7 +28,7 @@ export function useValue<V extends number | string>(initialValue: V) {
             driver = decay;
           }
 
-          driver(animation as MotionValue<number>, to, cfg).start();
+          driver(animation as MotionValue<number>, to, options).start();
           previousTo.current = to;
         }
       } else {
