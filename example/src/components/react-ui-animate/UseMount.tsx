@@ -1,8 +1,9 @@
 import { useState, useLayoutEffect, useRef } from 'react';
+import { MotionValue } from '@raidipesh78/re-motion';
+
 import { useValue } from './hooks';
 import { DriverConfig } from './types';
 import { withSpring } from './controllers';
-import { MotionValue } from '@raidipesh78/re-motion';
 
 export interface UseMountConfig {
   from?: number;
@@ -32,10 +33,10 @@ export const useMount = (state: boolean, config?: UseMountConfig) => {
       queueMicrotask(() => {
         animation.value = exitAnimation;
 
-        (animation.value as any).currentController.setOnComplete(() => {
-          setMounted(false);
-          animation.value.destroy();
-        });
+        console.log(exitAnimation);
+        // (animation.value as any).currentController.setOnComplete(() => {
+        //   setMounted(false);
+        // });
       });
     }
   }, [state, enterAnimation, exitAnimation, animation]);

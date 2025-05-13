@@ -1,4 +1,10 @@
-import { MotionValue, useMotionValue } from '@raidipesh78/re-motion';
+import {
+  decay,
+  MotionValue,
+  spring,
+  timing,
+  useMotionValue,
+} from '@raidipesh78/re-motion';
 import { useCallback, useRef } from 'react';
 import { DriverConfig, ToValue } from './types';
 
@@ -8,14 +14,19 @@ export function useValue<V extends number | string>(initialValue: V) {
 
   const doSet = useCallback(
     (u: ToValue<V>) => {
-      if (
-        u !== null &&
-        typeof u === 'object' &&
-        'driver' in u &&
-        typeof u.to === 'number'
-      ) {
-        const { driver, to, ...cfg } = u as DriverConfig;
+      if (u !== null && typeof u === 'object' && typeof u.to === 'number') {
+        const { type, to, ...cfg } = u as DriverConfig;
         if (previousTo.current !== to) {
+          let driver = null;
+
+          if (type === 'spring') {
+            driver = spring;
+          } else if (type === 'timing') {
+            driver = timing;
+          } else if (type === 'decay') {
+            driver = decay;
+          }
+
           driver(animation as MotionValue<number>, to, cfg).start();
           previousTo.current = to;
         }

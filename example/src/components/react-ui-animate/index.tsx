@@ -3,8 +3,6 @@ import { useValue } from './hooks';
 import { animate } from './animate';
 import * as React from 'react';
 import { useMount } from './UseMount';
-import { bInterpolate } from './interpolate';
-import { interpolate } from '@raidipesh78/re-motion';
 
 export default function Example() {
   const x = useValue(0);
@@ -31,7 +29,7 @@ export default function Example() {
         style={{
           width: 100,
           height: 100,
-          backgroundColor: 'teal',
+          backgroundColor: x.value.to([0, 100], ['#3399ff', 'yellow']),
           translateX: x.value,
           position: pos.value,
         }}
@@ -90,7 +88,7 @@ export default function Example() {
                   height: 100,
                   opacity: animation.value,
                   backgroundColor: 'yellow',
-                  translateX: interpolate(animation.value, [0, 1], [0, 100]),
+                  translateX: animation.value.to([0, 1], [0, 100]),
                   //   width: bInterpolate(animation.value, 100, 500),
                   //   height: 100,
                   //   backgroundColor: bInterpolate(

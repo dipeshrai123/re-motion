@@ -30,12 +30,6 @@ export class MotionValue<T = number> {
     };
   }
 
-  destroy() {
-    this.subs.clear();
-    this.currentController?.cancel();
-    this.currentController = undefined;
-  }
-
   to(
     inRange: [number, number],
     outRange: [number, number],
@@ -69,20 +63,21 @@ export class MotionValue<T = number> {
   }
 }
 
-export function interpolate(
+function interpolate(
   input: MotionValue<number>,
   inRange: [number, number],
   outRange: [number, number],
   easing?: (t: number) => number
 ): MotionValue<number>;
 
-export function interpolate(
+function interpolate(
   input: MotionValue<number>,
   inRange: [number, number],
   outRange: [string, string],
   easing?: (t: number) => number
 ): MotionValue<string>;
-export function interpolate(
+
+function interpolate(
   input: MotionValue<number>,
   inRange: [number, number],
   outRange: [number | string, number | string],
