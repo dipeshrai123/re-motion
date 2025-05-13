@@ -1,11 +1,11 @@
-import { withSpring, withTiming } from './controllers';
+import { withDecay, withSpring, withTiming } from './controllers';
 import { useValue } from './hooks';
 import { animate } from './animate';
 import * as React from 'react';
 import { useMount } from './UseMount';
 
 export default function Example() {
-  const x = useValue(0);
+  const x = useValue<number>(0);
   const pos = useValue<'relative' | 'absolute'>('relative');
 
   const [open, setOpen] = React.useState(true);
@@ -17,6 +17,10 @@ export default function Example() {
         ANIMATE SPRING
       </button>
       <button onClick={() => (x.value = withTiming(0))}>ANIMATE TIMING</button>
+      <button onClick={() => (x.value = withDecay({ velocity: 20 }))}>
+        ANIMATE DECAY
+      </button>
+      <button onClick={() => (x.value = 400)}>SET</button>
       <button
         onClick={() => {
           pos.value = pos.currentValue === 'relative' ? 'absolute' : 'relative';

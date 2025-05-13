@@ -51,12 +51,12 @@ class TimingController implements AnimationController {
 
     const elapsed = this.elapsedBeforePause + (ts - this.startTime);
     const t = Math.min(1, elapsed / this.duration);
-    this.mv.set(this.from + (this.to - this.from) * this.easing(t));
+    this.mv.internalSet(this.from + (this.to - this.from) * this.easing(t));
 
     if (t < 1) {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
-      this.mv.set(this.to);
+      this.mv.internalSet(this.to);
       this.hooks.onComplete?.();
     }
   };
@@ -91,7 +91,7 @@ class TimingController implements AnimationController {
     this.isPaused = false;
 
     cancelAnimationFrame(this.frameId);
-    this.mv.set(this.originalFrom);
+    this.mv.internalSet(this.originalFrom);
   }
 
   setOnComplete(fn: () => void) {

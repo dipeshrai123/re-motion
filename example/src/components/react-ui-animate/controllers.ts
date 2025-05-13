@@ -1,8 +1,15 @@
 import { DriverConfig } from './types';
 
+interface WithSpringOptions {
+  mass?: number;
+  stiffness?: number;
+  damping?: number;
+  onComplete?: () => void;
+}
+
 export const withSpring = (
   to: number,
-  options?: DriverConfig['options']
+  options?: WithSpringOptions
 ): DriverConfig => {
   return {
     type: 'spring',
@@ -16,9 +23,14 @@ export const withSpring = (
   };
 };
 
+interface WithTimingOptions {
+  duration?: number;
+  onComplete?: () => void;
+}
+
 export const withTiming = (
   to: number,
-  options?: DriverConfig['options']
+  options?: WithTimingOptions
 ): DriverConfig => ({
   type: 'timing',
   to,
@@ -28,10 +40,15 @@ export const withTiming = (
   },
 });
 
-export const withDecay = (options?: DriverConfig['options']): DriverConfig => ({
+interface WithDecayOptions {
+  velocity: number;
+  onComplete?: () => void;
+}
+
+export const withDecay = (options: WithDecayOptions): DriverConfig => ({
   type: 'decay',
   options: {
-    velocity: options?.velocity ?? 0,
+    velocity: options.velocity,
     onComplete: options?.onComplete,
   },
 });

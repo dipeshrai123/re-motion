@@ -45,7 +45,7 @@ class DecayController implements AnimationController {
 
     this.velocity *= this.decayFactor;
     const next = this.mv.current + this.velocity * (1 / 60);
-    this.mv.set(next);
+    this.mv.internalSet(next);
 
     if (Math.abs(this.velocity) > 0.001) {
       this.frameId = requestAnimationFrame(this.animate);
@@ -79,7 +79,7 @@ class DecayController implements AnimationController {
     this.cancel();
     this.isPaused = false;
 
-    this.mv.set(this.from);
+    this.mv.internalSet(this.from);
     this.velocity = this.originalVelocity;
   }
 
