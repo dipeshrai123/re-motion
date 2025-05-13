@@ -2,7 +2,7 @@ import { withDecay, withSpring, withTiming } from './controllers';
 import { useValue } from './hooks';
 import { animate } from './animate';
 import * as React from 'react';
-import { useMount } from './UseMount';
+import { useMount } from './hooks';
 import { AnimationConfig } from './AnimationConfig';
 
 export default function Example() {
