@@ -2,9 +2,11 @@ import { DriverConfig } from './types';
 
 interface WithSpringOptions {
   mass?: number;
-  stiffness?: number;
-  damping?: number;
-  onComplete?: () => void;
+  tension?: number;
+  friction?: number;
+  onStart?: () => void;
+  onChange?: (v: number | string) => void;
+  onRest?: () => void;
 }
 
 export const withSpring = (
@@ -15,17 +17,22 @@ export const withSpring = (
     type: 'spring',
     to,
     options: {
-      stiffness: options?.stiffness ?? 100,
-      damping: options?.damping ?? 10,
+      stiffness: options?.tension ?? 100,
+      damping: options?.friction ?? 10,
       mass: options?.mass ?? 1,
-      onComplete: options?.onComplete,
+      onStart: options?.onStart,
+      onChange: options?.onChange,
+      onComplete: options?.onRest,
     },
   };
 };
 
 interface WithTimingOptions {
   duration?: number;
-  onComplete?: () => void;
+  easing?: (t: number) => number;
+  onStart?: () => void;
+  onChange?: (v: number | string) => void;
+  onRest?: () => void;
 }
 
 export const withTiming = (
@@ -36,19 +43,26 @@ export const withTiming = (
   to,
   options: {
     duration: options?.duration ?? 300,
-    onComplete: options?.onComplete,
+    easing: options?.easing,
+    onStart: options?.onStart,
+    onChange: options?.onChange,
+    onComplete: options?.onRest,
   },
 });
 
 interface WithDecayOptions {
   velocity: number;
-  onComplete?: () => void;
+  onStart?: () => void;
+  onChange?: (v: number | string) => void;
+  onRest?: () => void;
 }
 
 export const withDecay = (options: WithDecayOptions): DriverConfig => ({
   type: 'decay',
   options: {
     velocity: options.velocity,
-    onComplete: options?.onComplete,
+    onStart: options?.onStart,
+    onChange: options?.onChange,
+    onComplete: options?.onRest,
   },
 });

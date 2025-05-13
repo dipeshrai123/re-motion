@@ -3,6 +3,7 @@ import { useValue } from './hooks';
 import { animate } from './animate';
 import * as React from 'react';
 import { useMount } from './UseMount';
+import { AnimationConfig } from './AnimationConfig';
 
 export default function Example() {
   const x = useValue<number>(0);
@@ -13,11 +14,28 @@ export default function Example() {
 
   return (
     <>
-      <button onClick={() => (x.value = withSpring(100))}>
+      <button
+        onClick={() =>
+          (x.value = withSpring(100, AnimationConfig.Spring.ELASTIC))
+        }
+      >
         ANIMATE SPRING
       </button>
-      <button onClick={() => (x.value = withTiming(0))}>ANIMATE TIMING</button>
-      <button onClick={() => (x.value = withDecay({ velocity: 20 }))}>
+      <button
+        onClick={() => (x.value = withTiming(0, AnimationConfig.Timing.BOUNCE))}
+      >
+        ANIMATE TIMING
+      </button>
+      <button
+        onClick={() =>
+          (x.value = withDecay({
+            velocity: 20,
+            onChange: (v) => {
+              console.log(v);
+            },
+          }))
+        }
+      >
         ANIMATE DECAY
       </button>
       <button onClick={() => (x.value = 400)}>SET</button>
