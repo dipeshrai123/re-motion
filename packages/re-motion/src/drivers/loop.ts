@@ -33,6 +33,7 @@ class LoopController implements AnimationController {
     this.isCancelled = false;
     this.isPaused = false;
     this.count = 0;
+    this.driver.reset();
     this.runOne();
   }
 
