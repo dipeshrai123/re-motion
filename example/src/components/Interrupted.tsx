@@ -15,7 +15,7 @@ export default function Version5() {
     <>
       <button onClick={() => timing(x, 400).start()}>Timing</button>
       <button onClick={() => spring(x, 0).start()}>Spring</button>
-      <button onClick={() => decay(x, 20).start()}>Decay</button>
+      <button onClick={() => decay(x, 1).start()}>Decay</button>
       <button
         onClick={() => sequence([timing(x, 100), spring(x, 200)]).start()}
       >

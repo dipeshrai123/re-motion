@@ -10,10 +10,11 @@ interface DecayOpts {
 }
 
 class DecayController implements AnimationController {
-  private velocity: number;
   private originalVelocity: number;
+  private decayFactor: number; // per-millisecond decay
+  private startTime: number = 0;
+  private from: number = 0;
   private frameId!: number;
-  private from!: number;
 
   private isPaused = false;
   private isCancelled = false;
@@ -21,12 +22,12 @@ class DecayController implements AnimationController {
   constructor(
     private mv: MotionValue<number>,
     initialVelocity: number,
-    private decayFactor: number,
+    decayFactor: number,
     private hooks: DecayOpts
   ) {
     this.originalVelocity = initialVelocity;
-    this.velocity = initialVelocity;
-    this.from = this.mv.current;
+    this.decayFactor = decayFactor;
+    this.from = mv.current;
   }
 
   start() {
@@ -34,20 +35,28 @@ class DecayController implements AnimationController {
     this.isCancelled = false;
 
     this.hooks.onStart?.();
-
     this.mv.setAnimationController(this);
-    this.isCancelled = false;
+
+    this.from = this.mv.current;
+    this.startTime = performance.now();
+
     this.frameId = requestAnimationFrame(this.animate);
   }
 
-  private animate = () => {
+  private animate = (now: number) => {
     if (this.isCancelled || this.isPaused) return;
 
-    this.velocity *= this.decayFactor;
-    const next = this.mv.current + this.velocity * (1 / 60);
+    const t = now - this.startTime;
+    const k = 1 - this.decayFactor;
+
+    const vNow = this.originalVelocity * Math.exp(-k * t);
+
+    const next =
+      this.from + (this.originalVelocity / k) * (1 - Math.exp(-k * t));
+
     this.mv.internalSet(next);
 
-    if (Math.abs(this.velocity) > 0.001) {
+    if (Math.abs(vNow) > 0.1) {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
       this.hooks.onComplete?.();
@@ -67,6 +76,7 @@ class DecayController implements AnimationController {
 
     this.isPaused = false;
     this.hooks.onResume?.();
+    this.startTime = performance.now() - (performance.now() - this.startTime);
     this.frameId = requestAnimationFrame(this.animate);
   }
 
@@ -78,9 +88,8 @@ class DecayController implements AnimationController {
   reset() {
     this.cancel();
     this.isPaused = false;
-
-    this.mv.internalSet(this.from);
-    this.velocity = this.originalVelocity;
+    this.mv.reset();
+    this.startTime = 0;
   }
 
   reverse() {}
