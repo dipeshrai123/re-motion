@@ -27,6 +27,11 @@ export const withSpring = (
   };
 };
 
+export const withEase = (
+  to: number,
+  options?: WithSpringOptions
+): DriverConfig => withSpring(to, { ...options, tension: 190, friction: 17 });
+
 interface WithTimingOptions {
   duration?: number;
   easing?: (t: number) => number;

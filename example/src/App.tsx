@@ -1,6 +1,6 @@
 import { useLayoutEffect } from 'react';
 
-import Example from './components/react-ui-animate';
+import { SharedElement as Example } from './components/SharedElement';
 
 const App = () => {
   useDark();

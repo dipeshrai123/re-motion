@@ -20,7 +20,6 @@ import { withSpring } from './controllers';
 
 export function useValue<V extends number | string>(initialValue: V) {
   const animation = useMotionValue<V>(initialValue);
-  const previousTo = useRef<number | string | null>(null);
   const unsubscribeRef = useRef<() => void>();
 
   const doSet = useCallback(
@@ -112,8 +111,6 @@ export function useValue<V extends number | string>(initialValue: V) {
           return;
         }
 
-        if (previousTo.current === to) return;
-
         if (type === 'spring') {
           spring(animation as MotionValue<number>, to, restOptions).start();
         } else if (type === 'timing') {
@@ -125,12 +122,9 @@ export function useValue<V extends number | string>(initialValue: V) {
             restOptions
           ).start();
         }
-
-        previousTo.current = to;
         return;
       } else {
         animation.set(u as V);
-        previousTo.current = u as number | string;
       }
     },
     [animation]
