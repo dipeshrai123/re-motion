@@ -1,6 +1,6 @@
 import { useLayoutEffect } from 'react';
 
-import Example from './components/react-ui-animate';
+import Example from './components/Interrupted';
 
 const App = () => {
   useDark();

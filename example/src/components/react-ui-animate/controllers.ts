@@ -27,6 +27,11 @@ export const withSpring = (
   };
 };
 
+export const withEase = (
+  to: number,
+  options?: WithSpringOptions
+): DriverConfig => withSpring(to, { ...options, tension: 190, friction: 17 });
+
 interface WithTimingOptions {
   duration?: number;
   easing?: (t: number) => number;
@@ -64,5 +69,30 @@ export const withDecay = (options: WithDecayOptions): DriverConfig => ({
     onStart: options?.onStart,
     onChange: options?.onChange,
     onComplete: options?.onRest,
+  },
+});
+
+export const withSequence = (steps: DriverConfig[]): DriverConfig => ({
+  type: 'sequence',
+  options: {
+    steps,
+  },
+});
+
+export const withDelay = (delay: number): DriverConfig => ({
+  type: 'delay',
+  options: {
+    delay,
+  },
+});
+
+export const withLoop = (
+  controller: DriverConfig,
+  iterations: number
+): DriverConfig => ({
+  type: 'loop',
+  options: {
+    controller,
+    iterations,
   },
 });
