@@ -23,7 +23,7 @@ const clamp = (value: number, min: number, max: number) => {
   return Math.max(min, Math.min(value, max));
 };
 
-export function SharedElement() {
+export default function SharedElement() {
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
 
   const left = useValue(0);
