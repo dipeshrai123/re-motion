@@ -6,10 +6,12 @@ type Subscriber<T> = (v: T) => void;
 export class MotionValue<T = number> {
   private subs = new Set<Subscriber<T>>();
   private _current: T;
+  private initial: T;
   private currentController?: AnimationController;
 
   constructor(initial: T) {
     this._current = initial;
+    this.initial = initial;
   }
 
   get current(): T {
@@ -40,6 +42,10 @@ export class MotionValue<T = number> {
     return () => {
       this.subs.delete(fn);
     };
+  }
+
+  reset() {
+    this.set(this.initial);
   }
 
   destroy() {

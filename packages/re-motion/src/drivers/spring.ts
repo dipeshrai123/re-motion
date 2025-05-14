@@ -15,7 +15,6 @@ class SpringController implements AnimationController {
   private velocity = 0;
   private frameId!: number;
   private originalVelocity = 0;
-  private originalFrom: number;
 
   private isPaused = false;
   private isCancelled = false;
@@ -28,7 +27,6 @@ class SpringController implements AnimationController {
     private mass: number,
     private hooks: SpringOpts
   ) {
-    this.originalFrom = this.mv.current;
     this.originalVelocity = 0;
   }
 
@@ -85,8 +83,8 @@ class SpringController implements AnimationController {
   reset() {
     this.cancel();
     this.isPaused = false;
-    this.mv.internalSet(this.originalFrom);
     this.velocity = this.originalVelocity;
+    this.mv.reset();
   }
 
   setOnComplete(fn: () => void) {

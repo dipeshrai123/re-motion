@@ -15,7 +15,6 @@ class TimingController implements AnimationController {
   private startTime!: number;
   private frameId!: number;
   private from!: number;
-  private originalFrom: number;
 
   private isPaused = false;
   private isCancelled = false;
@@ -28,9 +27,7 @@ class TimingController implements AnimationController {
     private duration: number = 300,
     private easing: (t: number) => number = Easing.linear,
     private hooks: Omit<TimingOpts, 'duration' | 'easing' | 'delay'>
-  ) {
-    this.originalFrom = mv.current;
-  }
+  ) {}
 
   start() {
     this.hooks.onStart?.();
@@ -89,9 +86,8 @@ class TimingController implements AnimationController {
   reset() {
     this.cancel();
     this.isPaused = false;
-
     cancelAnimationFrame(this.frameId);
-    this.mv.internalSet(this.originalFrom);
+    this.mv.reset();
   }
 
   setOnComplete(fn: () => void) {
