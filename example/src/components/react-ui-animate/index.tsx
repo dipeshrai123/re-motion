@@ -1,6 +1,7 @@
 import {
   withDecay,
   withDelay,
+  withLoop,
   withSequence,
   withSpring,
   withTiming,
@@ -63,6 +64,22 @@ export default function Example() {
         }}
       >
         SEQUENCE
+      </button>
+
+      <button
+        onClick={() => {
+          x.value = withLoop(withTiming(500), 3);
+        }}
+      >
+        LOOP
+      </button>
+
+      <button
+        onClick={() => {
+          x.value = withLoop(withSequence([withTiming(500), withTiming(0)]), 3);
+        }}
+      >
+        LOOP WITH SEQUENCE
       </button>
 
       <animate.div

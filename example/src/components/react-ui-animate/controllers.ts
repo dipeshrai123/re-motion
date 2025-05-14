@@ -80,3 +80,14 @@ export const withDelay = (delay: number): DriverConfig => ({
     delay,
   },
 });
+
+export const withLoop = (
+  controller: DriverConfig,
+  iterations: number
+): DriverConfig => ({
+  type: 'loop',
+  options: {
+    controller,
+    iterations,
+  },
+});

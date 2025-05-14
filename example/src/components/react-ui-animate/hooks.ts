@@ -1,6 +1,7 @@
 import {
   decay,
   delay,
+  loop,
   MotionValue,
   sequence,
   spring,
@@ -31,12 +32,12 @@ export function useValue<V extends number | string>(initialValue: V) {
         const { type, to, options } = u;
         const { onChange, ...restOptions } = options;
 
+        if (onChange) {
+          unsubscribeRef.current = animation.subscribe(onChange);
+        }
+
         if (type === 'sequence') {
           const { steps } = restOptions;
-
-          if (onChange) {
-            unsubscribeRef.current = animation.subscribe(onChange);
-          }
 
           const controllers = steps.map((step) => {
             if (step.type === 'decay') {
@@ -65,11 +66,53 @@ export function useValue<V extends number | string>(initialValue: V) {
           return;
         }
 
-        if (previousTo.current === to) return;
+        if (type === 'loop') {
+          const { controller: innerCfg, iterations } = options;
 
-        if (onChange) {
-          unsubscribeRef.current = animation.subscribe(onChange);
+          const buildInner = (cfg: DriverConfig) => {
+            if (cfg.type === 'decay') {
+              return decay(
+                animation as MotionValue<number>,
+                cfg.options.velocity,
+                cfg.options
+              );
+            }
+
+            if (cfg.type === 'spring') {
+              return spring(
+                animation as MotionValue<number>,
+                cfg.to,
+                cfg.options
+              );
+            }
+
+            if (cfg.type === 'timing') {
+              return timing(
+                animation as MotionValue<number>,
+                cfg.to,
+                cfg.options
+              );
+            }
+
+            if (cfg.type === 'sequence') {
+              return sequence((cfg.options as any).steps.map(buildInner));
+            }
+
+            if (cfg.type === 'delay') {
+              return delay((cfg.options as any).ms);
+            }
+
+            throw new Error(`Unsupported driver type "${cfg.type}" in loop()`);
+          };
+
+          const innerCtrl = buildInner(innerCfg as DriverConfig);
+          const loopCtrl = loop(innerCtrl, iterations as number);
+          loopCtrl.start();
+
+          return;
         }
+
+        if (previousTo.current === to) return;
 
         if (type === 'spring') {
           spring(animation as MotionValue<number>, to, restOptions).start();
