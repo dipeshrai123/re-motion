@@ -6,10 +6,10 @@ class SequenceController implements AnimationController {
   private isCancelled = false;
   private current: AnimationController | null = null;
   private onAllDone?: () => void;
-  private originalCompletes: Array<(() => void) | undefined>;
+  private driverOnCompletes: Array<(() => void) | undefined>;
 
   constructor(private controllers: AnimationController[]) {
-    this.originalCompletes = controllers.map((ctrl) => {
+    this.driverOnCompletes = controllers.map((ctrl) => {
       return (ctrl as any)?.hooks?.onComplete;
     });
   }
@@ -26,7 +26,7 @@ class SequenceController implements AnimationController {
     }
 
     this.current = ctrl;
-    const orig = this.originalCompletes[i];
+    const orig = this.driverOnCompletes[i];
 
     ctrl.setOnComplete?.(() => {
       orig?.();
