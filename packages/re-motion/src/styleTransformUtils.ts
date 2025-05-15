@@ -14,7 +14,7 @@ export const transformKeys = [
   'skewX',
   'skewY',
   'perspective',
-];
+] as const;
 
 function splitCSSValueAndUnit(raw: string) {
   const numMatch = raw.match(/-?\d+(\.\d+)?/)?.[0] ?? '0';
@@ -47,7 +47,7 @@ function formatTransformFunction(key: string, raw: any) {
 }
 
 export function isTransformKey(key: string) {
-  return transformKeys.includes(key);
+  return transformKeys.includes(key as (typeof transformKeys)[number]);
 }
 
 export function applyTransformsStyle(
