@@ -18,6 +18,7 @@ class DecayController implements AnimationController {
 
   private isPaused = false;
   private isCancelled = false;
+  private pausedAt = 0;
 
   constructor(
     private mv: MotionValue<number>,
@@ -67,16 +68,19 @@ class DecayController implements AnimationController {
     if (this.isCancelled || this.isPaused) return;
 
     this.isPaused = true;
+    this.pausedAt = performance.now();
     cancelAnimationFrame(this.frameId);
     this.hooks.onPause?.();
   }
 
   resume() {
     if (this.isCancelled || !this.isPaused) return;
+    const now = performance.now();
+
+    this.startTime += now - this.pausedAt;
 
     this.isPaused = false;
     this.hooks.onResume?.();
-    this.startTime = performance.now() - (performance.now() - this.startTime);
     this.frameId = requestAnimationFrame(this.animate);
   }
 
