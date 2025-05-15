@@ -13,8 +13,10 @@ export default function Version5() {
 
   return (
     <>
-      <button onClick={() => timing(x, 400).start()}>Timing</button>
-      <button onClick={() => spring(x, 0).start()}>Spring</button>
+      <button onClick={() => spring(x, 400, { damping: 10 }).start()}>
+        Spring
+      </button>
+      <button onClick={() => timing(x, 0).start()}>Timing</button>
       <button onClick={() => decay(x, 1).start()}>Decay</button>
       <button
         onClick={() => sequence([timing(x, 100), spring(x, 200)]).start()}
@@ -27,12 +29,7 @@ export default function Version5() {
           width: 100,
           height: 100,
           backgroundColor: 'teal',
-          // translateX: x,
-          transform: x.to(
-            [0, 200, 400],
-            ['translateY(0px)', 'translateY(200px)', 'translateY(0px)']
-          ),
-          // translateX: x,
+          translateX: x.to([0, 100], [0, 100], { extrapolate: 'clamp' }),
         }}
       />
     </>

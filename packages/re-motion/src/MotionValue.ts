@@ -3,11 +3,19 @@ import { isCssColorLiteral, parseCssColor } from './colorsUtils';
 
 type Subscriber<T> = (v: T) => void;
 
+type ExtrapolateType = 'identity' | 'extend' | 'clamp';
+
+interface ExtrapolateConfig {
+  extrapolate?: ExtrapolateType;
+  extrapolateRight?: ExtrapolateType;
+  extrapolateLeft?: ExtrapolateType;
+}
+
 function interpolate(
   input: MotionValue<number>,
   inRange: number[],
   outRange: (number | string)[],
-  easing: (t: number) => number = (t) => t
+  config?: ExtrapolateConfig
 ): MotionValue<number | string> {
   const len = inRange.length;
   if (len < 2 || outRange.length !== len) {
@@ -16,7 +24,19 @@ function interpolate(
     );
   }
 
-  const mapValue = (t: number): number | string => {
+  const extrapolateLeft: ExtrapolateType =
+    config?.extrapolateLeft ?? config?.extrapolate ?? 'extend';
+  const extrapolateRight: ExtrapolateType =
+    config?.extrapolateRight ?? config?.extrapolate ?? 'extend';
+
+  const mapValue = (tRaw: number): number | string => {
+    let t = tRaw;
+    if (tRaw < inRange[0] && extrapolateLeft === 'clamp') {
+      t = inRange[0];
+    } else if (tRaw > inRange[len - 1] && extrapolateRight === 'clamp') {
+      t = inRange[len - 1];
+    }
+
     let i = 0;
     if (t <= inRange[0]) {
       i = 0;
@@ -34,7 +54,6 @@ function interpolate(
     const t0 = inRange[i];
     const t1 = inRange[i + 1];
     let p = (t - t0) / (t1 - t0);
-    p = easing(p);
 
     const fromOut = outRange[i];
     const toOut = outRange[i + 1];
@@ -187,7 +206,7 @@ export class MotionValue<T = number> {
   to(
     inRange: number[],
     outRange: (number | string)[],
-    easing?: (t: number) => number
+    config?: ExtrapolateConfig
   ): MotionValue<number | string>;
   to(arg1: any, arg2?: any, arg3?: any): MotionValue<any> {
     if (typeof arg1 === 'function') {
@@ -199,8 +218,8 @@ export class MotionValue<T = number> {
 
     const inRange = arg1 as number[];
     const outRange = arg2 as (number | string)[];
-    const easing = (arg3 as (t: number) => number) || ((t: number) => t);
-    return interpolate(this as MotionValue<number>, inRange, outRange, easing);
+    const config = arg3 as ExtrapolateConfig | undefined;
+    return interpolate(this as MotionValue<number>, inRange, outRange, config);
   }
 
   setAnimationController(ctrl: AnimationController) {
