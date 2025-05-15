@@ -5,15 +5,15 @@ class LoopController implements AnimationController {
   private isCancelled = false;
   private isPaused = false;
   private onAllDone?: () => void;
+  private driverOnComplete?: () => void | undefined;
 
-  constructor(
-    private driver: AnimationController,
-    private iterations: number
-  ) {}
+  constructor(private driver: AnimationController, private iterations: number) {
+    this.driverOnComplete = (driver as any)?.hooks?.onComplete;
+  }
 
   private handleIterationComplete = () => {
     this.count++;
-
+    this.driverOnComplete?.();
     if (this.count < this.iterations) {
       this.driver.reset?.();
       this.runOne();

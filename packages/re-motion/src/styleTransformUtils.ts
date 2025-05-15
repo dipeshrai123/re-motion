@@ -63,6 +63,8 @@ export function applyTransformsStyle(
       }
     }
 
+    if (parts.length === 0) return;
+
     node.style.transform = parts.join(' ');
   };
 

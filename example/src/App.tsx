@@ -1,6 +1,6 @@
 import { useLayoutEffect } from 'react';
 
-import Example from './components/Interrupted';
+import Example from './components/Main';
 
 const App = () => {
   useDark();
