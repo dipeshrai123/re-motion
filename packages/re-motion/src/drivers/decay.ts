@@ -32,12 +32,11 @@ class DecayController implements AnimationController {
   }
 
   start() {
-    this.isPaused = false;
-    this.isCancelled = false;
-
     this.hooks.onStart?.();
     this.mv.setAnimationController(this);
 
+    this.isPaused = false;
+    this.isCancelled = false;
     this.from = this.mv.current;
     this.startTime = performance.now();
 
