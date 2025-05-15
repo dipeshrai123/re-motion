@@ -36,7 +36,7 @@ export default function Version5() {
   });
 
   const decayX = useMotionValue(0);
-  const decayMove = decay(decayX, 20, {
+  const decayMove = decay(decayX, 1, {
     onStart: () => console.log('DECAY ONLY START'),
     onPause: () => console.log('DECAY ONLY PAUSE'),
     onResume: () => console.log('DECAY ONLY RESUME'),
@@ -47,7 +47,14 @@ export default function Version5() {
   const sequenceMove = sequence([
     spring(sequenceX, 300),
     timing(sequenceX, 200),
-    decay(sequenceX, 20),
+    decay(sequenceX, 1, {
+      onStart: () => {
+        console.log('DECAY START');
+      },
+      onComplete: () => {
+        console.log('COMPELTE');
+      },
+    }),
   ]);
 
   const loopX = useMotionValue(0);

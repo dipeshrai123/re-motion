@@ -67,8 +67,13 @@ export default function Example() {
         onClick={() => {
           x.value = withSequence([
             withTiming(100),
-            withDelay(2000),
+            withDelay(1000),
             withSpring(400),
+            withTiming(0, {
+              onRest() {
+                console.log('called');
+              },
+            }),
           ]);
         }}
       >

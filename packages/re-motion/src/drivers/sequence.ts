@@ -6,18 +6,33 @@ class SequenceController implements AnimationController {
   private isCancelled = false;
   private current: AnimationController | null = null;
   private onAllDone?: () => void;
+  private originalCompletes: Array<(() => void) | undefined>;
 
-  constructor(private controllers: AnimationController[]) {}
+  constructor(private controllers: AnimationController[]) {
+    this.originalCompletes = controllers.map((ctrl) => {
+      return (ctrl as any)?.hooks?.onComplete;
+    });
+  }
 
   private runNext() {
     if (this.isCancelled || this.isPaused) return;
-    const ctrl = this.controllers[this.idx++];
+
+    const i = this.idx++;
+    const ctrl = this.controllers[i];
+
     if (!ctrl) {
       this.onAllDone?.();
       return;
     }
+
     this.current = ctrl;
-    ctrl.setOnComplete?.(() => this.runNext());
+    const orig = this.originalCompletes[i];
+
+    ctrl.setOnComplete?.(() => {
+      orig?.();
+      this.runNext();
+    });
+
     ctrl.start();
   }
 
