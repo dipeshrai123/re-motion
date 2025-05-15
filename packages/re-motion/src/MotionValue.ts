@@ -110,6 +110,29 @@ function interpolate(
   const [inMin, inMax] = inRange;
   const [fromOut, toOut] = outRange;
 
+  const fromStr = String(fromOut);
+  const toStr = String(toOut);
+  const funcRegex = /^([a-zA-Z$_][\w$]*)\(([-+]?\d*\.?\d+)([a-zA-Z%]*)\)$/;
+  const f1 = fromStr.match(funcRegex);
+  const f2 = toStr.match(funcRegex);
+
+  if (f1 && f2 && f1[1] === f2[1] && f1[3] === f2[3]) {
+    const funcName = f1[1];
+    const fromN = parseFloat(f1[2]);
+    const toN = parseFloat(f2[2]);
+    const unit = f1[3];
+    const mapFn = (t: number) => {
+      let p = (t - inMin) / (inMax - inMin);
+      p = easing(p);
+      const val = fromN + (toN - fromN) * p;
+      return `${funcName}(${val.toFixed(3)}${unit})`;
+    };
+
+    const out = new MotionValue<string>(mapFn(input.current));
+    input.subscribe((t) => out.set(mapFn(t)));
+    return out;
+  }
+
   if (typeof fromOut === 'number' && typeof toOut === 'number') {
     const mapNum = (t: number) => {
       let p = (t - inMin) / (inMax - inMin);
@@ -121,9 +144,6 @@ function interpolate(
     input.subscribe((t) => out.set(mapNum(t)));
     return out;
   }
-
-  const fromStr = String(fromOut);
-  const toStr = String(toOut);
 
   if (isCssColorLiteral(fromStr) && isCssColorLiteral(toStr)) {
     const c1 = parseCssColor(fromStr);

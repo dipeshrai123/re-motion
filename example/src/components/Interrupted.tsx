@@ -27,7 +27,10 @@ export default function Version5() {
           width: 100,
           height: 100,
           backgroundColor: 'teal',
+          // translateX: x,
+          transform: x.to([0, 100], ['translateY(0px)', 'translateY(100px)']),
           translateX: x,
+          rotate: x.to([0, 100], ['0deg', '360deg']),
         }}
       />
     </>
