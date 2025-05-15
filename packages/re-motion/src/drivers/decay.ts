@@ -54,7 +54,7 @@ class DecayController implements AnimationController {
     const next =
       this.from + (this.originalVelocity / k) * (1 - Math.exp(-k * t));
 
-    this.mv.internalSet(next);
+    this.mv._internalSet(next);
 
     if (Math.abs(vNow) > 0.1) {
       this.frameId = requestAnimationFrame(this.animate);

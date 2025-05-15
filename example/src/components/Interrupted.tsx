@@ -28,9 +28,11 @@ export default function Version5() {
           height: 100,
           backgroundColor: 'teal',
           // translateX: x,
-          transform: x.to([0, 100], ['translateY(0px)', 'translateY(100px)']),
-          translateX: x,
-          rotate: x.to([0, 100], ['0deg', '360deg']),
+          transform: x.to(
+            [0, 200, 400],
+            ['translateY(0px)', 'translateY(200px)', 'translateY(0px)']
+          ),
+          // translateX: x,
         }}
       />
     </>

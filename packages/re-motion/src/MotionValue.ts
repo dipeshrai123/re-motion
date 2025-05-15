@@ -21,16 +21,13 @@ export class MotionValue<T = number> {
   set(v: T): void {
     this.currentController?.cancel();
     this.currentController = undefined;
-
-    if (v === this._current) return;
-    this._current = v;
-    for (const sub of this.subs) sub(v);
+    this._internalSet(v);
   }
 
   /**
    * @internal only use internally
    */
-  internalSet(v: T): void {
+  _internalSet(v: T): void {
     if (v === this._current) return;
     this._current = v;
     for (const sub of this.subs) sub(v);
@@ -54,19 +51,12 @@ export class MotionValue<T = number> {
     this.currentController = undefined;
   }
 
-  to(
-    inRange: [number, number],
-    outRange: [number, number],
-    easing?: (t: number) => number
-  ): MotionValue<number>;
-
-  to(
-    inRange: [number, number],
-    outRange: [string, string],
-    easing?: (t: number) => number
-  ): MotionValue<string>;
   to<U>(mapperFn: (v: T) => U): MotionValue<U>;
-
+  to(
+    inRange: number[],
+    outRange: (number | string)[],
+    easing?: (t: number) => number
+  ): MotionValue<number | string>;
   to(arg1: any, arg2?: any, arg3?: any): MotionValue<any> {
     if (typeof arg1 === 'function') {
       const mapFn = arg1 as (v: T) => any;
@@ -75,10 +65,10 @@ export class MotionValue<T = number> {
       return out;
     }
 
-    const inRange = arg1 as [number, number];
-    const outRange = arg2;
-    const easing = arg3 as ((t: number) => number) | undefined;
-    return interpolate(this as any, inRange, outRange, easing);
+    const inRange = arg1 as number[];
+    const outRange = arg2 as (number | string)[];
+    const easing = (arg3 as (t: number) => number) || ((t: number) => t);
+    return interpolate(this as MotionValue<number>, inRange, outRange, easing);
   }
 
   setAnimationController(ctrl: AnimationController) {
@@ -89,133 +79,108 @@ export class MotionValue<T = number> {
 
 function interpolate(
   input: MotionValue<number>,
-  inRange: [number, number],
-  outRange: [number, number],
-  easing?: (t: number) => number
-): MotionValue<number>;
-
-function interpolate(
-  input: MotionValue<number>,
-  inRange: [number, number],
-  outRange: [string, string],
-  easing?: (t: number) => number
-): MotionValue<string>;
-
-function interpolate(
-  input: MotionValue<number>,
-  inRange: [number, number],
-  outRange: [number | string, number | string],
+  inRange: number[],
+  outRange: (number | string)[],
   easing: (t: number) => number = (t) => t
 ): MotionValue<number | string> {
-  const [inMin, inMax] = inRange;
-  const [fromOut, toOut] = outRange;
-
-  const fromStr = String(fromOut);
-  const toStr = String(toOut);
-  const funcRegex = /^([a-zA-Z$_][\w$]*)\(([-+]?\d*\.?\d+)([a-zA-Z%]*)\)$/;
-  const f1 = fromStr.match(funcRegex);
-  const f2 = toStr.match(funcRegex);
-
-  if (f1 && f2 && f1[1] === f2[1] && f1[3] === f2[3]) {
-    const funcName = f1[1];
-    const fromN = parseFloat(f1[2]);
-    const toN = parseFloat(f2[2]);
-    const unit = f1[3];
-    const mapFn = (t: number) => {
-      let p = (t - inMin) / (inMax - inMin);
-      p = easing(p);
-      const val = fromN + (toN - fromN) * p;
-      return `${funcName}(${val.toFixed(3)}${unit})`;
-    };
-
-    const out = new MotionValue<string>(mapFn(input.current));
-    input.subscribe((t) => out.set(mapFn(t)));
-    return out;
+  const len = inRange.length;
+  if (len < 2 || outRange.length !== len) {
+    throw new Error(
+      'interpolate: inRange and outRange must be arrays of the same length >= 2'
+    );
   }
 
-  if (typeof fromOut === 'number' && typeof toOut === 'number') {
-    const mapNum = (t: number) => {
-      let p = (t - inMin) / (inMax - inMin);
-      p = easing(p);
-      return fromOut + (toOut - fromOut) * p;
-    };
+  const mapValue = (t: number): number | string => {
+    let i = 0;
+    if (t <= inRange[0]) {
+      i = 0;
+    } else if (t >= inRange[len - 1]) {
+      i = len - 2;
+    } else {
+      for (let j = 0; j < len - 1; j++) {
+        if (t >= inRange[j] && t <= inRange[j + 1]) {
+          i = j;
+          break;
+        }
+      }
+    }
 
-    const out = new MotionValue<number>(mapNum(input.current));
-    input.subscribe((t) => out.set(mapNum(t)));
-    return out;
+    const t0 = inRange[i];
+    const t1 = inRange[i + 1];
+    let p = (t - t0) / (t1 - t0);
+    p = easing(p);
+
+    const fromOut = outRange[i];
+    const toOut = outRange[i + 1];
+
+    if (typeof fromOut === 'number' && typeof toOut === 'number') {
+      return fromOut + (toOut - fromOut) * p;
+    }
+
+    return interpolateString(String(fromOut), String(toOut), p);
+  };
+
+  const out = new MotionValue(mapValue(input.current));
+  input.subscribe((t) => out.set(mapValue(t)));
+  return out;
+}
+
+function interpolateString(fromStr: string, toStr: string, p: number): string {
+  const funcRegex = /^([a-zA-Z$_][\w$]*)\((-?\d*\.?\d+)([a-zA-Z%]*)\)$/;
+  const m1 = fromStr.match(funcRegex);
+  const m2 = toStr.match(funcRegex);
+  if (m1 && m2 && m1[1] === m2[1] && m1[3] === m2[3]) {
+    const name = m1[1];
+    const fromN = parseFloat(m1[2]);
+    const toN = parseFloat(m2[2]);
+    const unit = m1[3];
+    const val = fromN + (toN - fromN) * p;
+    return `${name}(${val.toFixed(3)}${unit})`;
   }
 
   if (isCssColorLiteral(fromStr) && isCssColorLiteral(toStr)) {
     const c1 = parseCssColor(fromStr);
     const c2 = parseCssColor(toStr);
-    const mapColor = (t: number) => {
-      let p = (t - inMin) / (inMax - inMin);
-      p = easing(p);
-      const [r1, g1, b1, a1] = c1;
-      const [r2, g2, b2, a2] = c2;
-      const R = Math.round(r1 + (r2 - r1) * p);
-      const G = Math.round(g1 + (g2 - g1) * p);
-      const B = Math.round(b1 + (b2 - b1) * p);
-      const A = a1 + (a2 - a1) * p;
-      return A < 1
-        ? `rgba(${R},${G},${B},${A.toFixed(3)})`
-        : `rgb(${R},${G},${B})`;
-    };
-
-    const out = new MotionValue<string>(mapColor(input.current));
-    input.subscribe((t) => out.set(mapColor(t)));
-
-    return out;
+    const [r1, g1, b1, a1] = c1;
+    const [r2, g2, b2, a2] = c2;
+    const R = Math.round(r1 + (r2 - r1) * p);
+    const G = Math.round(g1 + (g2 - g1) * p);
+    const B = Math.round(b1 + (b2 - b1) * p);
+    const A = a1 + (a2 - a1) * p;
+    return A < 1
+      ? `rgba(${R},${G},${B},${A.toFixed(3)})`
+      : `rgb(${R},${G},${B})`;
   }
 
   const fromParts = fromStr.split(/(\s+)/);
   const toParts = toStr.split(/(\s+)/);
-
   if (fromParts.length !== toParts.length) {
     throw new Error(
       `interpolate: template mismatch:\n  "${fromStr}"\n  vs "${toStr}"`
     );
   }
-
-  type PartMapper = (t: number) => string;
   const numUnitRE = /^(-?\d+(\.\d+)?)([a-zA-Z%]*)$/;
-
-  const mappers: PartMapper[] = fromParts.map((fp, i) => {
+  const mappers = fromParts.map((fp, i) => {
     const tp = toParts[i];
 
     if (fp === tp && /\s+/.test(fp)) return () => fp;
 
-    const m1 = fp.match(numUnitRE);
-    const m2 = tp.match(numUnitRE);
+    const n1 = fp.match(numUnitRE);
+    const n2 = tp.match(numUnitRE);
 
-    if (m1 && m2 && m1[3] === m2[3]) {
-      const fromN = parseFloat(m1[1]);
-      const toN = parseFloat(m2[1]);
-      const unit = m1[3];
-      return (t: number) => {
-        let p = (t - inMin) / (inMax - inMin);
-        p = easing(p);
+    if (n1 && n2 && n1[3] === n2[3]) {
+      const fromN = parseFloat(n1[1]);
+      const toN = parseFloat(n2[1]);
+      const unit = n1[3];
+
+      return () => {
         const val = fromN + (toN - fromN) * p;
         return `${val.toFixed(3)}${unit}`;
       };
     }
 
     if (isCssColorLiteral(fp) && isCssColorLiteral(tp)) {
-      const c1 = parseCssColor(fp);
-      const c2 = parseCssColor(tp);
-      return (t: number) => {
-        let p = (t - inMin) / (inMax - inMin);
-        p = easing(p);
-        const [r1, g1, b1, a1] = c1;
-        const [r2, g2, b2, a2] = c2;
-        const R = Math.round(r1 + (r2 - r1) * p);
-        const G = Math.round(g1 + (g2 - g1) * p);
-        const B = Math.round(b1 + (b2 - b1) * p);
-        const A = a1 + (a2 - a1) * p;
-        return A < 1
-          ? `rgba(${R},${G},${B},${A.toFixed(3)})`
-          : `rgb(${R},${G},${B})`;
-      };
+      return () => interpolateString(fp, tp, p);
     }
 
     if (fp === tp) return () => fp;
@@ -224,11 +189,7 @@ function interpolate(
       `interpolate: cannot interpolate tokens "${fp}" vs "${tp}"`
     );
   });
-
-  const mapper = (t: number) => mappers.map((fn) => fn(t)).join('');
-  const out = new MotionValue<string>(mapper(input.current));
-  input.subscribe((t) => out.set(mapper(t)));
-  return out;
+  return mappers.map((fn) => fn()).join('');
 }
 
 export function combine<T extends any[], U>(
