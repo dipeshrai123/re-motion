@@ -3,6 +3,7 @@ import { AnimationController } from './AnimationController';
 
 interface DecayOpts {
   decay?: number;
+  clamp?: [number, number];
   onStart?(): void;
   onPause?(): void;
   onResume?(): void;
@@ -19,6 +20,7 @@ class DecayController implements AnimationController {
   private isPaused = false;
   private isCancelled = false;
   private pausedAt = 0;
+  private clampBounds?: [number, number];
 
   constructor(
     private mv: MotionValue<number>,
@@ -29,15 +31,15 @@ class DecayController implements AnimationController {
     this.originalVelocity = initialVelocity;
     this.decayFactor = decayFactor;
     this.from = mv.current;
+    this.clampBounds = hooks?.clamp;
   }
 
   start() {
-    this.isPaused = false;
-    this.isCancelled = false;
-
     this.hooks.onStart?.();
     this.mv.setAnimationController(this);
 
+    this.isPaused = false;
+    this.isCancelled = false;
     this.from = this.mv.current;
     this.startTime = performance.now();
 
@@ -52,14 +54,24 @@ class DecayController implements AnimationController {
 
     const vNow = this.originalVelocity * Math.exp(-k * t);
 
-    const next =
-      this.from + (this.originalVelocity / k) * (1 - Math.exp(-k * t));
+    let next = this.from + (this.originalVelocity / k) * (1 - Math.exp(-k * t));
+
+    if (this.clampBounds) {
+      const [min, max] = this.clampBounds;
+
+      if (next < min) {
+        next = min;
+      } else if (next > max) {
+        next = max;
+      }
+    }
 
     this.mv._internalSet(next);
 
     if (Math.abs(vNow) > 0.1) {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
+      cancelAnimationFrame(this.frameId);
       this.hooks.onComplete?.();
     }
   };
@@ -95,8 +107,6 @@ class DecayController implements AnimationController {
     this.mv.reset();
     this.startTime = 0;
   }
-
-  reverse() {}
 
   setOnComplete(fn: () => void): void {
     this.hooks.onComplete = fn;

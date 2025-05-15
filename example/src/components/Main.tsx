@@ -41,6 +41,7 @@ export default function Version5() {
     onPause: () => console.log('DECAY ONLY PAUSE'),
     onResume: () => console.log('DECAY ONLY RESUME'),
     onComplete: () => console.log('DECAY ONLY COMPLETE'),
+    clamp: [0, 400],
   });
 
   const sequenceX = useMotionValue(0);
