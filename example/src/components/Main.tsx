@@ -27,7 +27,7 @@ export default function Version5() {
 
   const springX = useMotionValue(0);
   const springMove = spring(springX, 500, {
-    damping: 8,
+    damping: 30,
     stiffness: 200,
     onStart: () => console.log('SPRING ONLY START'),
     onPause: () => console.log('SPRING ONLY PAUSE'),
