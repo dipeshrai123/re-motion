@@ -30,27 +30,27 @@ class SpringController implements AnimationController {
     private damping: number,
     private mass: number,
     private hooks: SpringOpts
-  ) {
-    const prev = mv.getAnimationController();
+  ) {}
+
+  start() {
+    const prev = this.mv.getAnimationController();
+
     if (prev instanceof SpringController) {
       this.position = prev.position;
       this.velocity = prev.velocity;
       this.startTime = prev.startTime;
     } else {
-      this.position = this.startPosition = mv.current;
+      this.position = this.startPosition = this.mv.current;
       this.velocity = 0;
       this.startTime = Date.now();
     }
-  }
 
-  start() {
     this.hooks.onStart?.();
     this.mv.setAnimationController(this);
 
     this.isPaused = false;
     this.isCancelled = false;
 
-    this.startTime = Date.now();
     this.frameId = requestAnimationFrame(this.animate);
   }
 
