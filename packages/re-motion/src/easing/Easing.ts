@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import { bezier as _bezier } from "./Bezier";
+import { bezier as _bezier } from './Bezier';
 
 /**
  * This class implements common easing functions. The math is pretty obscure,

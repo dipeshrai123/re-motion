@@ -1,11 +1,11 @@
 import { useLayoutEffect } from 'react';
 
-import Callbacks from './Callbacks';
+import Example from './components/Drag';
 
 const App = () => {
   useDark();
 
-  return <Callbacks />;
+  return <Example />;
 };
 
 function useDark() {
@@ -14,6 +14,7 @@ function useDark() {
 
     if (isDark) {
       document.body.style.backgroundColor = '#333';
+      document.body.style.color = '#fff';
     }
   }, []);
 }
