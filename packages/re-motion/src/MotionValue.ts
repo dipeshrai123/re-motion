@@ -226,4 +226,8 @@ export class MotionValue<T = number> {
     this.currentController?.cancel();
     this.currentController = ctrl;
   }
+
+  getAnimationController() {
+    return this.currentController;
+  }
 }

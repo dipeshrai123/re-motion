@@ -12,7 +12,7 @@ interface DecayOpts {
 
 class DecayController implements AnimationController {
   private originalVelocity: number;
-  private decayFactor: number; // per-millisecond decay
+  private decayFactor: number;
   private startTime: number = 0;
   private from: number = 0;
   private frameId!: number;
