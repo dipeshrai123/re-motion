@@ -11,11 +11,10 @@ interface DecayOpts {
 }
 
 class DecayController implements AnimationController {
-  private originalVelocity: number;
-  private decayFactor: number;
-  private startTime: number = 0;
-  private from: number = 0;
-  private frameId!: number;
+  private startTime: number;
+  private from: number;
+  private frameId: number;
+  private position: number;
 
   private isPaused = false;
   private isCancelled = false;
@@ -24,23 +23,28 @@ class DecayController implements AnimationController {
 
   constructor(
     private mv: MotionValue<number>,
-    initialVelocity: number,
-    decayFactor: number,
+    private velocity: number,
+    private deceleration: number,
     private hooks: DecayOpts
   ) {
-    this.originalVelocity = initialVelocity;
-    this.decayFactor = decayFactor;
-    this.from = mv.current;
-    this.clampBounds = hooks?.clamp;
+    this.clampBounds = hooks.clamp;
   }
 
   start() {
+    const prev = this.mv.getAnimationController();
+
+    if (prev instanceof DecayController) {
+      this.velocity = prev.velocity;
+      this.deceleration = prev.deceleration;
+    }
+
     this.hooks.onStart?.();
     this.mv.setAnimationController(this);
 
     this.isPaused = false;
     this.isCancelled = false;
-    this.from = this.mv.current;
+
+    this.from = this.position = this.mv.current;
     this.startTime = performance.now();
 
     this.frameId = requestAnimationFrame(this.animate);
@@ -50,23 +54,23 @@ class DecayController implements AnimationController {
     if (this.isCancelled || this.isPaused) return;
 
     const t = now - this.startTime;
-    const k = 1 - this.decayFactor;
+    const k = 1 - this.deceleration;
 
-    const vNow = this.originalVelocity * Math.exp(-k * t);
+    const vNow = this.velocity * Math.exp(-k * t);
 
-    let next = this.from + (this.originalVelocity / k) * (1 - Math.exp(-k * t));
+    this.position = this.from + (this.velocity / k) * (1 - Math.exp(-k * t));
 
     if (this.clampBounds) {
       const [min, max] = this.clampBounds;
 
-      if (next < min) {
-        next = min;
-      } else if (next > max) {
-        next = max;
+      if (this.position < min) {
+        this.position = min;
+      } else if (this.position > max) {
+        this.position = max;
       }
     }
 
-    this.mv._internalSet(next);
+    this.mv._internalSet(this.position);
 
     if (Math.abs(vNow) > 0.1) {
       this.frameId = requestAnimationFrame(this.animate);
