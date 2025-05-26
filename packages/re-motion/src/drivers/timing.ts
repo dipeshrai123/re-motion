@@ -12,9 +12,9 @@ interface TimingOpts {
 }
 
 class TimingController implements AnimationController {
-  private startTime!: number;
-  private frameId!: number;
-  private from!: number;
+  private startTime: number;
+  private frameId: number;
+  private from: number;
   private position: number;
 
   private isPaused = false;
