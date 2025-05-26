@@ -15,6 +15,7 @@ class TimingController implements AnimationController {
   private startTime!: number;
   private frameId!: number;
   private from!: number;
+  private position: number;
 
   private isPaused = false;
   private isCancelled = false;
@@ -30,13 +31,26 @@ class TimingController implements AnimationController {
   ) {}
 
   start() {
+    const prev = this.mv.getAnimationController();
+
+    if (
+      prev instanceof TimingController &&
+      !prev.isCancelled &&
+      prev.to === this.to &&
+      prev.startTime
+    ) {
+      this.from = prev.from;
+      this.startTime = prev.startTime;
+    } else {
+      this.from = this.position = this.mv.current;
+      this.startTime = performance.now();
+    }
+
     this.hooks.onStart?.();
     this.mv.setAnimationController(this);
 
     this.isPaused = false;
     this.isCancelled = false;
-    this.from = this.mv.current;
-    this.startTime = performance.now();
     this.pausedAt = null;
     this.elapsedBeforePause = 0;
 
@@ -48,12 +62,16 @@ class TimingController implements AnimationController {
 
     const elapsed = this.elapsedBeforePause + (ts - this.startTime);
     const t = Math.min(1, elapsed / this.duration);
-    this.mv._internalSet(this.from + (this.to - this.from) * this.easing(t));
+    this.position = this.from + (this.to - this.from) * this.easing(t);
+    this.mv._internalSet(this.position);
 
     if (t < 1) {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
-      this.mv._internalSet(this.to);
+      this.startTime = 0;
+      this.position = this.to;
+
+      this.mv._internalSet(this.position);
       this.hooks.onComplete?.();
     }
   };
@@ -64,6 +82,8 @@ class TimingController implements AnimationController {
     this.isPaused = true;
     this.pausedAt = performance.now();
     this.elapsedBeforePause += this.pausedAt - this.startTime;
+    this.startTime = 0;
+
     cancelAnimationFrame(this.frameId);
     this.hooks.onPause?.();
   }
