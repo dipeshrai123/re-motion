@@ -9,6 +9,7 @@ interface ExtrapolateConfig {
   extrapolate?: ExtrapolateType;
   extrapolateRight?: ExtrapolateType;
   extrapolateLeft?: ExtrapolateType;
+  easing?: (t: number) => number;
 }
 
 function interpolate(
@@ -54,6 +55,8 @@ function interpolate(
     const t0 = inRange[i];
     const t1 = inRange[i + 1];
     let p = (t - t0) / (t1 - t0);
+
+    if (config?.easing) p = config.easing(p);
 
     const fromOut = outRange[i];
     const toOut = outRange[i + 1];
