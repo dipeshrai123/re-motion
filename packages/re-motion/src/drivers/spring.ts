@@ -1,5 +1,6 @@
 import { MotionValue } from '../MotionValue';
 import { AnimationController } from './AnimationController';
+import { createInterpolatedDriver } from './createInterpolatedDriver';
 
 interface SpringOpts {
   stiffness?: number;
@@ -160,11 +161,12 @@ class SpringController implements AnimationController {
 }
 
 export function spring(
-  mv: MotionValue<number>,
-  to: number,
+  mv: MotionValue<number | string>,
+  to: number | string,
   opts: SpringOpts = {}
-): SpringController {
-  const { stiffness = 170, damping = 26, mass = 1, ...hooks } = opts;
-  const ctl = new SpringController(mv, to, stiffness, damping, mass, hooks);
-  return ctl;
+): AnimationController {
+  return createInterpolatedDriver(mv, to, opts, (m, t, o) => {
+    const { stiffness = 170, damping = 26, mass = 1, ...hooks } = o;
+    return new SpringController(m, t, stiffness, damping, mass, hooks);
+  });
 }
