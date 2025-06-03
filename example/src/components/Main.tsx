@@ -1,5 +1,5 @@
 import {
-  useMotionValue,
+  MotionValue,
   spring,
   timing,
   motion,
@@ -9,14 +9,14 @@ import {
   loop,
   delay,
 } from '@raidipesh78/re-motion';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 export default function Version5() {
   const [, setRe] = useState(0);
   // const position = useMotionValue<'relative' | 'absolute'>('relative');
   // const obj = useMotionValue({ x: 10 });
 
-  const timingX = useMotionValue(0);
+  const timingX = useRef(new MotionValue(0)).current;
   const timingMove = timing(timingX, 500, {
     duration: 5000,
     onStart: () => console.log('TIMING ONLY START'),
@@ -25,7 +25,7 @@ export default function Version5() {
     onComplete: () => console.log('TIMING ONLY COMPLETE'),
   });
 
-  const springX = useMotionValue(0);
+  const springX = useRef(new MotionValue(0)).current;
   const springMove = spring(springX, 500, {
     damping: 30,
     stiffness: 200,
@@ -35,7 +35,7 @@ export default function Version5() {
     onComplete: () => console.log('SPRING ONLY COMPLETE'),
   });
 
-  const decayX = useMotionValue(0);
+  const decayX = useRef(new MotionValue(0)).current;
   const decayMove = decay(decayX, 1, {
     onStart: () => console.log('DECAY ONLY START'),
     onPause: () => console.log('DECAY ONLY PAUSE'),
@@ -44,7 +44,7 @@ export default function Version5() {
     clamp: [0, 400],
   });
 
-  const sequenceX = useMotionValue(0);
+  const sequenceX = useRef(new MotionValue(0)).current;
   const sequenceMove = sequence([
     spring(sequenceX, 300),
     timing(sequenceX, 200),
@@ -58,19 +58,19 @@ export default function Version5() {
     }),
   ]);
 
-  const loopX = useMotionValue(0);
+  const loopX = useRef(new MotionValue(0)).current;
   const loopMove = loop(
     timing(loopX, 500, { duration: 1000, onComplete: () => console.log('ok') }),
     5
   );
 
-  const loopSequenceX = useMotionValue(0);
+  const loopSequenceX = useRef(new MotionValue(0)).current;
   const loopSequenceMove = loop(
     sequence([timing(loopSequenceX, 200), timing(loopSequenceX, 0)]),
     5
   );
 
-  const sequenceLoopX = useMotionValue(0);
+  const sequenceLoopX = useRef(new MotionValue(0)).current;
   const sequenceLoopMove = sequence([
     loop(
       spring(sequenceLoopX, 200, {
