@@ -1,14 +1,15 @@
-import { useMotionValue, timing, motion } from '@raidipesh78/re-motion';
+import { Easing, motion, spring, MotionValue } from '@raidipesh78/re-motion';
+import { useRef } from 'react';
 
 export default function Example() {
-  const translateX = useMotionValue(0);
+  const translateX = useRef(new MotionValue(0)).current;
 
   return (
     <>
-      <button onClick={() => timing(translateX, 0).start()}>
+      <button onClick={() => spring(translateX, 0).start()}>
         Animate left
       </button>
-      <button onClick={() => timing(translateX, 300).start()}>
+      <button onClick={() => spring(translateX, 300).start()}>
         Animate right
       </button>
       <motion.div
@@ -16,7 +17,9 @@ export default function Example() {
           width: 100,
           height: 100,
           backgroundColor: 'red',
-          translateX: translateX,
+          translateX: translateX.to([0, 300], ['0px', '300px'], {
+            easing: Easing.bounce,
+          }),
         }}
       />
     </>
