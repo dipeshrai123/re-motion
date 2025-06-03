@@ -1,4 +1,4 @@
-import { useMotionValue, timing, motion } from '@raidipesh78/re-motion';
+import { useMotionValue, timing, motion, spring } from '@raidipesh78/re-motion';
 
 export default function Example() {
   const translateX = useMotionValue(0);
@@ -8,7 +8,7 @@ export default function Example() {
       <button onClick={() => timing(translateX, 0).start()}>
         Animate left
       </button>
-      <button onClick={() => timing(translateX, 300).start()}>
+      <button onClick={() => spring(translateX, 300).start()}>
         Animate right
       </button>
       <motion.div
