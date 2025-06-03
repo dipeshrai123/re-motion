@@ -1,6 +1,7 @@
 import { Easing } from '../easing/Easing';
 import { MotionValue } from '../MotionValue';
 import { AnimationController } from './AnimationController';
+import { createInterpolatedDriver } from './createInterpolatedDriver';
 
 interface TimingOpts {
   duration?: number;
@@ -116,11 +117,12 @@ class TimingController implements AnimationController {
 }
 
 export function timing(
-  mv: MotionValue<number>,
-  to: number,
+  mv: MotionValue<number | string>,
+  to: number | string,
   opts: TimingOpts = {}
-): TimingController {
-  const { duration = 300, easing = Easing.linear, ...hooks } = opts;
-  const ctl = new TimingController(mv, to, duration, easing, hooks);
-  return ctl;
+): AnimationController {
+  return createInterpolatedDriver(mv, to, opts, (m, t, o) => {
+    const { duration = 300, easing = Easing.linear, ...hooks } = o;
+    return new TimingController(m, t, duration, easing, hooks);
+  });
 }
