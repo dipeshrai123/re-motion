@@ -1,5 +1,5 @@
 import {
-  useMotionValue,
+  MotionValue,
   spring,
   timing,
   motion,
@@ -7,9 +7,10 @@ import {
   decay,
   loop,
 } from '@raidipesh78/re-motion';
+import { useRef } from 'react';
 
 export default function Version5() {
-  const x = useMotionValue(0);
+  const x = useRef(new MotionValue(0)).current;
 
   return (
     <>

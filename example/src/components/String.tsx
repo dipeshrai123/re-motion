@@ -1,7 +1,8 @@
-import { useMotionValue, spring, motion, timing } from '@raidipesh78/re-motion';
+import { MotionValue, spring, motion, timing } from '@raidipesh78/re-motion';
+import { useRef } from 'react';
 
 export default function Example() {
-  const b = useMotionValue('10px solid black');
+  const b = useRef(new MotionValue('10px solid black')).current;
 
   return (
     <>

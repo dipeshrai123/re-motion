@@ -1,7 +1,8 @@
-import { useMotionValue, Easing, motion, spring } from '@raidipesh78/re-motion';
+import { Easing, motion, spring, MotionValue } from '@raidipesh78/re-motion';
+import { useRef } from 'react';
 
 export default function Example() {
-  const translateX = useMotionValue(0);
+  const translateX = useRef(new MotionValue(0)).current;
 
   return (
     <>
