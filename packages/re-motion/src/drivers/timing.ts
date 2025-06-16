@@ -32,6 +32,12 @@ class TimingController implements AnimationController {
   ) {}
 
   start() {
+    if (this.duration <= 0) {
+      this.mv._internalSet(this.to);
+      this.hooks.onComplete?.();
+      return;
+    }
+
     const prev = this.mv.getAnimationController();
 
     if (
@@ -62,7 +68,11 @@ class TimingController implements AnimationController {
     if (this.isCancelled || this.isPaused) return;
 
     const elapsed = this.elapsedBeforePause + (ts - this.startTime);
-    const t = Math.min(1, elapsed / this.duration);
+
+    let rawT = elapsed / this.duration;
+    if (!Number.isFinite(rawT)) rawT = rawT === Infinity ? 1 : 0;
+    const t = Math.min(1, Math.max(0, rawT));
+
     this.position = this.from + (this.to - this.from) * this.easing(t);
     this.mv._internalSet(this.position);
 
