@@ -32,12 +32,6 @@ class TimingController implements AnimationController {
   ) {}
 
   start() {
-    if (this.duration <= 0) {
-      this.mv._internalSet(this.to);
-      this.hooks.onComplete?.();
-      return;
-    }
-
     const prev = this.mv.getAnimationController();
 
     if (
