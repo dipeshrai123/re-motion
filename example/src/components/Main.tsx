@@ -8,6 +8,7 @@ import {
   combine,
   loop,
   delay,
+  parallel,
 } from '@raidipesh78/re-motion';
 import { useState, useRef } from 'react';
 
@@ -45,18 +46,45 @@ export default function Version5() {
   });
 
   const sequenceX = useRef(new MotionValue(0)).current;
-  const sequenceMove = sequence([
-    spring(sequenceX, 300),
-    timing(sequenceX, 200),
-    decay(sequenceX, 1, {
-      onStart: () => {
-        console.log('DECAY START');
-      },
-      onComplete: () => {
-        console.log('COMPELTE');
-      },
-    }),
-  ]);
+  const sequenceMove = sequence(
+    [
+      spring(sequenceX, 300),
+      timing(sequenceX, 200),
+      decay(sequenceX, 1, {
+        onStart: () => {
+          console.log('DECAY START');
+        },
+        onComplete: () => {
+          console.log('COMPELTE');
+        },
+      }),
+    ],
+    {
+      onStart: () => console.log('SEQUENCE START'),
+      onPause: () => console.log('SEQUENCE PAUSE'),
+      onResume: () => console.log('SEQUENCE RESUME'),
+      onComplete: () => console.log('SEQUENCE COMPLETE'),
+    }
+  );
+
+  const parallelX = useRef(
+    Array.from({ length: 5 }).map(() => new MotionValue(0))
+  ).current;
+  const parallelMove = parallel(
+    [
+      timing(parallelX[0], 500, { duration: 1000 }),
+      spring(parallelX[1], 300, { damping: 20 }),
+      decay(parallelX[2], 1, { clamp: [0, 400] }),
+      timing(parallelX[3], 200, { duration: 500 }),
+      spring(parallelX[4], 400, { damping: 10 }),
+    ],
+    {
+      onStart: () => console.log('PARALLEL START'),
+      onPause: () => console.log('PARALLEL PAUSE'),
+      onResume: () => console.log('PARALLEL RESUME'),
+      onComplete: () => console.log('PARALLEL COMPLETE'),
+    }
+  );
 
   const loopX = useRef(new MotionValue(0)).current;
   const loopMove = loop(
@@ -220,6 +248,28 @@ export default function Version5() {
             translateX: sequenceX,
           }}
         />
+      </div>
+
+      <div>
+        <h4>Parallel</h4>
+        <button onClick={() => parallelMove.start()}>Start</button>
+        <button onClick={() => parallelMove.pause()}>Pause</button>
+        <button onClick={() => parallelMove.resume()}>Resume</button>
+        <button onClick={() => parallelMove.cancel()}>Cancel</button>
+        <button onClick={() => parallelMove.reset()}>Reset</button>
+
+        {parallelX.map((x, i) => (
+          <motion.div
+            key={i}
+            style={{
+              width: 50,
+              height: 50,
+              backgroundColor: `hsl(${i * 60}, 70%, 50%)`,
+              translateX: x,
+              marginBottom: 10,
+            }}
+          />
+        ))}
       </div>
 
       <div>

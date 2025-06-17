@@ -1,5 +1,12 @@
 import type { AnimationController } from './AnimationController';
 
+interface SequenceOpts {
+  onStart?(): void;
+  onPause?(): void;
+  onResume?(): void;
+  onComplete?(): void;
+}
+
 class SequenceController implements AnimationController {
   private idx = 0;
   private isPaused = false;
@@ -8,7 +15,10 @@ class SequenceController implements AnimationController {
   private onAllDone?: () => void;
   private driverOnCompletes: Array<(() => void) | undefined>;
 
-  constructor(private controllers: AnimationController[]) {
+  constructor(
+    private controllers: AnimationController[],
+    private hooks: SequenceOpts = {}
+  ) {
     this.driverOnCompletes = controllers.map((ctrl) => {
       return (ctrl as any)?.hooks?.onComplete;
     });
@@ -22,6 +32,7 @@ class SequenceController implements AnimationController {
 
     if (!ctrl) {
       this.onAllDone?.();
+      this.hooks.onComplete?.();
       return;
     }
 
@@ -40,6 +51,7 @@ class SequenceController implements AnimationController {
     this.idx = 0;
     this.isPaused = false;
     this.isCancelled = false;
+    this.hooks.onStart?.();
     this.runNext();
   }
 
@@ -47,12 +59,14 @@ class SequenceController implements AnimationController {
     if (this.isCancelled) return;
     this.isPaused = true;
     this.current?.pause();
+    this.hooks.onPause?.();
   }
 
   resume() {
     if (this.isCancelled || !this.isPaused) return;
     this.isPaused = false;
     this.current?.resume();
+    this.hooks.onResume?.();
   }
 
   cancel() {
@@ -73,7 +87,8 @@ class SequenceController implements AnimationController {
 }
 
 export function sequence(
-  controllers: AnimationController[]
+  controllers: AnimationController[],
+  opts: SequenceOpts = {}
 ): AnimationController {
-  return new SequenceController(controllers);
+  return new SequenceController(controllers, opts);
 }
