@@ -45,18 +45,26 @@ export default function Version5() {
   });
 
   const sequenceX = useRef(new MotionValue(0)).current;
-  const sequenceMove = sequence([
-    spring(sequenceX, 300),
-    timing(sequenceX, 200),
-    decay(sequenceX, 1, {
-      onStart: () => {
-        console.log('DECAY START');
-      },
-      onComplete: () => {
-        console.log('COMPELTE');
-      },
-    }),
-  ]);
+  const sequenceMove = sequence(
+    [
+      spring(sequenceX, 300),
+      timing(sequenceX, 200),
+      decay(sequenceX, 1, {
+        onStart: () => {
+          console.log('DECAY START');
+        },
+        onComplete: () => {
+          console.log('COMPELTE');
+        },
+      }),
+    ],
+    {
+      onStart: () => console.log('SEQUENCE START'),
+      onPause: () => console.log('SEQUENCE PAUSE'),
+      onResume: () => console.log('SEQUENCE RESUME'),
+      onComplete: () => console.log('SEQUENCE COMPLETE'),
+    }
+  );
 
   const loopX = useRef(new MotionValue(0)).current;
   const loopMove = loop(
