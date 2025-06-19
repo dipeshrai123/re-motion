@@ -87,10 +87,12 @@ export default function Version5() {
   );
 
   const loopX = useRef(new MotionValue(0)).current;
-  const loopMove = loop(
-    timing(loopX, 500, { duration: 1000, onComplete: () => console.log('ok') }),
-    5
-  );
+  const loopMove = loop(timing(loopX, 500, { duration: 1000 }), 5, {
+    onStart: () => console.log('LOOP START'),
+    onPause: () => console.log('LOOP PAUSE'),
+    onResume: () => console.log('LOOP RESUME'),
+    onComplete: () => console.log('LOOP COMPLETE'),
+  });
 
   const loopSequenceX = useRef(new MotionValue(0)).current;
   const loopSequenceMove = loop(
