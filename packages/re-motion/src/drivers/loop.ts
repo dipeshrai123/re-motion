@@ -1,5 +1,12 @@
 import type { AnimationController } from './AnimationController';
 
+interface LoopOpts {
+  onStart?(): void;
+  onPause?(): void;
+  onResume?(): void;
+  onComplete?(): void;
+}
+
 class LoopController implements AnimationController {
   private count = 0;
   private isCancelled = false;
@@ -7,7 +14,11 @@ class LoopController implements AnimationController {
   private onAllDone?: () => void;
   private driverOnComplete?: () => void | undefined;
 
-  constructor(private driver: AnimationController, private iterations: number) {
+  constructor(
+    private driver: AnimationController,
+    private iterations: number,
+    private hooks: LoopOpts = {}
+  ) {
     this.driverOnComplete = (driver as any)?.hooks?.onComplete;
   }
 
@@ -19,6 +30,7 @@ class LoopController implements AnimationController {
       this.runOne();
     } else {
       this.onAllDone?.();
+      this.hooks.onComplete?.();
     }
   };
 
@@ -34,18 +46,21 @@ class LoopController implements AnimationController {
     this.isPaused = false;
     this.count = 0;
     this.driver.reset();
+    this.hooks.onStart?.();
     this.runOne();
   }
 
   pause() {
     this.isPaused = true;
     this.driver.pause();
+    this.hooks.onPause?.();
   }
 
   resume() {
     if (this.isCancelled || !this.isPaused) return;
     this.isPaused = false;
     this.driver.resume();
+    this.hooks.onResume?.();
   }
 
   cancel() {
@@ -67,7 +82,8 @@ class LoopController implements AnimationController {
 
 export function loop(
   controller: AnimationController,
-  iterations: number
+  iterations: number,
+  opts: LoopOpts = {}
 ): AnimationController {
-  return new LoopController(controller, iterations);
+  return new LoopController(controller, iterations, opts);
 }
