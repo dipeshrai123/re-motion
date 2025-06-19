@@ -24,16 +24,20 @@ export default function Version5() {
     onPause: () => console.log('TIMING ONLY PAUSE'),
     onResume: () => console.log('TIMING ONLY RESUME'),
     onComplete: () => console.log('TIMING ONLY COMPLETE'),
+    onChange: (value) => {
+      console.log('TIMING ONLY CHANGE', value);
+    },
   });
 
   const springX = useRef(new MotionValue(0)).current;
   const springMove = spring(springX, 500, {
-    damping: 30,
-    stiffness: 200,
     onStart: () => console.log('SPRING ONLY START'),
     onPause: () => console.log('SPRING ONLY PAUSE'),
     onResume: () => console.log('SPRING ONLY RESUME'),
     onComplete: () => console.log('SPRING ONLY COMPLETE'),
+    onChange: (value) => {
+      console.log('SPRING ONLY CHANGE', value);
+    },
   });
 
   const decayX = useRef(new MotionValue(0)).current;
@@ -43,6 +47,9 @@ export default function Version5() {
     onResume: () => console.log('DECAY ONLY RESUME'),
     onComplete: () => console.log('DECAY ONLY COMPLETE'),
     clamp: [0, 400],
+    onChange: (value) => {
+      console.log('DECAY ONLY CHANGE', value);
+    },
   });
 
   const sequenceX = useRef(new MotionValue(0)).current;

@@ -10,6 +10,7 @@ interface TimingOpts {
   onPause?(): void;
   onResume?(): void;
   onComplete?(): void;
+  onChange?: (value: number) => void;
 }
 
 class TimingController implements AnimationController {
@@ -69,6 +70,7 @@ class TimingController implements AnimationController {
 
     this.position = this.from + (this.to - this.from) * this.easing(t);
     this.mv._internalSet(this.position);
+    this.hooks.onChange?.(this.position);
 
     if (t < 1) {
       this.frameId = requestAnimationFrame(this.animate);
@@ -77,6 +79,7 @@ class TimingController implements AnimationController {
       this.position = this.to;
 
       this.mv._internalSet(this.position);
+      this.hooks.onChange?.(this.position);
       this.hooks.onComplete?.();
     }
   };
