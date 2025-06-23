@@ -74,6 +74,10 @@ function interpolate(
 }
 
 function interpolateString(fromStr: string, toStr: string, p: number): string {
+  if (/^[Mm]/.test(fromStr) && /^[Mm]/.test(toStr)) {
+    return interpolatePath(fromStr, toStr, p);
+  }
+
   const funcRegex = /^([a-zA-Z$_][\w$]*)\((-?\d*\.?\d+)([a-zA-Z%]*)\)$/;
   const m1 = fromStr.match(funcRegex);
   const m2 = toStr.match(funcRegex);
@@ -138,6 +142,51 @@ function interpolateString(fromStr: string, toStr: string, p: number): string {
     );
   });
   return mappers.map((fn) => fn()).join('');
+}
+
+function interpolatePath(fromStr: string, toStr: string, p: number): string {
+  const tokenRE = /[MLHVCSQTAZmlhvcsqtaz]|-?\d+(\.\d+)?|,/g;
+  const fromTokens = fromStr.match(tokenRE) || [];
+  const toTokens = toStr.match(tokenRE) || [];
+
+  if (fromTokens.length !== toTokens.length) {
+    throw new Error(
+      `interpolate: SVG path token count mismatch ` +
+        `(${fromTokens.length} vs ${toTokens.length})`
+    );
+  }
+
+  let result = '';
+  for (let i = 0; i < fromTokens.length; i++) {
+    const ft = fromTokens[i];
+
+    if (/^[MLHVCSQTAZmlhvcsqtaz]$/.test(ft)) {
+      result += ' ' + ft;
+      continue;
+    }
+
+    if (ft === ',') {
+      result += ',';
+      continue;
+    }
+
+    const f = parseFloat(ft);
+    const t = parseFloat(toTokens[i]);
+    let numStr: string;
+    if (isNaN(f) || isNaN(t)) {
+      numStr = ft;
+    } else {
+      numStr = (f + (t - f) * p).toFixed(3);
+    }
+
+    if (/[0-9.]$/.test(result)) {
+      result += ',' + numStr;
+    } else {
+      result += numStr;
+    }
+  }
+
+  return result.trim();
 }
 
 export function combine<T extends any[], U>(
