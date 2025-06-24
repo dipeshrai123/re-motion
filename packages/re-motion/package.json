@@ -1,6 +1,6 @@
 {
   "name": "@raidipesh78/re-motion",
-  "version": "5.2.2",
+  "version": "5.2.3",
   "description": "Powerful React animation library",
   "main": "dist/index.js",
   "peerDependencies": {
