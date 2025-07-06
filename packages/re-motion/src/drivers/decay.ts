@@ -2,6 +2,7 @@ import { MotionValue } from '../MotionValue';
 import { AnimationController } from './AnimationController';
 
 interface DecayOpts {
+  from?: number;
   decay?: number;
   clamp?: [number, number];
   onStart?(): void;
@@ -24,6 +25,7 @@ class DecayController implements AnimationController {
 
   constructor(
     private mv: MotionValue<number>,
+    private fromOverride: number | undefined,
     private velocity: number,
     private deceleration: number,
     private hooks: DecayOpts
@@ -45,7 +47,7 @@ class DecayController implements AnimationController {
     this.isPaused = false;
     this.isCancelled = false;
 
-    this.from = this.position = this.mv.current;
+    this.from = this.position = this.fromOverride ?? this.mv.current;
     this.startTime = performance.now();
 
     this.frameId = requestAnimationFrame(this.animate);
@@ -125,7 +127,7 @@ export function decay(
   velocity: number,
   opts: DecayOpts = {}
 ): DecayController {
-  const { decay = 0.998, ...hooks } = opts;
-  const ctl = new DecayController(mv, velocity, decay, hooks);
+  const { from, decay = 0.998, ...hooks } = opts;
+  const ctl = new DecayController(mv, from, velocity, decay, hooks);
   return ctl;
 }
