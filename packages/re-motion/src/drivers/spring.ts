@@ -10,6 +10,7 @@ interface SpringOpts {
   onPause?(): void;
   onResume?(): void;
   onComplete?(): void;
+  onChange?(value: number): void;
 }
 
 class SpringController implements AnimationController {
@@ -98,6 +99,7 @@ class SpringController implements AnimationController {
       (v0 * (t * omega0 - 1) + t * x0 * omega0 * omega0);
 
     this.mv._internalSet(this.position);
+    this.hooks.onChange?.(this.position);
 
     const isVelocity = Math.abs(this.velocity) < this.restSpeedThreshold;
 
@@ -118,6 +120,7 @@ class SpringController implements AnimationController {
       this.position = this.to;
 
       this.mv._internalSet(this.position);
+      this.hooks.onChange?.(this.position);
       this.hooks.onComplete?.();
       return;
     }
@@ -166,7 +169,7 @@ export function spring(
   opts: SpringOpts = {}
 ): AnimationController {
   return createInterpolatedDriver(mv, to, opts, (m, t, o) => {
-    const { stiffness = 170, damping = 26, mass = 1, ...hooks } = o;
+    const { stiffness = 170, damping = 14, mass = 1, ...hooks } = o;
     return new SpringController(m, t, stiffness, damping, mass, hooks);
   });
 }

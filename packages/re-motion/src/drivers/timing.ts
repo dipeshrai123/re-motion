@@ -10,6 +10,7 @@ interface TimingOpts {
   onPause?(): void;
   onResume?(): void;
   onComplete?(): void;
+  onChange?: (value: number) => void;
 }
 
 class TimingController implements AnimationController {
@@ -62,9 +63,14 @@ class TimingController implements AnimationController {
     if (this.isCancelled || this.isPaused) return;
 
     const elapsed = this.elapsedBeforePause + (ts - this.startTime);
-    const t = Math.min(1, elapsed / this.duration);
+
+    let rawT = elapsed / this.duration;
+    if (!Number.isFinite(rawT)) rawT = rawT === Infinity ? 1 : 0;
+    const t = Math.min(1, Math.max(0, rawT));
+
     this.position = this.from + (this.to - this.from) * this.easing(t);
     this.mv._internalSet(this.position);
+    this.hooks.onChange?.(this.position);
 
     if (t < 1) {
       this.frameId = requestAnimationFrame(this.animate);
@@ -73,6 +79,7 @@ class TimingController implements AnimationController {
       this.position = this.to;
 
       this.mv._internalSet(this.position);
+      this.hooks.onChange?.(this.position);
       this.hooks.onComplete?.();
     }
   };

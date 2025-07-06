@@ -8,6 +8,7 @@ interface DecayOpts {
   onPause?(): void;
   onResume?(): void;
   onComplete?(): void;
+  onChange?(value: number): void;
 }
 
 class DecayController implements AnimationController {
@@ -71,11 +72,13 @@ class DecayController implements AnimationController {
     }
 
     this.mv._internalSet(this.position);
+    this.hooks.onChange?.(this.position);
 
     if (Math.abs(vNow) > 0.1) {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
       cancelAnimationFrame(this.frameId);
+      this.hooks.onChange?.(this.position);
       this.hooks.onComplete?.();
     }
   };
