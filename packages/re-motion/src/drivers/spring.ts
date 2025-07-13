@@ -3,6 +3,7 @@ import { AnimationController } from './AnimationController';
 import { createInterpolatedDriver } from './createInterpolatedDriver';
 
 interface SpringOpts {
+  from?: number;
   stiffness?: number;
   damping?: number;
   mass?: number;
@@ -28,6 +29,7 @@ class SpringController implements AnimationController {
   constructor(
     private mv: MotionValue<number>,
     private to: number,
+    private fromOverride: number | undefined,
     private stiffness: number,
     private damping: number,
     private mass: number,
@@ -42,7 +44,7 @@ class SpringController implements AnimationController {
       this.velocity = prev.velocity;
       this.startTime = prev.startTime;
     } else {
-      this.position = this.startPosition = this.mv.current;
+      this.position = this.startPosition = this.fromOverride ?? this.mv.current;
       this.velocity = 0;
       this.startTime = Date.now();
     }
@@ -169,7 +171,7 @@ export function spring(
   opts: SpringOpts = {}
 ): AnimationController {
   return createInterpolatedDriver(mv, to, opts, (m, t, o) => {
-    const { stiffness = 170, damping = 14, mass = 1, ...hooks } = o;
-    return new SpringController(m, t, stiffness, damping, mass, hooks);
+    const { from, stiffness = 170, damping = 14, mass = 1, ...hooks } = o;
+    return new SpringController(m, t, from, stiffness, damping, mass, hooks);
   });
 }
