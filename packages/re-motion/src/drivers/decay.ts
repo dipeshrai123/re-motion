@@ -2,7 +2,6 @@ import { MotionValue } from '../MotionValue';
 import { AnimationController } from './AnimationController';
 
 interface DecayOpts {
-  from?: number;
   decay?: number;
   clamp?: [number, number];
   onStart?(): void;
@@ -17,6 +16,7 @@ class DecayController implements AnimationController {
   private from: number;
   private frameId: number;
   private position: number;
+  private restSpeed: number = 0.01;
 
   private isPaused = false;
   private isCancelled = false;
@@ -25,7 +25,6 @@ class DecayController implements AnimationController {
 
   constructor(
     private mv: MotionValue<number>,
-    private fromOverride: number | undefined,
     private velocity: number,
     private deceleration: number,
     private hooks: DecayOpts
@@ -47,7 +46,7 @@ class DecayController implements AnimationController {
     this.isPaused = false;
     this.isCancelled = false;
 
-    this.from = this.position = this.fromOverride ?? this.mv.current;
+    this.from = this.position = this.mv.current;
     this.startTime = performance.now();
 
     this.frameId = requestAnimationFrame(this.animate);
@@ -76,7 +75,7 @@ class DecayController implements AnimationController {
     this.mv._internalSet(this.position);
     this.hooks.onChange?.(this.position);
 
-    if (Math.abs(vNow) > 0.1) {
+    if (Math.abs(vNow) > this.restSpeed) {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
       cancelAnimationFrame(this.frameId);
@@ -127,7 +126,7 @@ export function decay(
   velocity: number,
   opts: DecayOpts = {}
 ): DecayController {
-  const { from, decay = 0.998, ...hooks } = opts;
-  const ctl = new DecayController(mv, from, velocity, decay, hooks);
+  const { decay = 0.998, ...hooks } = opts;
+  const ctl = new DecayController(mv, velocity, decay, hooks);
   return ctl;
 }
