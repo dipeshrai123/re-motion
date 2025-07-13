@@ -4,7 +4,6 @@ import { AnimationController } from './AnimationController';
 import { createInterpolatedDriver } from './createInterpolatedDriver';
 
 interface TimingOpts {
-  from?: number;
   duration?: number;
   easing?: (t: number) => number;
   onStart?(): void;
@@ -28,7 +27,6 @@ class TimingController implements AnimationController {
   constructor(
     private mv: MotionValue<number>,
     private to: number,
-    private fromOverride: number | undefined,
     private duration: number = 300,
     private easing: (t: number) => number = Easing.linear,
     private hooks: Omit<TimingOpts, 'duration' | 'easing' | 'delay'>
@@ -46,7 +44,7 @@ class TimingController implements AnimationController {
       this.from = prev.from;
       this.startTime = prev.startTime;
     } else {
-      this.from = this.position = this.fromOverride ?? this.mv.current;
+      this.from = this.position = this.mv.current;
       this.startTime = performance.now();
     }
 
@@ -131,7 +129,7 @@ export function timing(
   opts: TimingOpts = {}
 ): AnimationController {
   return createInterpolatedDriver(mv, to, opts, (m, t, o) => {
-    const { from, duration = 300, easing = Easing.linear, ...hooks } = o;
-    return new TimingController(m, t, from, duration, easing, hooks);
+    const { duration = 300, easing = Easing.linear, ...hooks } = o;
+    return new TimingController(m, t, duration, easing, hooks);
   });
 }

@@ -3,7 +3,6 @@ import { AnimationController } from './AnimationController';
 import { createInterpolatedDriver } from './createInterpolatedDriver';
 
 interface SpringOpts {
-  from?: number;
   stiffness?: number;
   damping?: number;
   mass?: number;
@@ -20,8 +19,8 @@ class SpringController implements AnimationController {
   private startTime: number;
   private position: number;
   private startPosition: number;
-  private restDisplacementThreshold: number = 0.001;
-  private restSpeedThreshold: number = 0.001;
+  private restDisplacement: number = 0.001;
+  private restSpeed: number = 0.001;
 
   private isPaused = false;
   private isCancelled = false;
@@ -29,7 +28,6 @@ class SpringController implements AnimationController {
   constructor(
     private mv: MotionValue<number>,
     private to: number,
-    private fromOverride: number | undefined,
     private stiffness: number,
     private damping: number,
     private mass: number,
@@ -44,7 +42,7 @@ class SpringController implements AnimationController {
       this.velocity = prev.velocity;
       this.startTime = prev.startTime;
     } else {
-      this.position = this.startPosition = this.fromOverride ?? this.mv.current;
+      this.position = this.startPosition = this.mv.current;
       this.velocity = 0;
       this.startTime = Date.now();
     }
@@ -103,11 +101,11 @@ class SpringController implements AnimationController {
     this.mv._internalSet(this.position);
     this.hooks.onChange?.(this.position);
 
-    const isVelocity = Math.abs(this.velocity) < this.restSpeedThreshold;
+    const isVelocity = Math.abs(this.velocity) < this.restSpeed;
 
     const isDisplacement =
       this.stiffness === 0 ||
-      Math.abs(this.to - this.position) < this.restDisplacementThreshold;
+      Math.abs(this.to - this.position) < this.restDisplacement;
 
     if (zeta < 1) {
       this.position = underDampedPosition;
@@ -171,7 +169,7 @@ export function spring(
   opts: SpringOpts = {}
 ): AnimationController {
   return createInterpolatedDriver(mv, to, opts, (m, t, o) => {
-    const { from, stiffness = 170, damping = 14, mass = 1, ...hooks } = o;
-    return new SpringController(m, t, from, stiffness, damping, mass, hooks);
+    const { stiffness = 170, damping = 14, mass = 1, ...hooks } = o;
+    return new SpringController(m, t, stiffness, damping, mass, hooks);
   });
 }
