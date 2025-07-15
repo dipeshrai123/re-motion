@@ -155,17 +155,51 @@ const numberRE = /-?\d+(\.\d+)?/g;
 const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const RGB_RE =
   /^rgba?\(\s*-?\d+(\.\d+)?%?(?:\s*,\s*-?\d+(\.\d+)?%?){2}(?:\s*,\s*(0|1|0?\.\d+))?\s*\)$/i;
-const HSL_RE =
-  /^hsla?\(\s*\d+(\.\d+)?(?:\s*,\s*\d+(\.\d+)?%){2}(?:\s*,\s*(0|1|0?\.\d+))?\s*\)$/i;
+const HSL_RE = /^hsl\(\s*\d+(\.\d+)?(?:\s*,\s*\d+(\.\d+)?%){2}\s*\)$/i;
+const HSLA_RE =
+  /^hsla\(\s*\d+(\.\d+)?(?:\s*,\s*\d+(\.\d+)?%){2}\s*,\s*(0|1|0?\.\d+)\s*\)$/i;
 
 export function isCssColorLiteral(s: string): boolean {
   const c = s.trim().toLowerCase();
-  return (
-    HEX_RE.test(c) ||
-    RGB_RE.test(c) ||
-    HSL_RE.test(c) ||
-    namedColors[c] !== undefined
-  );
+
+  if (HEX_RE.test(c) || namedColors[c] !== undefined) {
+    return true;
+  }
+
+  if (RGB_RE.test(c)) {
+    const nums = [...c.matchAll(numberRE)].map((m) => +m[0]);
+    const [r, g, b, a = 1] = nums;
+    if (
+      r < 0 ||
+      r > 255 ||
+      g < 0 ||
+      g > 255 ||
+      b < 0 ||
+      b > 255 ||
+      a < 0 ||
+      a > 1
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  if (HSL_RE.test(c)) {
+    const [, rawS, rawL] = [...c.matchAll(numberRE)].map((m) => m[0]);
+    const s = parseFloat(rawS) / 100;
+    const l = parseFloat(rawL) / 100;
+    return s >= 0 && s <= 1 && l >= 0 && l <= 1;
+  }
+
+  if (HSLA_RE.test(c)) {
+    const nums = [...c.matchAll(numberRE)].map((m) => +m[0]);
+    const [h, rawS, rawL, a] = nums;
+    const s = rawS / 100;
+    const l = rawL / 100;
+    return h >= 0 && s >= 0 && s <= 1 && l >= 0 && l <= 1 && a >= 0 && a <= 1;
+  }
+
+  return false;
 }
 
 export function parseCssColor(c: string): [number, number, number, number] {
@@ -194,11 +228,10 @@ export function parseCssColor(c: string): [number, number, number, number] {
     return [r, g, b, a];
   }
 
-  if (HSL_RE.test(color)) {
-    const nums = [...color.matchAll(numberRE)].map((m) => +m[0]);
-    let [h, s, l, a = 1] = nums;
-    s /= 100;
-    l /= 100;
+  if (HSLA_RE.test(color)) {
+    const [h, rawS, rawL, a] = [...color.matchAll(numberRE)].map((m) => +m[0]);
+    const s = rawS / 100;
+    const l = rawL / 100;
     const c_ = (1 - Math.abs(2 * l - 1)) * s;
     const x = c_ * (1 - Math.abs(((h / 60) % 2) - 1));
     const m_ = l - c_ / 2;
@@ -214,6 +247,28 @@ export function parseCssColor(c: string): [number, number, number, number] {
       Math.round((g1 + m_) * 255),
       Math.round((b1 + m_) * 255),
       a,
+    ];
+  }
+
+  if (HSL_RE.test(color)) {
+    const [h, rawS, rawL] = [...color.matchAll(numberRE)].map((m) => +m[0]);
+    const s = rawS / 100;
+    const l = rawL / 100;
+    const c_ = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c_ * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m_ = l - c_ / 2;
+    let [r1, g1, b1] = [0, 0, 0];
+    if (h < 60) [r1, g1, b1] = [c_, x, 0];
+    else if (h < 120) [r1, g1, b1] = [x, c_, 0];
+    else if (h < 180) [r1, g1, b1] = [0, c_, x];
+    else if (h < 240) [r1, g1, b1] = [0, x, c_];
+    else if (h < 300) [r1, g1, b1] = [x, 0, c_];
+    else [r1, g1, b1] = [c_, 0, x];
+    return [
+      Math.round((r1 + m_) * 255),
+      Math.round((g1 + m_) * 255),
+      Math.round((b1 + m_) * 255),
+      1,
     ];
   }
 
