@@ -92,13 +92,16 @@ function interpolateString(fromStr: string, toStr: string, p: number): string {
       : `rgb(${R},${G},${B})`;
   }
 
-  const fromParts = fromStr.split(/(\s+)/);
-  const toParts = toStr.split(/(\s+)/);
+  const tokenRegex = /(\s+|[(),])/g;
+  const fromParts = fromStr.split(tokenRegex).filter((s) => s !== '');
+  const toParts = toStr.split(tokenRegex).filter((s) => s !== '');
+
   if (fromParts.length !== toParts.length) {
     throw new Error(
       `interpolate: template mismatch:\n  "${fromStr}"\n  vs "${toStr}"`
     );
   }
+
   const numUnitRE = /^(-?\d+(\.\d+)?)([a-zA-Z%]*)$/;
   const mappers = fromParts.map((fp, i) => {
     const tp = toParts[i];
@@ -129,5 +132,6 @@ function interpolateString(fromStr: string, toStr: string, p: number): string {
       `interpolate: cannot interpolate tokens "${fp}" vs "${tp}"`
     );
   });
+
   return mappers.map((fn) => fn()).join('');
 }
