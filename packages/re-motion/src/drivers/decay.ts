@@ -47,7 +47,7 @@ class DecayController implements AnimationController {
     this.isCancelled = false;
 
     this.from = this.position = this.mv.current;
-    this.startTime = performance.now();
+    this.startTime = Date.now();
 
     this.frameId = requestAnimationFrame(this.animate);
   }
