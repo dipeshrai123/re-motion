@@ -54,28 +54,32 @@ export function applyTransformsStyle(
   node: HTMLElement,
   txProps: Record<string, any>
 ): (() => void)[] {
+  const transformKeyList = Object.keys(txProps).filter(isTransformKey);
+  const hasTransformKeys = transformKeyList.length > 0;
+
   const render = () => {
-    const parts: string[] = [];
-
-    for (const key of Object.keys(txProps)) {
-      if (isTransformKey(key)) {
-        parts.push(formatTransformFunction(key, txProps[key]));
-      }
+    if (hasTransformKeys) {
+      const parts = transformKeyList.map((key) =>
+        formatTransformFunction(key, txProps[key])
+      );
+      node.style.transform = parts.join(' ');
+    } else if (typeof txProps.transform === 'string') {
+      node.style.transform = txProps.transform;
     }
-
-    if (parts.length === 0) return;
-
-    node.style.transform = parts.join(' ');
   };
 
   render();
 
   const unsubs: (() => void)[] = [];
-  for (const key of Object.keys(txProps)) {
-    const val = txProps[key];
-    if (val && typeof (val as MotionValue<any>).subscribe === 'function') {
-      unsubs.push((val as MotionValue<any>).subscribe(render));
+
+  if (hasTransformKeys) {
+    for (const key of transformKeyList) {
+      const val = txProps[key];
+      if (val && typeof (val as MotionValue<any>).subscribe === 'function') {
+        unsubs.push((val as MotionValue<any>).subscribe(render));
+      }
     }
   }
+
   return unsubs;
 }
