@@ -19,8 +19,8 @@ class SpringController implements AnimationController {
   private startTime: number;
   private position: number;
   private startPosition: number;
-  private restDisplacementThreshold: number = 0.001;
-  private restSpeedThreshold: number = 0.001;
+  private restDisplacement: number = 0.001;
+  private restSpeed: number = 0.001;
 
   private isPaused = false;
   private isCancelled = false;
@@ -101,11 +101,11 @@ class SpringController implements AnimationController {
     this.mv._internalSet(this.position);
     this.hooks.onChange?.(this.position);
 
-    const isVelocity = Math.abs(this.velocity) < this.restSpeedThreshold;
+    const isVelocity = Math.abs(this.velocity) < this.restSpeed;
 
     const isDisplacement =
       this.stiffness === 0 ||
-      Math.abs(this.to - this.position) < this.restDisplacementThreshold;
+      Math.abs(this.to - this.position) < this.restDisplacement;
 
     if (zeta < 1) {
       this.position = underDampedPosition;

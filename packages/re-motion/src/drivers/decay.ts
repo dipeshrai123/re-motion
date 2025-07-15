@@ -16,6 +16,7 @@ class DecayController implements AnimationController {
   private from: number;
   private frameId: number;
   private position: number;
+  private restSpeed: number = 0.01;
 
   private isPaused = false;
   private isCancelled = false;
@@ -74,7 +75,7 @@ class DecayController implements AnimationController {
     this.mv._internalSet(this.position);
     this.hooks.onChange?.(this.position);
 
-    if (Math.abs(vNow) > 0.1) {
+    if (Math.abs(vNow) > this.restSpeed) {
       this.frameId = requestAnimationFrame(this.animate);
     } else {
       cancelAnimationFrame(this.frameId);

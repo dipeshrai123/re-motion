@@ -1,6 +1,6 @@
 import { useLayoutEffect } from 'react';
 
-import Example from './Bugs/Handlers';
+import Example from './components/BoxShadowInterpolate';
 
 const App = () => {
   useDark();
