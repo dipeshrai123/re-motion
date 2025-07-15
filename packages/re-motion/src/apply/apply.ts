@@ -1,5 +1,5 @@
 import { applyStyleProps } from './applyStyleProp';
-import { isMotionValue } from './isMotionValue';
+import { isMotionValue } from '../isMotionValue';
 import { applyTransformsStyle } from './styleTransformUtils';
 
 export function applyStyles(

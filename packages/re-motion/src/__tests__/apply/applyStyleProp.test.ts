@@ -1,4 +1,4 @@
-import { applyStyleProps } from '../applyStyleProp';
+import { applyStyleProps } from '../../apply/applyStyleProp';
 
 describe('applyStyleProps()', () => {
   let el: HTMLElement;

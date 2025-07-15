@@ -2,7 +2,7 @@ import {
   applyTransformsStyle,
   isTransformKey,
   transformKeys,
-} from '../styleTransformUtils';
+} from '../../apply/styleTransformUtils';
 
 class DummyMV<T> {
   current: T;
