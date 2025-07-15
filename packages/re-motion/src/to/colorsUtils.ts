@@ -274,3 +274,29 @@ export function parseCssColor(c: string): [number, number, number, number] {
 
   throw new Error(`Unrecognized CSS color: ${c}`);
 }
+
+export function replaceCssColorsWithRgba(input: string): string {
+  const hex = `#(?:[0-9A-Fa-f]{3,4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})\\b`;
+  const rgbFunc = `rgba?\\([^)]*\\)`;
+  const hslFunc = `hsla?\\([^)]*\\)`;
+  const named = Object.keys(namedColors)
+    .map((n) => n.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&'))
+    .join('|');
+  const colorRe = new RegExp(
+    `(${hex}|${rgbFunc}|${hslFunc}|\\b(?:${named})\\b)`,
+    'gi'
+  );
+
+  return input.replace(colorRe, (match) => {
+    try {
+      const [r, g, b, a] = parseCssColor(match);
+      const R = Math.round(r);
+      const G = Math.round(g);
+      const B = Math.round(b);
+      const A = parseFloat(a.toFixed(3)).toString();
+      return `rgba(${R},${G},${B},${A})`;
+    } catch {
+      return match;
+    }
+  });
+}

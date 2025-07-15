@@ -63,6 +63,18 @@ describe('real-world boxShadow case', () => {
       [0, 1],
       ['0px 0px 0px rgba(0, 0, 0, 0)', '10px 10px 20px rgba(0, 0, 0, 0.5)']
     );
-    expect(fn(0.5)).toBe('5px 5px 10px rgba(0, 0, 0, 0.25)');
+    expect(fn(0.5)).toBe('5px 5px 10px rgba(0,0,0,0.25)');
+  });
+});
+
+describe('to() with inline hex-color normalization', () => {
+  const interp = to([0, 1], ['60px solid rgb(0,0,0)', '20px solid #3399ff']);
+
+  it('at t=0 returns the exact first string', () => {
+    expect(interp(0)).toBe('60px solid rgba(0,0,0,1)');
+  });
+
+  it('at t=1 returns the normalized second string', () => {
+    expect(interp(1)).toBe('20px solid rgba(51,153,255,1)');
   });
 });

@@ -1,4 +1,8 @@
-import { isCssColorLiteral, parseCssColor } from './colorsUtils';
+import {
+  isCssColorLiteral,
+  parseCssColor,
+  replaceCssColorsWithRgba,
+} from './colorsUtils';
 
 type ExtrapolateType = 'identity' | 'extend' | 'clamp';
 
@@ -25,6 +29,10 @@ export function to(
     config?.extrapolateLeft ?? config?.extrapolate ?? 'extend';
   const extrapolateRight: ExtrapolateType =
     config?.extrapolateRight ?? config?.extrapolate ?? 'extend';
+
+  const sanitizedOut = outRange.map((v) =>
+    typeof v === 'string' ? replaceCssColorsWithRgba(v) : v
+  );
 
   return (tRaw: number): number | string => {
     let t = tRaw;
@@ -54,8 +62,8 @@ export function to(
 
     if (config?.easing) p = config.easing(p);
 
-    const fromOut = outRange[i];
-    const toOut = outRange[i + 1];
+    const fromOut = sanitizedOut[i];
+    const toOut = sanitizedOut[i + 1];
 
     if (typeof fromOut === 'number' && typeof toOut === 'number') {
       return fromOut + (toOut - fromOut) * p;
