@@ -76,7 +76,7 @@ function interpolateString(fromStr: string, toStr: string, p: number): string {
     const toN = parseFloat(m2[2]);
     const unit = m1[3];
     const val = fromN + (toN - fromN) * p;
-    return `${name}(${val.toFixed(3)}${unit})`;
+    return `${name}(${formatNumber(val)}${unit})`;
   }
 
   if (isCssColorLiteral(fromStr) && isCssColorLiteral(toStr)) {
@@ -119,7 +119,7 @@ function interpolateString(fromStr: string, toStr: string, p: number): string {
 
       return () => {
         const val = fromN + (toN - fromN) * p;
-        return `${val.toFixed(3)}${unit}`;
+        return `${formatNumber(val)}${unit}`;
       };
     }
 
@@ -135,4 +135,9 @@ function interpolateString(fromStr: string, toStr: string, p: number): string {
   });
 
   return mappers.map((fn) => fn()).join('');
+}
+
+function formatNumber(val: number): string {
+  let s = val.toFixed(3);
+  return s.replace(/\.?0+$/, '');
 }
