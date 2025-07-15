@@ -18,16 +18,17 @@ export default function Version5() {
   // const obj = useMotionValue({ x: 10 });
 
   const timingX = useRef(new MotionValue(0)).current;
-  const timingMove = timing(timingX, 500, {
-    duration: 5000,
-    onStart: () => console.log('TIMING ONLY START'),
-    onPause: () => console.log('TIMING ONLY PAUSE'),
-    onResume: () => console.log('TIMING ONLY RESUME'),
-    onComplete: () => console.log('TIMING ONLY COMPLETE'),
-    onChange: (value) => {
-      console.log('TIMING ONLY CHANGE', value);
-    },
-  });
+  const timingMoveRef = useRef(
+    timing(timingX, 500, {
+      duration: 5000,
+      onStart: () => console.log('TIMING ONLY START'),
+      onPause: () => console.log('TIMING ONLY PAUSE'),
+      onResume: () => console.log('TIMING ONLY RESUME'),
+      onComplete: () => console.log('TIMING ONLY COMPLETE'),
+      onChange: (v) => console.log('TIMING ONLY CHANGE', v),
+    })
+  );
+  const timingMove = timingMoveRef.current;
 
   const springX = useRef(new MotionValue(0)).current;
   const springMove = spring(springX, 500, {

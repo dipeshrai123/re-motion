@@ -68,16 +68,13 @@ class TimingController implements AnimationController {
     if (!Number.isFinite(rawT)) rawT = rawT === Infinity ? 1 : 0;
     const t = Math.min(1, Math.max(0, rawT));
 
-    this.position = this.from + (this.to - this.from) * this.easing(t);
-    this.mv._internalSet(this.position);
-    this.hooks.onChange?.(this.position);
-
     if (t < 1) {
+      this.position = this.from + (this.to - this.from) * this.easing(t);
+      this.mv._internalSet(this.position);
+      this.hooks.onChange?.(this.position);
       this.frameId = requestAnimationFrame(this.animate);
     } else {
-      this.startTime = 0;
       this.position = this.to;
-
       this.mv._internalSet(this.position);
       this.hooks.onChange?.(this.position);
       this.hooks.onComplete?.();
