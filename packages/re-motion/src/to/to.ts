@@ -69,6 +69,7 @@ function interpolateString(fromStr: string, toStr: string, p: number): string {
   const funcRegex = /^([a-zA-Z$_][\w$]*)\((-?\d*\.?\d+)([a-zA-Z%]*)\)$/;
   const m1 = fromStr.match(funcRegex);
   const m2 = toStr.match(funcRegex);
+
   if (m1 && m2 && m1[1] === m2[1] && m1[3] === m2[3]) {
     const name = m1[1];
     const fromN = parseFloat(m1[2]);
