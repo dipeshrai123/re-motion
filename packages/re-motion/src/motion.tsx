@@ -16,8 +16,8 @@ type MotionStyle = {
 };
 
 type MotionHTMLAttributes<T> = {
-  [K in keyof React.HTMLAttributes<T>]?:
-    | React.HTMLAttributes<T>[K]
+  [K in keyof React.AllHTMLAttributes<T>]?:
+    | React.AllHTMLAttributes<T>[K]
     | MotionValue<number | string>;
 };
 

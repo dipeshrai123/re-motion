@@ -56,7 +56,7 @@ describe('applyAttrs()', () => {
 
     expect(node.getAttribute('id')).toBe('my-id');
     expect(node.getAttribute('data-num')).toBe('42');
-    expect(node.getAttribute('hidden')).toBe('true');
+    expect(node.hidden).toBe(true);
     expect(node.hasAttribute('foo')).toBe(false);
     expect(node.hasAttribute('bar')).toBe(false);
     expect(unsubs).toEqual([]);

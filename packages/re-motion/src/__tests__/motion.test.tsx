@@ -70,9 +70,12 @@ describe('〈motion> components', () => {
 
   it('updates attributes driven by MotionValue', () => {
     const mvTitle = new MotionValue('initial');
-    render(<motion.button data-testid="btn" title={mvTitle} />);
+    render(
+      <motion.button data-testid="btn" title={mvTitle} disabled={false} />
+    );
     const btn = screen.getByTestId('btn') as HTMLButtonElement;
     expect(btn.getAttribute('title')).toBe('initial');
+    expect(btn.disabled).toBe(false);
 
     act(() => {
       mvTitle.set('updated');
