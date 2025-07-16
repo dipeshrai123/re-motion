@@ -78,3 +78,12 @@ describe('to() with inline hex-color normalization', () => {
     expect(interp(1)).toBe('20px solid rgba(51,153,255,1)');
   });
 });
+
+describe('RGB to HSL interpolation', () => {
+  it('correctly interpolates between rgb and hsl colors', () => {
+    const fn = to([0, 1], ['rgb(255, 0, 0)', 'hsl(120, 100%, 50%)']);
+    expect(fn(0)).toBe('rgb(255,0,0)');
+    expect(fn(0.5)).toBe('rgb(128,128,0)');
+    expect(fn(1)).toBe('rgb(0,255,0)');
+  });
+});
