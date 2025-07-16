@@ -87,3 +87,54 @@ describe('RGB to HSL interpolation', () => {
     expect(fn(1)).toBe('rgb(0,255,0)');
   });
 });
+
+describe('edge cases for numeric interpolation', () => {
+  it('handles extrapolation below and above input range', () => {
+    const fn = to([0, 1], [0, 100]);
+    expect(fn(-0.5)).toBe(-50);
+    expect(fn(1.5)).toBe(150);
+  });
+});
+
+describe('color interpolation with alpha between rgb and rgba', () => {
+  it('handles rgb to rgba with alpha blending', () => {
+    const fn = to([0, 1], ['rgb(100,100,100)', 'rgba(200,200,200,0.5)']);
+    expect(fn(0.5)).toBe('rgba(150,150,150,0.750)');
+  });
+
+  it('handles alpha collapse when near 1', () => {
+    const fn = to([0, 1], ['rgba(0,0,0,0.999)', 'rgba(0,0,0,1)']);
+    expect(fn(1)).toBe('rgb(0,0,0)');
+  });
+});
+
+describe('string templates with negative numbers and decimals', () => {
+  it('interpolates decimal values', () => {
+    const fn = to([0, 1], ['translateX(0.5px)', 'translateX(1.5px)']);
+    expect(fn(0.5)).toBe('translateX(1px)');
+  });
+
+  it('interpolates negative values', () => {
+    const fn = to([0, 1], ['-10px -20px', '10px 20px']);
+    expect(fn(0.5)).toBe('0px 0px');
+  });
+});
+
+describe('interpolating mixed tokens with string suffixes', () => {
+  it('interpolates while preserving static tokens', () => {
+    const fn = to([0, 1], ['rotate(0deg) scale(1)', 'rotate(360deg) scale(2)']);
+    expect(fn(0.25)).toBe('rotate(90deg) scale(1.25)');
+  });
+
+  it('throws on mismatched transform function names', () => {
+    const fn = to([0, 1], ['rotate(0deg)', 'skew(30deg)']);
+    expect(() => fn(0.5)).toThrow(/cannot interpolate tokens/);
+  });
+});
+
+describe('interpolates hex to named color', () => {
+  it('normalizes both sides before interpolation', () => {
+    const fn = to([0, 1], ['#ff0000', 'blue']);
+    expect(fn(0.5)).toBe('rgb(128,0,128)');
+  });
+});
