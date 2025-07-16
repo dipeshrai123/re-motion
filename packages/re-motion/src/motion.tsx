@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import { isTransformKey, transformKeys } from './styleTransformUtils';
-import { applyAttrs, applyStyles, applyTransforms } from './apply';
+import { isTransformKey, transformKeys } from './apply/styleTransformUtils';
+import { applyAttrs, applyStyles, applyTransforms } from './apply/apply';
 import { MotionValue } from './MotionValue';
 
 type MotionStyle = {
@@ -16,8 +16,8 @@ type MotionStyle = {
 };
 
 type MotionHTMLAttributes<T> = {
-  [K in keyof React.HTMLAttributes<T>]?:
-    | React.HTMLAttributes<T>[K]
+  [K in keyof React.AllHTMLAttributes<T>]?:
+    | React.AllHTMLAttributes<T>[K]
     | MotionValue<number | string>;
 };
 

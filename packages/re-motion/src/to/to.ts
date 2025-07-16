@@ -1,4 +1,8 @@
-import { isCssColorLiteral, parseCssColor } from './colorsUtils';
+import {
+  isCssColorLiteral,
+  parseCssColor,
+  replaceCssColorsWithRgba,
+} from './colorsUtils';
 
 type ExtrapolateType = 'identity' | 'extend' | 'clamp';
 
@@ -25,6 +29,10 @@ export function to(
     config?.extrapolateLeft ?? config?.extrapolate ?? 'extend';
   const extrapolateRight: ExtrapolateType =
     config?.extrapolateRight ?? config?.extrapolate ?? 'extend';
+
+  const sanitizedOut = outRange.map((v) =>
+    typeof v === 'string' ? replaceCssColorsWithRgba(v) : v
+  );
 
   return (tRaw: number): number | string => {
     let t = tRaw;
@@ -54,8 +62,8 @@ export function to(
 
     if (config?.easing) p = config.easing(p);
 
-    const fromOut = outRange[i];
-    const toOut = outRange[i + 1];
+    const fromOut = sanitizedOut[i];
+    const toOut = sanitizedOut[i + 1];
 
     if (typeof fromOut === 'number' && typeof toOut === 'number') {
       return fromOut + (toOut - fromOut) * p;
@@ -76,7 +84,7 @@ function interpolateString(fromStr: string, toStr: string, p: number): string {
     const toN = parseFloat(m2[2]);
     const unit = m1[3];
     const val = fromN + (toN - fromN) * p;
-    return `${name}(${val.toFixed(3)}${unit})`;
+    return `${name}(${formatNumber(val)}${unit})`;
   }
 
   if (isCssColorLiteral(fromStr) && isCssColorLiteral(toStr)) {
@@ -119,7 +127,7 @@ function interpolateString(fromStr: string, toStr: string, p: number): string {
 
       return () => {
         const val = fromN + (toN - fromN) * p;
-        return `${val.toFixed(3)}${unit}`;
+        return `${formatNumber(val)}${unit}`;
       };
     }
 
@@ -135,4 +143,9 @@ function interpolateString(fromStr: string, toStr: string, p: number): string {
   });
 
   return mappers.map((fn) => fn()).join('');
+}
+
+function formatNumber(val: number): string {
+  let s = val.toFixed(3);
+  return s.replace(/\.?0+$/, '');
 }

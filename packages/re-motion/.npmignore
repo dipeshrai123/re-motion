@@ -9,3 +9,17 @@ node_modules/
 *.json
 *.mjs
 rollup.config.js
+
+__tests__/
+test/
+tests/
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+coverage/
+tsconfig.test.json
+jest.config.*
+.vitest.*
+vitest.*
+*.log

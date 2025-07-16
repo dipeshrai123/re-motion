@@ -1,5 +1,5 @@
 import { applyStyleProps } from './applyStyleProp';
-import { isMotionValue } from './isMotionValue';
+import { isMotionValue } from '../isMotionValue';
 import { applyTransformsStyle } from './styleTransformUtils';
 
 export function applyStyles(
@@ -26,14 +26,27 @@ export function applyAttrs(
   const unsubs: (() => void)[] = [];
 
   for (const [key, val] of Object.entries(props)) {
+    const setBool = (v: boolean) => {
+      if (v) node.setAttribute(key, '');
+      else node.removeAttribute(key);
+    };
+    const setOther = (v: string | number) => {
+      node.setAttribute(key, String(v));
+    };
+
     if (isMotionValue(val)) {
-      unsubs.push(val.subscribe((v) => node.setAttribute(key, String(v))));
-    } else if (
-      typeof val === 'string' ||
-      typeof val === 'number' ||
-      typeof val === 'boolean'
-    ) {
-      node.setAttribute(key, String(val));
+      unsubs.push(
+        val.subscribe((v) => {
+          if (typeof v === 'boolean') setBool(v);
+          else if (typeof v === 'string') setOther(v);
+          else if (typeof v === 'number') setOther(v);
+          else node.removeAttribute(key);
+        })
+      );
+    } else {
+      if (typeof val === 'boolean') setBool(val);
+      else if (typeof val === 'string') setOther(val);
+      else if (typeof val === 'number') setOther(val);
     }
   }
 
