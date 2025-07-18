@@ -24,40 +24,35 @@ export function withTiming(
       );
     }
 
-    function start(
-      animation: any,
-      value: number,
-      now: number,
-      previousAnimation: any
-    ) {
+    function start(animator: any, value: number, now: number, previous: any) {
       if (
-        previousAnimation &&
-        previousAnimation.type === 'timing' &&
-        previousAnimation.target === target &&
-        previousAnimation.startTime
+        previous &&
+        previous.type === 'timing' &&
+        previous.target === target &&
+        previous.startTime
       ) {
-        animation.startTime = previousAnimation.startTime;
-        animation.origin = previousAnimation.origin;
+        animator.startTime = previous.startTime;
+        animator.origin = previous.origin;
       } else {
-        animation.startTime = now;
-        animation.origin = value;
+        animator.startTime = now;
+        animator.origin = value;
       }
-      animation.current = value;
-      animation.easing = config.easing;
+      animator.current = value;
+      animator.easing = config.easing;
     }
 
-    function step(animation: any, now: number) {
-      const { target, startTime, origin } = animation;
+    function step(animator: any, now: number) {
+      const { target, startTime, origin } = animator;
       const runtime = now - startTime;
 
       if (runtime >= config.duration) {
-        animation.startTime = 0;
-        animation.current = target;
+        animator.startTime = 0;
+        animator.current = target;
         return true;
       }
 
-      const progress = animation.easing(runtime / config.duration);
-      animation.current = origin + (target - origin) * progress;
+      const progress = animator.easing(runtime / config.duration);
+      animator.current = origin + (target - origin) * progress;
       return false;
     }
 
@@ -68,7 +63,7 @@ export function withTiming(
       target,
       current: target,
       callback,
-      startValue: 0,
+      origin: 0,
       startTime: 0,
       easing: () => 0,
     };

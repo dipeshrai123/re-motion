@@ -24,21 +24,21 @@ export function withDecay(
       );
     }
 
-    function start(animation: any, value: number, now: number): void {
+    function start(animator: any, value: number, now: number): void {
       const initialVelocity = config.velocity;
-      animation.current = value;
-      animation.lastTimestamp = now;
-      animation.startTimestamp = now;
-      animation.initialVelocity = initialVelocity;
-      animation.velocity = initialVelocity;
+      animator.current = value;
+      animator.lastTimestamp = now;
+      animator.startTimestamp = now;
+      animator.initialVelocity = initialVelocity;
+      animator.velocity = initialVelocity;
     }
 
-    function step(animation: any, now: number): boolean {
-      const dt = Math.min(now - animation.lastTimestamp, 64);
-      animation.lastTimestamp = now;
-      animation.velocity! *= Math.pow(config.deceleration!, dt);
-      animation.current! += animation.velocity! * dt;
-      return Math.abs(animation.velocity!) < VELOCITY_EPS;
+    function step(animator: any, now: number): boolean {
+      const dt = Math.min(now - animator.lastTimestamp, 64);
+      animator.lastTimestamp = now;
+      animator.velocity! *= Math.pow(config.deceleration!, dt);
+      animator.current! += animator.velocity! * dt;
+      return Math.abs(animator.velocity!) < VELOCITY_EPS;
     }
 
     return {
