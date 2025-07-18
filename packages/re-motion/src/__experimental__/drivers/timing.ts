@@ -1,6 +1,5 @@
-// withTiming.ts
 import { Easing } from '../../easing/Easing';
-import { defineAnimation } from './defineAnimation';
+import { defineAnimation } from '../core/defineAnimation';
 
 export interface TimingConfig {
   duration?: number;
@@ -52,7 +51,6 @@ export function withTiming(
       const runtime = now - startTime;
 
       if (runtime >= config.duration) {
-        // reset startTime to avoid reusing finished animation config in `start` method
         animation.startTime = 0;
         animation.current = toValue;
         return true;

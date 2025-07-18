@@ -1,5 +1,4 @@
 export function decorateAnimation(animation: any) {
-  'worklet';
   const baseOnStart = animation.onStart;
   const baseOnFrame = animation.onFrame;
 

@@ -1,5 +1,5 @@
 import React, { useRef, useLayoutEffect } from 'react';
-import type { MotionValue } from './MotionValue'; // your core MotionValue
+import type { MotionValue } from '../core/MotionValue'; // your core MotionValue
 
 type MotionStyle = {
   [K in keyof React.CSSProperties]?: React.CSSProperties[K] | MotionValue<any>;

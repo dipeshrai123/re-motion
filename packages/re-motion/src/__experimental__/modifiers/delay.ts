@@ -1,6 +1,6 @@
 // withDelay.ts
-import { defineAnimation } from './defineAnimation';
-import type { AnimationObject } from './types';
+import { defineAnimation } from '../core/defineAnimation';
+import type { AnimationObject } from '../core/types';
 
 export function withDelay<T>(
   delayMs: number,

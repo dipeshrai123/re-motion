@@ -1,5 +1,4 @@
-// withSpring.ts
-import { defineAnimation } from './defineAnimation';
+import { defineAnimation } from '../core/defineAnimation';
 
 export interface SpringConfig {
   stiffness?: number;

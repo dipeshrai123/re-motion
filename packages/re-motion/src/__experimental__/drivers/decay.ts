@@ -1,4 +1,4 @@
-import { defineAnimation } from './defineAnimation';
+import { defineAnimation } from '../core/defineAnimation';
 
 export interface DecayConfig {
   deceleration?: number;

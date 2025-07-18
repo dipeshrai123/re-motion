@@ -4,4 +4,4 @@ export * from './motion';
 export * from './MotionValue';
 export * from './to';
 
-export * as __experimental__ from './drivers/__experimental__';
+export * as __experimental__ from './__experimental__';

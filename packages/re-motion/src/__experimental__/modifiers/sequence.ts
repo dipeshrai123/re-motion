@@ -1,6 +1,6 @@
 // withSequence.ts
-import { defineAnimation } from './defineAnimation';
-import type { AnimationObject } from './types';
+import { defineAnimation } from '../core/defineAnimation';
+import type { AnimationObject } from '../core/types';
 
 export function withSequence<T>(
   ..._animations: (AnimationObject<T> | (() => AnimationObject<T>))[]

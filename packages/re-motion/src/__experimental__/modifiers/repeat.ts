@@ -1,5 +1,5 @@
-import { defineAnimation } from './defineAnimation';
-import { AnimationObject } from './types';
+import { defineAnimation } from '../core/defineAnimation';
+import { AnimationObject } from '../core/types';
 
 export function withRepeat<T>(
   _nextAnimation: AnimationObject<T> | (() => AnimationObject<T>),
