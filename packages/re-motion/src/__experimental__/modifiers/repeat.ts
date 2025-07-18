@@ -29,14 +29,11 @@ export function withRepeat<T>(
           return true;
         }
 
-        const from = reverse
-          ? (nextAnimator.current as number)
-          : animator.origin;
+        const from = reverse ? nextAnimator.current : animator.origin;
 
         if (reverse) {
-          const prevTo = nextAnimator.target;
           nextAnimator.target = animator.origin;
-          animator.origin = prevTo;
+          animator.origin = from;
         }
 
         nextAnimator.start(nextAnimator, from, now, undefined);

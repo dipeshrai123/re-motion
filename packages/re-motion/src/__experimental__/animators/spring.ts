@@ -29,17 +29,17 @@ export function withSpring(
       animator: any,
       value: number,
       now: number,
-      previous?: any
+      previous: any
     ): void {
+      animator.current = value;
+
       if (previous && previous.type === 'spring') {
-        animator.current = previous.current;
         animator.velocity = previous.velocity;
-        animator.lastTimestamp = previous.lastTimestamp;
       } else {
-        animator.current = value;
-        animator.velocity = 0;
-        animator.lastTimestamp = now;
+        animator.velocity = config.velocity || 0;
       }
+
+      animator.lastTimestamp = previous?.lastTimestamp || now;
     }
 
     function step(animation: any, now: number): boolean {
@@ -72,7 +72,7 @@ export function withSpring(
               omega1 * x0 * Math.sin(omega1 * t));
       } else {
         const env = Math.exp(-omega0 * t);
-        nextPos = target + env * (x0 + (-v0 + omega0 * x0) * t);
+        nextPos = animation.target + env * (x0 + (-v0 + omega0 * x0) * t);
         nextVel = env * (-v0 * (omega0 * t - 1) - t * x0 * omega0 * omega0);
       }
 
@@ -83,7 +83,7 @@ export function withSpring(
       const isRestX = Math.abs(animation.target - nextPos) < 0.001;
 
       if (isRestV && isRestX) {
-        animation.current = target;
+        animation.current = animation.target;
         animation.velocity = 0;
         return true;
       }

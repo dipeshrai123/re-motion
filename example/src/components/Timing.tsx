@@ -23,7 +23,7 @@ export default function Example() {
       <button onClick={() => cancelAnimator(x)}>Cancel Animation</button>
       <button onClick={() => (x.value = withTiming(100))}>TIMING to 100</button>
       <button onClick={() => (x.value = withSpring(0))}>SPRING to 0</button>
-      <button onClick={() => (x.value = withRepeat(withTiming(200), 2, true))}>
+      <button onClick={() => (x.value = withRepeat(withSpring(200), 4, true))}>
         Loop 0 - 200
       </button>
       <button
