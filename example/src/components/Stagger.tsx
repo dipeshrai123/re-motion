@@ -1,11 +1,7 @@
 import { Children, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import {
-  MotionValue,
-  motion,
-  sequence,
-  timing,
-  delay,
-} from '@raidipesh78/re-motion';
+import { __experimental__ } from '@raidipesh78/re-motion';
+
+const { createMotionValue, motion, withTiming, withDelay } = __experimental__;
 
 const StaggerItem = ({
   y,
@@ -16,10 +12,10 @@ const StaggerItem = ({
   index: number;
   content: string;
 }) => {
-  const top = useRef(new MotionValue(0)).current;
+  const top = useRef(createMotionValue(0)).current;
 
   useLayoutEffect(() => {
-    sequence([delay(index * 50), timing(top, y, { duration: 0 })]).start();
+    top.value = withDelay(index * 50, withTiming(y, { duration: 0 }));
   }, [y, index, top]);
 
   return (

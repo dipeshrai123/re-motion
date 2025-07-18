@@ -1,6 +1,6 @@
 import { useLayoutEffect } from 'react';
 
-import Example from './components/Timing';
+import Example from './components/Stagger';
 
 const App = () => {
   useDark();

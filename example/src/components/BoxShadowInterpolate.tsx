@@ -1,12 +1,14 @@
-import { spring, motion, MotionValue } from '@raidipesh78/re-motion';
+import { __experimental__ } from '@raidipesh78/re-motion';
 import { useRef } from 'react';
 
+const { createMotionValue, withSpring, motion } = __experimental__;
+
 export default function BoxShadowInterpolate() {
-  const progress = useRef(new MotionValue(0)).current;
+  const progress = useRef(createMotionValue(0)).current;
 
   return (
     <div>
-      <button onClick={() => spring(progress, 1).start()}>Animate</button>
+      <button onClick={() => (progress.value = withSpring(1))}>Animate</button>
 
       <motion.div
         style={{

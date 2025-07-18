@@ -1,6 +1,8 @@
-import { spring, motion, MotionValue } from '@raidipesh78/re-motion';
+import { __experimental__ } from '@raidipesh78/re-motion';
 import { useDrag } from '@use-gesture/react';
 import { useEffect, useRef } from 'react';
+
+const { createMotionValue, withSpring, motion } = __experimental__;
 
 /**
  * Wire up mvs[1] to follow mvs[0], mvs[2] to follow mvs[1], ...
@@ -14,8 +16,8 @@ export function chainFollow(mvs: any[]): () => void {
     const follower = mvs[i];
 
     // whenever the leader changes, re-start a spring on the follower
-    const unsub = leader.subscribe((latest: any) => {
-      spring(follower, latest).start();
+    const unsub = leader.onChange((latest: any) => {
+      follower.value = withSpring(latest);
     });
 
     unsubscribers.push(unsub);
@@ -26,11 +28,11 @@ export function chainFollow(mvs: any[]): () => void {
 }
 
 export default function Example() {
-  const xs = useRef(Array.from({ length: 4 }, () => new MotionValue(0)));
-  const ys = useRef(Array.from({ length: 4 }, () => new MotionValue(0)));
+  const xs = useRef(Array.from({ length: 4 }, () => createMotionValue(0)));
+  const ys = useRef(Array.from({ length: 4 }, () => createMotionValue(0)));
   const bind: any = useDrag(({ offset: [mx, my] }) => {
-    spring(xs.current[0], mx).start();
-    spring(ys.current[0], my).start();
+    xs.current[0].value = withSpring(mx);
+    ys.current[0].value = withSpring(my);
   });
 
   useEffect(() => {
