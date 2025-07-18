@@ -4,7 +4,7 @@ import { useRef } from 'react';
 const {
   createMotionValue,
   withTiming,
-  createMotionComponent,
+  motion,
   withSpring,
   withDecay,
   cancelAnimator,
@@ -13,10 +13,8 @@ const {
   withDelay,
 } = __experimental__;
 
-const Div = createMotionComponent('div');
-
 export default function Example() {
-  const x = useRef(createMotionValue(0)).current;
+  const x = useRef(createMotionValue(100)).current;
 
   return (
     <>
@@ -43,8 +41,7 @@ export default function Example() {
       <button onClick={() => (x.value = withDelay(1000, withSpring(400)))}>
         Delay 200 then start spring
       </button>
-      <Div
-        x={x}
+      <motion.div
         style={{
           width: x,
           height: 100,

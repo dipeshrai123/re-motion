@@ -94,3 +94,21 @@ export function createMotionComponent<Tag extends keyof JSX.IntrinsicElements>(
 
   return MotionComp;
 }
+
+const cache = new Map<
+  keyof JSX.IntrinsicElements,
+  ReturnType<typeof createMotionComponent>
+>();
+
+export const motion = new Proxy({} as any, {
+  get(_, tag: keyof JSX.IntrinsicElements) {
+    if (!cache.has(tag)) {
+      cache.set(tag, createMotionComponent(tag));
+    }
+    return cache.get(tag);
+  },
+}) as {
+  [K in keyof JSX.IntrinsicElements]: ReturnType<
+    typeof createMotionComponent<K>
+  >;
+};
