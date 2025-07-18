@@ -21,8 +21,11 @@ export default function Example() {
       <button onClick={() => cancelAnimation(x)}>Cancel Animation</button>
       <button onClick={() => (x.value = withTiming(100))}>TIMING to 100</button>
       <button onClick={() => (x.value = withSpring(0))}>SPRING to 0</button>
+      <button onClick={() => (x.value = withRepeat(withSpring(200), 2, true))}>
+        Loop SPRING
+      </button>
       <button onClick={() => (x.value = withRepeat(withTiming(200), 2, true))}>
-        Loop
+        Loop TIMING
       </button>
       <button onClick={() => (x.value = withDecay({ velocity: 1 }))}>
         Decay

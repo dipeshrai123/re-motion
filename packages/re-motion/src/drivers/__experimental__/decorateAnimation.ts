@@ -1,26 +1,23 @@
-// decorateAnimation.ts
-// ---------------------
+export function decorateAnimation(animation: any) {
+  'worklet';
+  const baseOnStart = animation.onStart;
+  const baseOnFrame = animation.onFrame;
 
-/**
- * Injects a uniform onStart/onFrame wrapper around your raw animation,
- * so drivers only focus on their own logic.
- */
-export function decorateAnimation(anim: any) {
-  const baseOnStart = anim.onStart;
-  const baseOnFrame = anim.onFrame;
+  animation.previousAnimation = null;
 
-  anim.onStart = (
-    animation: any,
-    value: any,
+  animation.onStart = (
+    anim: any,
+    value: number,
     timestamp: number,
     previousAnimation?: any
   ) => {
-    animation.startValue = value;
-    animation.current = value;
-    return baseOnStart(animation, value, timestamp, previousAnimation);
+    anim.startValue = value;
+    anim.current = value;
+    anim.previousAnimation = previousAnimation ?? null;
+    return baseOnStart(anim, value, timestamp, previousAnimation);
   };
 
-  anim.onFrame = (animation: any, timestamp: number) => {
-    return baseOnFrame(animation, timestamp);
+  animation.onFrame = (anim: any, now: number) => {
+    return baseOnFrame(anim, now);
   };
 }

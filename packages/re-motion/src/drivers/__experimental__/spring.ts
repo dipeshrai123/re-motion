@@ -52,7 +52,7 @@ export function withSpring(
       const m = config.mass;
       const k = config.stiffness;
       const v0 = animation.velocity;
-      const x0 = animation.current - toValue;
+      const x0 = animation.current - animation.toValue;
 
       const zeta = c / (2 * Math.sqrt(k * m));
       const omega0 = Math.sqrt(k / m);
@@ -65,7 +65,7 @@ export function withSpring(
           env *
           (Math.sin(omega1 * t) * ((-v0 + zeta * omega0 * x0) / omega1) +
             Math.cos(omega1 * t) * x0);
-        nextPos = toValue + frag;
+        nextPos = animation.toValue + frag;
         nextVel =
           zeta * omega0 * frag -
           env *
@@ -81,7 +81,7 @@ export function withSpring(
       animation.velocity = nextVel;
 
       const isRestV = Math.abs(nextVel) < 0.001;
-      const isRestX = Math.abs(toValue - nextPos) < 0.001;
+      const isRestX = Math.abs(animation.toValue - nextPos) < 0.001;
 
       if (isRestV && isRestX) {
         animation.current = toValue;

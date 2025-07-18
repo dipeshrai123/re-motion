@@ -1,5 +1,6 @@
 export interface AnimationObject<T> {
   current: T;
+  toValue?: AnimationObject<T>['current'];
   onStart(
     anim: this,
     value: T,

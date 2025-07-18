@@ -31,6 +31,7 @@ export function withTiming(
       now: number,
       previousAnimation: any
     ) {
+      console.log('onstart', animation);
       if (
         previousAnimation &&
         previousAnimation.type === 'timing' &&
@@ -48,6 +49,7 @@ export function withTiming(
     }
 
     function onFrame(animation: any, now: number) {
+      console.log('onframe', animation);
       const { toValue, startTime, startValue } = animation;
       const runtime = now - startTime;
 

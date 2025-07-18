@@ -8,7 +8,7 @@ export function withRepeat<T>(
   callback?: (finished: boolean) => void
 ) {
   return defineAnimation(() => {
-    const nextAnimation: any =
+    const nextAnimation =
       typeof _nextAnimation === 'function' ? _nextAnimation() : _nextAnimation;
 
     function onStart(
@@ -25,32 +25,32 @@ export function withRepeat<T>(
     function onFrame(animation: any, now: number): boolean {
       const finished = nextAnimation.onFrame(nextAnimation, now);
       animation.current = nextAnimation.current;
+
       if (finished) {
         animation.reps += 1;
-        // call inner animation's callback on every repetition
-        // as the second argument the animation's current value is passed
-        if (nextAnimation.callback) {
-          nextAnimation.callback(true, animation.current);
-        }
+        nextAnimation.callback?.(true);
+
         if (numberOfReps > 0 && animation.reps >= numberOfReps) {
           return true;
         }
 
-        const startValue = reverse
+        const from = reverse
           ? (nextAnimation.current as number)
           : animation.startValue;
+
         if (reverse) {
+          // manually flip the spring's target
+          const prevTo = nextAnimation.toValue;
           nextAnimation.toValue = animation.startValue;
-          animation.startValue = startValue;
+          animation.startValue = prevTo;
         }
-        nextAnimation.onStart(
-          nextAnimation,
-          startValue,
-          now,
-          (nextAnimation as any).previousAnimation
-        );
+
+        // ✅ Force full spring restart — treat as new animation
+        nextAnimation.onStart(nextAnimation, from, now, undefined);
+
         return false;
       }
+
       return false;
     }
 
