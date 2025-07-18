@@ -14,12 +14,12 @@ export function withSpring(
   callback?: (finished: boolean) => void
 ) {
   return defineAnimation(() => {
-    const defaultConfig: SpringConfig = {
+    const defaultConfig: Required<SpringConfig> = {
       stiffness: 100,
       damping: 10,
       mass: 1,
       velocity: 0,
-    } as const;
+    };
 
     const config = {
       ...defaultConfig,
@@ -48,10 +48,10 @@ export function withSpring(
       animation.lastTimestamp = now;
 
       const t = dt / 1000;
-      const c = config.damping!;
-      const m = config.mass!;
-      const k = config.stiffness!;
-      const v0 = animation.velocity!;
+      const c = config.damping;
+      const m = config.mass;
+      const k = config.stiffness;
+      const v0 = animation.velocity;
       const x0 = animation.current - toValue;
 
       const zeta = c / (2 * Math.sqrt(k * m));

@@ -13,7 +13,7 @@ export function withTiming(
   callback?: (finished: boolean) => void
 ) {
   return defineAnimation(() => {
-    const config: Required<Omit<TimingConfig, 'reduceMotion'>> = {
+    const config: Required<TimingConfig> = {
       duration: 300,
       easing: Easing.inOut(Easing.quad),
     };
