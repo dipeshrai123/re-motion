@@ -1,20 +1,15 @@
-// withSequence.ts
-import { defineAnimation } from '../core/defineAnimation';
-import type { AnimationObject } from '../core/types';
+import { createAnimator } from '../core/createAnimator';
+import type { Animator } from '../core/types';
 
 export function withSequence<T>(
-  ..._animations: (AnimationObject<T> | (() => AnimationObject<T>))[]
+  ...animators: (Animator<T> | (() => Animator<T>))[]
 ) {
-  return defineAnimation(() => {
-    // normalize the animation list
-    const animations = _animations.map((a) =>
-      typeof a === 'function' ? a() : a
-    );
+  return createAnimator(() => {
+    const anims = animators.map((a) => (typeof a === 'function' ? a() : a));
 
-    // mark them unfinished
-    animations.forEach((anim) => (anim.finished = false));
+    anims.forEach((a) => (a.finished = false));
 
-    function onStart(
+    function start(
       animation: any,
       value: T,
       now: number,
@@ -23,13 +18,13 @@ export function withSequence<T>(
       animation.animationIndex = 0;
       animation.current = value;
 
-      const current = animations[0];
-      current.onStart(current, value, now, previousAnimation);
+      const current = anims[0];
+      current.start(current, value, now, previousAnimation);
     }
 
-    function onFrame(animation: any, now: number): boolean {
-      const current = animations[animation.animationIndex];
-      const finished = current.onFrame(current, now);
+    function step(animation: any, now: number): boolean {
+      const current = anims[animation.animationIndex];
+      const finished = current.step(current, now);
       animation.current = current.current;
 
       if (finished) {
@@ -38,12 +33,12 @@ export function withSequence<T>(
 
         animation.animationIndex += 1;
 
-        if (animation.animationIndex >= animations.length) {
+        if (animation.animationIndex >= anims.length) {
           return true;
         }
 
-        const next = animations[animation.animationIndex];
-        next.onStart(next, current.current, now, current);
+        const next = anims[animation.animationIndex];
+        next.start(next, current.current, now, current);
       }
 
       return false;
@@ -51,7 +46,7 @@ export function withSequence<T>(
 
     const onCancel = (finished: boolean) => {
       if (!finished) {
-        for (const anim of animations) {
+        for (const anim of anims) {
           if (!anim.finished) {
             anim.callback?.(false);
           }
@@ -60,11 +55,11 @@ export function withSequence<T>(
     };
 
     return {
-      isHigherOrder: true,
-      onStart,
-      onFrame,
+      wrapper: true,
+      start,
+      step,
       callback: onCancel,
-      current: animations[0]?.current ?? 0,
+      current: anims[0]?.current ?? 0,
       animationIndex: 0,
     };
   });

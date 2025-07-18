@@ -1,16 +1,11 @@
-export interface AnimationObject<T> {
+export interface Animator<T> {
   current: T;
-  callback?(finished: boolean): void;
-  toValue?: AnimationObject<T>['current'];
-  startValue?: AnimationObject<T>['current'];
+  target?: T;
+  origin?: T;
   finished?: boolean;
   cancelled?: boolean;
-  isHigherOrder?: boolean;
-  onStart(
-    anim: this,
-    value: T,
-    timestamp: number,
-    previous?: this | null
-  ): void;
-  onFrame(anim: this, timestamp: number): boolean;
+  wrapper?: boolean;
+  callback?(finished: boolean): void;
+  start(animator: this, from: T, now: number, previous?: this | null): void;
+  step(animator: this, now: number): boolean;
 }

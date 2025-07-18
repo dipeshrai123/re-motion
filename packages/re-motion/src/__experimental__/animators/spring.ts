@@ -1,4 +1,4 @@
-import { defineAnimation } from '../core/defineAnimation';
+import { createAnimator } from '../core/createAnimator';
 
 export interface SpringConfig {
   stiffness?: number;
@@ -8,11 +8,11 @@ export interface SpringConfig {
 }
 
 export function withSpring(
-  toValue: number,
+  target: number,
   userConfig?: SpringConfig,
   callback?: (finished: boolean) => void
 ) {
-  return defineAnimation(() => {
+  return createAnimator(() => {
     const defaultConfig: Required<SpringConfig> = {
       stiffness: 100,
       damping: 10,
@@ -25,24 +25,24 @@ export function withSpring(
       ...userConfig,
     };
 
-    function onStart(
-      animation: any,
+    function start(
+      animator: any,
       value: number,
       now: number,
-      previousAnimation?: any
+      previous?: any
     ): void {
-      if (previousAnimation && previousAnimation.type === 'spring') {
-        animation.current = previousAnimation.current;
-        animation.velocity = previousAnimation.velocity;
-        animation.lastTimestamp = previousAnimation.lastTimestamp;
+      if (previous && previous.type === 'spring') {
+        animator.current = previous.current;
+        animator.velocity = previous.velocity;
+        animator.lastTimestamp = previous.lastTimestamp;
       } else {
-        animation.current = value;
-        animation.velocity = 0;
-        animation.lastTimestamp = now;
+        animator.current = value;
+        animator.velocity = 0;
+        animator.lastTimestamp = now;
       }
     }
 
-    function onFrame(animation: any, now: number): boolean {
+    function step(animation: any, now: number): boolean {
       const dt = Math.min(now - animation.lastTimestamp, 64);
       animation.lastTimestamp = now;
 
@@ -51,7 +51,7 @@ export function withSpring(
       const m = config.mass;
       const k = config.stiffness;
       const v0 = animation.velocity;
-      const x0 = animation.current - animation.toValue;
+      const x0 = animation.current - animation.target;
 
       const zeta = c / (2 * Math.sqrt(k * m));
       const omega0 = Math.sqrt(k / m);
@@ -64,7 +64,7 @@ export function withSpring(
           env *
           (Math.sin(omega1 * t) * ((-v0 + zeta * omega0 * x0) / omega1) +
             Math.cos(omega1 * t) * x0);
-        nextPos = animation.toValue + frag;
+        nextPos = animation.target + frag;
         nextVel =
           zeta * omega0 * frag -
           env *
@@ -72,7 +72,7 @@ export function withSpring(
               omega1 * x0 * Math.sin(omega1 * t));
       } else {
         const env = Math.exp(-omega0 * t);
-        nextPos = toValue + env * (x0 + (-v0 + omega0 * x0) * t);
+        nextPos = target + env * (x0 + (-v0 + omega0 * x0) * t);
         nextVel = env * (-v0 * (omega0 * t - 1) - t * x0 * omega0 * omega0);
       }
 
@@ -80,10 +80,10 @@ export function withSpring(
       animation.velocity = nextVel;
 
       const isRestV = Math.abs(nextVel) < 0.001;
-      const isRestX = Math.abs(animation.toValue - nextPos) < 0.001;
+      const isRestX = Math.abs(animation.target - nextPos) < 0.001;
 
       if (isRestV && isRestX) {
-        animation.current = toValue;
+        animation.current = target;
         animation.velocity = 0;
         return true;
       }
@@ -93,13 +93,14 @@ export function withSpring(
 
     return {
       type: 'spring',
-      onStart,
-      onFrame,
-      toValue,
-      current: toValue,
+      start,
+      step,
+      target,
+      current: target,
       velocity: config.velocity || 0,
       callback,
       lastTimestamp: 0,
+      origin: 0,
     };
   });
 }

@@ -1,5 +1,5 @@
 import { Easing } from '../../easing/Easing';
-import { defineAnimation } from '../core/defineAnimation';
+import { createAnimator } from '../core/createAnimator';
 
 export interface TimingConfig {
   duration?: number;
@@ -7,11 +7,11 @@ export interface TimingConfig {
 }
 
 export function withTiming(
-  toValue: number,
+  target: number,
   userConfig: TimingConfig = {},
   callback?: (finished: boolean) => void
 ) {
-  return defineAnimation(() => {
+  return createAnimator(() => {
     const config: Required<TimingConfig> = {
       duration: 300,
       easing: Easing.inOut(Easing.quad),
@@ -24,7 +24,7 @@ export function withTiming(
       );
     }
 
-    function onStart(
+    function start(
       animation: any,
       value: number,
       now: number,
@@ -33,42 +33,44 @@ export function withTiming(
       if (
         previousAnimation &&
         previousAnimation.type === 'timing' &&
-        previousAnimation.toValue === toValue &&
+        previousAnimation.target === target &&
         previousAnimation.startTime
       ) {
         animation.startTime = previousAnimation.startTime;
-        animation.startValue = previousAnimation.startValue;
+        animation.origin = previousAnimation.origin;
       } else {
         animation.startTime = now;
-        animation.startValue = value;
+        animation.origin = value;
       }
       animation.current = value;
       animation.easing = config.easing;
     }
 
-    function onFrame(animation: any, now: number) {
-      const { toValue, startTime, startValue } = animation;
+    function step(animation: any, now: number) {
+      const { target, startTime, origin } = animation;
       const runtime = now - startTime;
 
       if (runtime >= config.duration) {
         animation.startTime = 0;
-        animation.current = toValue;
+        animation.current = target;
         return true;
       }
 
       const progress = animation.easing(runtime / config.duration);
-      animation.current =
-        (startValue as number) + (toValue - (startValue as number)) * progress;
+      animation.current = origin + (target - origin) * progress;
       return false;
     }
 
     return {
       type: 'timing',
-      onStart,
-      onFrame,
-      toValue,
-      current: toValue,
+      start,
+      step,
+      target,
+      current: target,
       callback,
+      startValue: 0,
+      startTime: 0,
+      easing: () => 0,
     };
   });
 }

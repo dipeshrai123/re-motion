@@ -1,52 +1,47 @@
-import { defineAnimation } from '../core/defineAnimation';
-import { AnimationObject } from '../core/types';
+import { createAnimator } from '../core/createAnimator';
+import type { Animator } from '../core/types';
 
 export function withRepeat<T>(
-  _nextAnimation: AnimationObject<T> | (() => AnimationObject<T>),
+  _nextAnimator: Animator<T> | (() => Animator<T>),
   numberOfReps = 2,
   reverse = false,
   callback?: (finished: boolean) => void
 ) {
-  return defineAnimation(() => {
-    const nextAnimation =
-      typeof _nextAnimation === 'function' ? _nextAnimation() : _nextAnimation;
+  return createAnimator(() => {
+    const nextAnimator =
+      typeof _nextAnimator === 'function' ? _nextAnimator() : _nextAnimator;
 
-    function onStart(
-      animation: any,
-      value: T,
-      now: number,
-      previousAnimation?: any
-    ) {
-      animation.startValue = value;
-      animation.reps = 0;
-      nextAnimation.onStart(nextAnimation, value, now, previousAnimation);
+    function start(animator: any, value: T, now: number, previous?: any) {
+      animator.origin = value;
+      animator.reps = 0;
+      nextAnimator.start(nextAnimator, value, now, previous);
     }
 
-    function onFrame(animation: any, now: number): boolean {
-      const finished = nextAnimation.onFrame(nextAnimation, now);
-      animation.current = nextAnimation.current;
+    function step(animator: any, now: number): boolean {
+      const finished = nextAnimator.step(nextAnimator, now);
+      animator.current = nextAnimator.current;
 
       if (finished) {
-        animation.reps += 1;
-        nextAnimation.callback?.(true);
+        animator.reps += 1;
+        nextAnimator.callback?.(true);
 
-        if (numberOfReps > 0 && animation.reps >= numberOfReps) {
+        if (numberOfReps > 0 && animator.reps >= numberOfReps) {
           return true;
         }
 
         const from = reverse
-          ? (nextAnimation.current as number)
-          : animation.startValue;
+          ? (nextAnimator.current as number)
+          : animator.startValue;
 
         if (reverse) {
           // manually flip the spring's target
-          const prevTo = nextAnimation.toValue;
-          nextAnimation.toValue = animation.startValue;
-          animation.startValue = prevTo;
+          const prevTo = animator.target;
+          animator.target = animator.origin;
+          animator.origin = prevTo;
         }
 
         // ✅ Force full spring restart — treat as new animation
-        nextAnimation.onStart(nextAnimation, from, now, undefined);
+        nextAnimator.start(nextAnimator, from, now, undefined);
 
         return false;
       }
@@ -56,18 +51,17 @@ export function withRepeat<T>(
 
     const repCallback = (finished: boolean) => {
       if (callback) callback(finished);
-      // if we got cancelled mid-flight, also fire inner's callback
-      if (!finished) nextAnimation.callback?.(false);
+      if (!finished) nextAnimator.callback?.(false);
     };
 
     return {
-      isHigherOrder: true,
-      onFrame,
-      onStart,
+      wrapper: true,
+      step,
+      start,
       reps: 0,
-      current: nextAnimation.current,
+      current: nextAnimator.current,
       callback: repCallback,
-      startValue: 0,
+      origin: 0,
     };
   });
 }

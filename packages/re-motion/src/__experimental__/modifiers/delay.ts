@@ -1,63 +1,61 @@
-// withDelay.ts
-import { defineAnimation } from '../core/defineAnimation';
-import type { AnimationObject } from '../core/types';
+import { createAnimator } from '../core/createAnimator';
+import type { Animator } from '../core/types';
 
 export function withDelay<T>(
   delayMs: number,
-  _nextAnimation: AnimationObject<T> | (() => AnimationObject<T>)
+  _nextAnimator: Animator<T> | (() => Animator<T>)
 ) {
-  return defineAnimation(() => {
-    const nextAnimation =
-      typeof _nextAnimation === 'function' ? _nextAnimation() : _nextAnimation;
+  return createAnimator(() => {
+    const nextAnimator =
+      typeof _nextAnimator === 'function' ? _nextAnimator() : _nextAnimator;
 
     let started = false;
     let startTime = 0;
 
-    function onStart(
-      animation: any,
+    function start(
+      animator: any,
       value: T,
       now: number,
-      previousAnimation?: AnimationObject<T>
+      previous?: Animator<T>
     ) {
-      animation.current = value;
-      animation.previousAnimation = previousAnimation;
+      animator.current = value;
+      animator.previous = previous;
       startTime = now;
       started = false;
     }
 
-    function onFrame(animation: any, now: number): boolean {
+    function step(animator: any, now: number): boolean {
       const elapsed = now - startTime;
 
       if (elapsed >= delayMs) {
         if (!started) {
           started = true;
-          nextAnimation.onStart(
-            nextAnimation,
-            animation.current,
+          nextAnimator.start(
+            nextAnimator,
+            animator.current,
             now,
-            animation.previousAnimation
+            animator.previous
           );
         }
-        const finished = nextAnimation.onFrame(nextAnimation, now);
-        animation.current = nextAnimation.current;
+        const finished = nextAnimator.step(nextAnimator, now);
+        animator.current = nextAnimator.current;
         return finished;
       }
 
-      // If delay hasn't passed, hold current value
       return false;
     }
 
     const callback = (finished: boolean) => {
-      nextAnimation.callback?.(finished);
+      nextAnimator.callback?.(finished);
     };
 
     return {
-      isHigherOrder: true,
-      onStart,
-      onFrame,
+      wrapper: true,
+      start,
+      step,
       callback,
-      current: 0 as any, // will be updated by child
-      previousAnimation: null,
+      current: 0 as any,
+      previous: null,
     };
   });
 }

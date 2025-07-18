@@ -1,4 +1,4 @@
 export * from './core';
 export * from './modifiers';
-export * from './drivers';
+export * from './animators';
 export * from './components/motion';

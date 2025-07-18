@@ -1,4 +1,4 @@
-import { defineAnimation } from '../core/defineAnimation';
+import { createAnimator } from '../core/createAnimator';
 
 export interface DecayConfig {
   deceleration?: number;
@@ -11,7 +11,7 @@ export function withDecay(
   userConfig?: DecayConfig,
   callback?: (finished: boolean) => void
 ) {
-  return defineAnimation(() => {
+  return createAnimator(() => {
     const config: Required<DecayConfig> = {
       deceleration: 0.998,
       velocity: 0,
@@ -24,7 +24,7 @@ export function withDecay(
       );
     }
 
-    function onStart(animation: any, value: number, now: number): void {
+    function start(animation: any, value: number, now: number): void {
       const initialVelocity = config.velocity;
       animation.current = value;
       animation.lastTimestamp = now;
@@ -33,7 +33,7 @@ export function withDecay(
       animation.velocity = initialVelocity;
     }
 
-    function onFrame(animation: any, now: number): boolean {
+    function step(animation: any, now: number): boolean {
       const dt = Math.min(now - animation.lastTimestamp, 64);
       animation.lastTimestamp = now;
       animation.velocity! *= Math.pow(config.deceleration!, dt);
@@ -43,8 +43,8 @@ export function withDecay(
 
     return {
       type: 'decay',
-      onStart,
-      onFrame,
+      start,
+      step,
       current: undefined,
       velocity: config.velocity || 0,
       initialVelocity: 0,

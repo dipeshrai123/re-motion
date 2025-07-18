@@ -1,37 +1,30 @@
-// MotionValue.ts
-
-import { valueSetter } from './valueSetter';
-import type { AnimationObject } from './types';
+import { assignAnimator } from './assignAnimator';
+import type { Animator } from './types';
 
 export class MotionValue<T> {
-  /** internal value */ _value: T;
-  /** active animation */ _animation: AnimationObject<T> | null = null;
-  /** subscribers (e.g. render hooks) */
-  private subs = new Set<(v: T) => void>();
+  current: T;
+  listeners = new Set<(value: T) => void>();
+  activeAnimator: Animator<T> | null = null;
 
   constructor(initial: T) {
-    this._value = initial;
+    this.current = initial;
   }
 
-  /** read current */
   get value(): T {
-    return this._value;
+    return this.current;
   }
 
-  /** write new value or animation */
-  set value(v: T | AnimationObject<T> | (() => AnimationObject<T>)) {
-    valueSetter(this, v);
+  set value(newValue: T | Animator<T> | (() => Animator<T>)) {
+    assignAnimator(this, newValue);
   }
 
-  /** subscribe to value changes */
-  onChange(fn: (value: T) => void) {
-    this.subs.add(fn);
-    return () => this.subs.delete(fn);
+  onChange(callback: (value: T) => void): () => void {
+    this.listeners.add(callback);
+    return () => this.listeners.delete(callback);
   }
 
-  /** internal: notify all subscribers */
-  _notifySubscribers() {
-    this.subs.forEach((fn) => fn(this._value));
+  notifyListeners() {
+    this.listeners.forEach((fn) => fn(this.current));
   }
 }
 

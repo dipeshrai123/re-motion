@@ -1,2 +1,2 @@
 export { MotionValue, createMotionValue } from './MotionValue';
-export { cancelAnimation } from './cancelAnimation';
+export { cancelAnimator } from './cancelAnimator';
