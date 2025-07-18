@@ -44,8 +44,9 @@ export default function Example() {
         Delay 200 then start spring
       </button>
       <Div
+        x={x}
         style={{
-          width: 100,
+          width: x,
           height: 100,
           backgroundColor: 'teal',
           borderRadius: 4,

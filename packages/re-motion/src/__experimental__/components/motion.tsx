@@ -1,99 +1,96 @@
-import React, { useRef, useLayoutEffect } from 'react';
-import type { MotionValue } from '../core/MotionValue'; // your core MotionValue
+import React from 'react';
+import type { MotionValue } from '../core/MotionValue';
+import { isTransformKey, transformKeys } from '../core/styleTransformUtils';
+import { applyAttrs, applyStyles, applyTransforms } from '../core/apply';
 
 type MotionStyle = {
-  [K in keyof React.CSSProperties]?: React.CSSProperties[K] | MotionValue<any>;
+  [K in keyof React.CSSProperties]?:
+    | React.CSSProperties[K]
+    | MotionValue<number | string>;
 } & {
-  // allow arbitrary props like translateX, rotate, etc.
-  [key: string]: any | MotionValue<any>;
+  [key in (typeof transformKeys)[number]]?:
+    | MotionValue<number | string>
+    | number
+    | string;
 };
 
-type MotionProps<Tag extends keyof JSX.IntrinsicElements> = Omit<
-  JSX.IntrinsicElements[Tag],
+type MotionHTMLAttributes<T> = {
+  [K in keyof React.AllHTMLAttributes<T>]?:
+    | React.AllHTMLAttributes<T>[K]
+    | MotionValue<number | string>;
+};
+
+type MotionSVGAttributes<T> = {
+  [K in keyof React.SVGAttributes<T>]?:
+    | React.SVGAttributes<T>[K]
+    | MotionValue<number | string>;
+};
+
+type MotionAttributes<T extends EventTarget> = Omit<
+  MotionHTMLAttributes<T> & MotionSVGAttributes<T>,
   'style'
 > & {
   style?: MotionStyle;
 };
 
-function isMotionValue<T>(v: any): v is MotionValue<T> {
-  return v != null && typeof (v as MotionValue<T>).onChange === 'function';
-}
-
-// Which keys should be treated as transform functions
-const transformProps = new Set([
-  'translateX',
-  'translateY',
-  'scale',
-  'scaleX',
-  'scaleY',
-  'rotate',
-  'rotateX',
-  'rotateY',
-  'skewX',
-  'skewY',
-]);
-
-function getTransformUnit(key: string, val: any) {
-  if (key.startsWith('translate')) return typeof val === 'number' ? 'px' : '';
-  if (key.startsWith('rotate') || key.startsWith('skew'))
-    return typeof val === 'number' ? 'deg' : '';
-  return '';
-}
-
-function updateTransform(el: HTMLElement, key: string, val: any) {
-  const existing = el.style.transform || '';
-  // strip any previous instance of this function
-  const cleaned = existing
-    .replace(new RegExp(`${key}\\([^)]*\\)`, 'g'), '')
-    .trim();
-  const unit = getTransformUnit(key, val);
-  el.style.transform = `${cleaned} ${key}(${val}${unit})`.trim();
-}
-
-function applyStyle(el: HTMLElement, key: string, val: any) {
-  if (transformProps.has(key)) {
-    updateTransform(el, key, val);
-  } else {
-    // for non-transform props, append "px" on numbers
-    const value = typeof val === 'number' ? `${val}px` : `${val}`;
-    // @ts-ignore
-    el.style[key] = value;
-  }
+function combineRefs<T>(
+  ...refs: Array<
+    React.RefObject<T> | ((el: T | null) => void) | null | undefined
+  >
+) {
+  return (element: T | null) => {
+    for (const ref of refs) {
+      if (!ref) continue;
+      if (typeof ref === 'function') ref(element);
+      else if ('current' in ref) (ref.current as T | null) = element;
+    }
+  };
 }
 
 export function createMotionComponent<Tag extends keyof JSX.IntrinsicElements>(
-  tag: Tag
+  Wrapped: Tag
 ) {
-  return function MotionComponent(props: MotionProps<Tag>) {
-    const { style = {}, ...rest } = props;
-    const ref = useRef<HTMLElement>(null);
+  const MotionComp = React.forwardRef<
+    HTMLElement,
+    MotionAttributes<HTMLElement>
+  >((givenProps, givenRef) => {
+    const nodeRef = React.useRef<HTMLElement | null>(null);
 
-    useLayoutEffect(() => {
-      const el = ref.current;
-      if (!el) return;
+    React.useLayoutEffect(() => {
+      const node = nodeRef.current;
+      if (!node) return;
 
-      // Initial application of all style props
-      Object.entries(style).forEach(([key, raw]) => {
-        const v = isMotionValue(raw) ? raw.value : raw;
-        applyStyle(el, key, v);
-      });
+      const { style = {}, ...rest } = givenProps;
 
-      // Subscribe to every MotionValue in style
-      const unsubs: (() => void)[] = [];
-      Object.entries(style).forEach(([key, raw]) => {
-        if (isMotionValue(raw)) {
-          unsubs.push(
-            raw.onChange((v) => {
-              applyStyle(el, key, v);
-            })
-          );
-        }
-      });
+      const normal: Record<string, any> = {};
+      const tx: Record<string, any> = {};
 
-      return () => unsubs.forEach((f) => f());
-    }, [style]);
+      for (const [k, v] of Object.entries(style)) {
+        if (isTransformKey(k)) tx[k] = v;
+        else normal[k] = v;
+      }
 
-    // Render without passing React `style` (we manage it ourselves)
-    return React.createElement(tag, { ref, ...rest });
-  } as React.ComponentType<MotionProps<Tag>>;
+      const cleanSubs = [
+        ...applyStyles(node, normal),
+        ...applyAttrs(node, rest),
+        ...applyTransforms(node, tx),
+      ];
+
+      return () => cleanSubs.forEach((c) => c());
+    }, []);
+
+    return React.createElement(Wrapped, {
+      ...givenProps,
+      ref: combineRefs(nodeRef, givenRef),
+    });
+  });
+
+  MotionComp.displayName =
+    typeof Wrapped === 'string'
+      ? `Motion.${Wrapped}`
+      : `Motion(${
+          (Wrapped as any).displayName || (Wrapped as any).name || 'Component'
+        })`;
+
+  return MotionComp;
 }
