@@ -37,7 +37,7 @@ export function withSpring(
         animation.velocity = previousAnimation.velocity;
         animation.lastTimestamp = previousAnimation.lastTimestamp;
       } else {
-        animation.current = animation.startValue = value;
+        animation.current = value;
         animation.velocity = 0;
         animation.lastTimestamp = now;
       }
@@ -98,7 +98,6 @@ export function withSpring(
       onFrame,
       toValue,
       current: toValue,
-      startValue: 0,
       velocity: config.velocity || 0,
       callback,
       lastTimestamp: 0,
