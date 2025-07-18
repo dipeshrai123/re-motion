@@ -31,16 +31,14 @@ export function withRepeat<T>(
 
         const from = reverse
           ? (nextAnimator.current as number)
-          : animator.startValue;
+          : animator.origin;
 
         if (reverse) {
-          // manually flip the spring's target
-          const prevTo = animator.target;
-          animator.target = animator.origin;
+          const prevTo = nextAnimator.target;
+          nextAnimator.target = animator.origin;
           animator.origin = prevTo;
         }
 
-        // ✅ Force full spring restart — treat as new animation
         nextAnimator.start(nextAnimator, from, now, undefined);
 
         return false;

@@ -7,7 +7,7 @@ const {
   createMotionComponent,
   withSpring,
   withDecay,
-  cancelAnimation,
+  cancelAnimator,
   withRepeat,
   withSequence,
   withDelay,
@@ -20,7 +20,7 @@ export default function Example() {
 
   return (
     <>
-      <button onClick={() => cancelAnimation(x)}>Cancel Animation</button>
+      <button onClick={() => cancelAnimator(x)}>Cancel Animation</button>
       <button onClick={() => (x.value = withTiming(100))}>TIMING to 100</button>
       <button onClick={() => (x.value = withSpring(0))}>SPRING to 0</button>
       <button onClick={() => (x.value = withRepeat(withTiming(200), 2, true))}>
