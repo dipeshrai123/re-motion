@@ -7,3 +7,4 @@ export * from './types';
 export * from './valueSetter';
 export * from './motion';
 export * from './spring';
+export * from './decay';

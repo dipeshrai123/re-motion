@@ -1,8 +1,13 @@
-import { __experimental__, Easing } from '@raidipesh78/re-motion';
+import { __experimental__ } from '@raidipesh78/re-motion';
 import { useRef } from 'react';
 
-const { createMotionValue, withTiming, createMotionComponent, withSpring } =
-  __experimental__;
+const {
+  createMotionValue,
+  withTiming,
+  createMotionComponent,
+  withSpring,
+  withDecay,
+} = __experimental__;
 
 const Div = createMotionComponent('div');
 
@@ -13,6 +18,9 @@ export default function Example() {
     <>
       <button onClick={() => (x.value = withTiming(100))}>TIMING to 100</button>
       <button onClick={() => (x.value = withSpring(0))}>SPRING to 0</button>
+      <button onClick={() => (x.value = withDecay({ velocity: 1 }))}>
+        Decay
+      </button>
       <Div
         style={{
           width: 100,
