@@ -1,3 +1,4 @@
+import { ExtrapolateConfig, to } from '../to';
 import { assignAnimator } from './assignAnimator';
 import type { Animator } from './types';
 
@@ -25,6 +26,31 @@ export class MotionValue<T> {
 
   notifyListeners() {
     this.listeners.forEach((fn) => fn(this.current));
+  }
+
+  to<U>(mapperFn: (v: T) => U): MotionValue<U>;
+  to(
+    inRange: number[],
+    outRange: (number | string)[],
+    config?: ExtrapolateConfig
+  ): MotionValue<number | string>;
+  to(arg1: any, arg2?: any, arg3?: any): MotionValue<any> {
+    if (typeof arg1 === 'function') {
+      const mapFn = arg1 as (v: T) => any;
+      const out = new MotionValue(mapFn(this.value));
+      this.onChange((v) => (out.value = v));
+      return out;
+    }
+
+    const inRange = arg1 as number[];
+    const outRange = arg2 as (number | string)[];
+    const config = arg3 as ExtrapolateConfig | undefined;
+
+    const mapValue = to(inRange, outRange, config);
+    const out = new MotionValue(mapValue(this.current as number));
+    this.onChange((t) => (out.value = mapValue(t as number)));
+
+    return out;
   }
 }
 

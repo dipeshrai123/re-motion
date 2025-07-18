@@ -14,11 +14,12 @@ const {
 } = __experimental__;
 
 export default function Example() {
-  const x = useRef(createMotionValue(100)).current;
+  const x = useRef(createMotionValue(0)).current;
 
   return (
     <>
       <button onClick={() => cancelAnimator(x)}>Cancel Animation</button>
+      <button onClick={() => (x.value = 300)}>SET IMMEDIATE 300</button>
       <button onClick={() => (x.value = withTiming(100))}>TIMING to 100</button>
       <button onClick={() => (x.value = withSpring(0))}>SPRING to 0</button>
       <button onClick={() => (x.value = withRepeat(withSpring(200), 4, true))}>
@@ -43,9 +44,9 @@ export default function Example() {
       </button>
       <motion.div
         style={{
-          width: x,
+          width: 100,
           height: 100,
-          backgroundColor: 'teal',
+          backgroundColor: x.to([0, 100], ['teal', 'red']),
           borderRadius: 4,
           translateX: x,
         }}
