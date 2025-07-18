@@ -15,6 +15,5 @@ export function defineAnimation<T>(factory: () => T): T {
     return anim;
   };
 
-  (build as any).__isAnimationDefinition = true;
-  return build as unknown as T;
+  return build();
 }
