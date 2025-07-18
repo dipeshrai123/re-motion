@@ -9,6 +9,8 @@ const {
   withDecay,
   cancelAnimation,
   withRepeat,
+  withSequence,
+  withDelay,
 } = __experimental__;
 
 const Div = createMotionComponent('div');
@@ -21,14 +23,25 @@ export default function Example() {
       <button onClick={() => cancelAnimation(x)}>Cancel Animation</button>
       <button onClick={() => (x.value = withTiming(100))}>TIMING to 100</button>
       <button onClick={() => (x.value = withSpring(0))}>SPRING to 0</button>
-      <button onClick={() => (x.value = withRepeat(withSpring(200), 2, true))}>
-        Loop SPRING
-      </button>
       <button onClick={() => (x.value = withRepeat(withTiming(200), 2, true))}>
-        Loop TIMING
+        Loop 0 - 200
+      </button>
+      <button
+        onClick={() =>
+          (x.value = withSequence(
+            withTiming(200),
+            withSpring(50),
+            withDecay({ velocity: 1 })
+          ))
+        }
+      >
+        Sequence
       </button>
       <button onClick={() => (x.value = withDecay({ velocity: 1 }))}>
         Decay
+      </button>
+      <button onClick={() => (x.value = withDelay(1000, withSpring(400)))}>
+        Delay 200 then start spring
       </button>
       <Div
         style={{

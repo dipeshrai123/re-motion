@@ -10,3 +10,5 @@ export * from './spring';
 export * from './decay';
 export * from './cancelAnimation';
 export * from './repeat';
+export * from './sequence';
+export * from './delay';

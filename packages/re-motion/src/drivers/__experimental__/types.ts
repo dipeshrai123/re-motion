@@ -1,6 +1,11 @@
 export interface AnimationObject<T> {
   current: T;
+  callback?(finished: boolean): void;
   toValue?: AnimationObject<T>['current'];
+  startValue?: AnimationObject<T>['current'];
+  finished?: boolean;
+  cancelled?: boolean;
+  isHigherOrder?: boolean;
   onStart(
     anim: this,
     value: T,
@@ -8,8 +13,4 @@ export interface AnimationObject<T> {
     previous?: this | null
   ): void;
   onFrame(anim: this, timestamp: number): boolean;
-  callback?(finished: boolean): void;
-  /** optional flags: */
-  cancelled?: boolean;
-  isHigherOrder?: boolean;
 }
