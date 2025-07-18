@@ -1,4 +1,5 @@
 // withTiming.ts
+import { Easing } from '../../easing/Easing';
 import { defineAnimation } from './defineAnimation';
 
 export interface TimingConfig {
@@ -12,26 +13,54 @@ export function withTiming(
   callback?: (finished: boolean) => void
 ) {
   return defineAnimation(() => {
-    const duration = userConfig.duration ?? 300;
-    const easing = userConfig.easing ?? ((t) => t);
-    let startTime = 0;
+    const config: Required<Omit<TimingConfig, 'reduceMotion'>> = {
+      duration: 300,
+      easing: Easing.inOut(Easing.quad),
+    };
 
-    function onStart(anim: any, value: number, now: number) {
-      startTime = anim.startTime || now;
-      anim.startValue = value;
-      anim.current = value;
-      anim.easing = easing;
+    if (userConfig) {
+      Object.keys(userConfig).forEach(
+        (key) =>
+          ((config as any)[key] = userConfig[key as keyof typeof userConfig])
+      );
     }
 
-    function onFrame(anim: any, now: number) {
-      const elapsed = now - startTime;
-      if (elapsed >= duration) {
-        anim.current = toValue;
-        callback?.(true);
+    function onStart(
+      animation: any,
+      value: number,
+      now: number,
+      previousAnimation: any
+    ) {
+      if (
+        previousAnimation &&
+        previousAnimation.type === 'timing' &&
+        previousAnimation.toValue === toValue &&
+        previousAnimation.startTime
+      ) {
+        animation.startTime = previousAnimation.startTime;
+        animation.startValue = previousAnimation.startValue;
+      } else {
+        animation.startTime = now;
+        animation.startValue = value;
+      }
+      animation.current = value;
+      animation.easing = config.easing;
+    }
+
+    function onFrame(animation: any, now: number) {
+      const { toValue, startTime, startValue } = animation;
+      const runtime = now - startTime;
+
+      if (runtime >= config.duration) {
+        // reset startTime to avoid reusing finished animation config in `start` method
+        animation.startTime = 0;
+        animation.current = toValue;
         return true;
       }
-      const t = anim.easing(elapsed / duration);
-      anim.current = anim.startValue + (toValue - anim.startValue) * t;
+
+      const progress = animation.easing(runtime / config.duration);
+      animation.current =
+        (startValue as number) + (toValue - (startValue as number)) * progress;
       return false;
     }
 

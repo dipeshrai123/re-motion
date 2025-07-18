@@ -10,10 +10,15 @@ export function decorateAnimation(anim: any) {
   const baseOnStart = anim.onStart;
   const baseOnFrame = anim.onFrame;
 
-  anim.onStart = (animation: any, value: any, timestamp: number) => {
+  anim.onStart = (
+    animation: any,
+    value: any,
+    timestamp: number,
+    previousAnimation?: any
+  ) => {
     animation.startValue = value;
     animation.current = value;
-    return baseOnStart(animation, value, timestamp);
+    return baseOnStart(animation, value, timestamp, previousAnimation);
   };
 
   anim.onFrame = (animation: any, timestamp: number) => {

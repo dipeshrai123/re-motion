@@ -37,7 +37,7 @@ export function valueSetter<T>(
 
     // initialize
     const now = performance.now();
-    anim.onStart(anim, mv._value, now, previous || undefined);
+    anim.onStart(anim, mv.value, now, previous);
 
     // step function
     const step = (ts: number) => {

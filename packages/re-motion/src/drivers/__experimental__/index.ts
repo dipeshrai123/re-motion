@@ -6,3 +6,4 @@ export * from './timing';
 export * from './types';
 export * from './valueSetter';
 export * from './motion';
+export * from './spring';
