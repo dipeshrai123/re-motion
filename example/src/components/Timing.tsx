@@ -7,6 +7,7 @@ const {
   createMotionComponent,
   withSpring,
   withDecay,
+  cancelAnimation,
 } = __experimental__;
 
 const Div = createMotionComponent('div');
@@ -16,6 +17,7 @@ export default function Example() {
 
   return (
     <>
+      <button onClick={() => cancelAnimation(x)}>Cancel Animation</button>
       <button onClick={() => (x.value = withTiming(100))}>TIMING to 100</button>
       <button onClick={() => (x.value = withSpring(0))}>SPRING to 0</button>
       <button onClick={() => (x.value = withDecay({ velocity: 1 }))}>

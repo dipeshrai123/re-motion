@@ -8,3 +8,4 @@ export * from './valueSetter';
 export * from './motion';
 export * from './spring';
 export * from './decay';
+export * from './cancelAnimation';
