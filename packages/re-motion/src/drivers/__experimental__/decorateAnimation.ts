@@ -6,7 +6,6 @@
  * so drivers only focus on their own logic.
  */
 export function decorateAnimation(anim: any) {
-  'worklet';
   const baseOnStart = anim.onStart;
   const baseOnFrame = anim.onFrame;
 
