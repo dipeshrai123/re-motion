@@ -1,7 +1,5 @@
-export * from './drivers';
-export * from './easing/Easing';
-export * from './motion';
-export * from './MotionValue';
+export * from './core';
+export * from './modifiers';
+export * from './animators';
 export * from './to';
-
-export * as __experimental__ from './__experimental__';
+export * from './easing/Easing';

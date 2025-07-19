@@ -1,4 +1,4 @@
-import { MotionValue } from '../MotionValue';
+import { MotionValue } from '../core/MotionValue';
 
 export function combine<T extends any[], U>(
   inputs: { [K in keyof T]: MotionValue<T[K]> },
@@ -9,10 +9,10 @@ export function combine<T extends any[], U>(
 
   const update = () => {
     const vals = inputs.map((fv) => fv.current) as T;
-    out.set(combiner(...vals));
+    out.value = combiner(...vals);
   };
 
-  inputs.map((fv) => fv.subscribe(() => update()));
+  inputs.map((fv) => fv.onChange(() => update()));
 
   return out;
 }
