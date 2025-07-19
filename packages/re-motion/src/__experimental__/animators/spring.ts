@@ -1,4 +1,4 @@
-import { createAnimator } from '../core/createAnimator';
+import { createAnimator } from '../core/animator';
 
 export interface SpringConfig {
   stiffness?: number;

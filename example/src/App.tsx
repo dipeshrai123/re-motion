@@ -1,6 +1,6 @@
 import { useLayoutEffect } from 'react';
 
-import Example from './components/Stagger';
+import Example from './components/Shake';
 
 const App = () => {
   useDark();

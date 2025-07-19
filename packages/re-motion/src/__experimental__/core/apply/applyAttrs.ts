@@ -1,24 +1,4 @@
-import { applyStyleProps } from './applyStyleProp';
-import { isMotionValue } from './isMotionValue';
-import { applyTransformsStyle } from './styleTransformUtils';
-
-export function applyStyles(
-  node: HTMLElement,
-  style: Record<string, any>
-): (() => void)[] {
-  const unsubs: (() => void)[] = [];
-
-  for (const [key, val] of Object.entries(style)) {
-    if (isMotionValue(val)) {
-      applyStyleProps(node, key, val.value);
-      unsubs.push(val.onChange((v) => applyStyleProps(node, key, v)));
-    } else {
-      applyStyleProps(node, key, val);
-    }
-  }
-
-  return unsubs;
-}
+import { isMotionValue } from '../isMotionValue';
 
 export function applyAttrs(
   node: HTMLElement,
@@ -57,11 +37,4 @@ export function applyAttrs(
   }
 
   return unsubs;
-}
-
-export function applyTransforms(
-  elRef: HTMLElement,
-  txProps: Record<string, any>
-): (() => void)[] {
-  return applyTransformsStyle(elRef, txProps);
 }

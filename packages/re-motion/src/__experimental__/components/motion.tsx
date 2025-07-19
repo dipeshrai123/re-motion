@@ -1,7 +1,12 @@
 import React from 'react';
+import {
+  applyAttrs,
+  applyStyles,
+  applyTransforms,
+  isTransformKey,
+  transformKeys,
+} from '../core/apply';
 import type { MotionValue } from '../core/MotionValue';
-import { isTransformKey, transformKeys } from '../core/styleTransformUtils';
-import { applyAttrs, applyStyles, applyTransforms } from '../core/apply';
 
 type MotionStyle = {
   [K in keyof React.CSSProperties]?:

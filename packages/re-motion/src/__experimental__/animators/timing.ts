@@ -1,5 +1,5 @@
-import { Easing } from '../../easing/Easing';
-import { createAnimator } from '../core/createAnimator';
+import { Easing } from '../easing/Easing';
+import { createAnimator } from '../core/animator';
 
 export interface TimingConfig {
   duration?: number;

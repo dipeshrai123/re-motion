@@ -1,4 +1,4 @@
-import { createAnimator } from '../core/createAnimator';
+import { createAnimator } from '../core/animator';
 import type { Animator } from '../core/types';
 
 export function withSequence<T>(

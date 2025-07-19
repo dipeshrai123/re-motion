@@ -1,6 +1,6 @@
-import { ExtrapolateConfig, to } from '../to';
-import { assignAnimator } from './assignAnimator';
+import { assignAnimator } from './animator';
 import type { Animator } from './types';
+import { type ExtrapolateConfig, to } from '../to';
 
 export class MotionValue<T> {
   current: T;
@@ -54,7 +54,6 @@ export class MotionValue<T> {
   }
 }
 
-/** helper */
 export function createMotionValue<T>(initial: T): MotionValue<T> {
   return new MotionValue(initial);
 }

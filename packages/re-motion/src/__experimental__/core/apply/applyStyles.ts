@@ -1,3 +1,5 @@
+import { isMotionValue } from '../isMotionValue';
+
 const UNIT_LESS = new Set([
   'borderImageOutset',
   'borderImageSlice',
@@ -35,8 +37,26 @@ const UNIT_LESS = new Set([
   'lineClamp',
 ]);
 
-export function applyStyleProps(el: HTMLElement, key: string, v: any) {
+function applyStyleProps(el: HTMLElement, key: string, v: any) {
   const css =
     typeof v === 'number' && !UNIT_LESS.has(key) ? `${v}px` : String(v);
   (el.style as any)[key] = css;
+}
+
+export function applyStyles(
+  node: HTMLElement,
+  style: Record<string, any>
+): (() => void)[] {
+  const unsubs: (() => void)[] = [];
+
+  for (const [key, val] of Object.entries(style)) {
+    if (isMotionValue(val)) {
+      applyStyleProps(node, key, val.value);
+      unsubs.push(val.onChange((v) => applyStyleProps(node, key, v)));
+    } else {
+      applyStyleProps(node, key, val);
+    }
+  }
+
+  return unsubs;
 }

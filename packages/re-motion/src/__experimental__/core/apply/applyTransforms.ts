@@ -1,5 +1,5 @@
-import { isMotionValue } from './isMotionValue';
-import type { MotionValue } from './MotionValue';
+import { isMotionValue } from '../isMotionValue';
+import type { MotionValue } from '../MotionValue';
 
 export const transformKeys = [
   'translateX',
@@ -68,7 +68,7 @@ function updateTransformStyle(node: HTMLElement, key: string, raw: any) {
   node.style.transform = Object.values(transforms).join(' ');
 }
 
-export function applyTransformsStyle(
+export function applyTransforms(
   node: HTMLElement,
   txProps: Record<string, any>
 ): (() => void)[] {

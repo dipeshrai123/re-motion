@@ -1,7 +1,8 @@
 import { Children, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { __experimental__ } from '@raidipesh78/re-motion';
 
-const { createMotionValue, motion, withTiming, withDelay } = __experimental__;
+const { createMotionValue, motion, withSpring, withDelay, withTiming } =
+  __experimental__;
 
 const StaggerItem = ({
   y,
@@ -15,8 +16,8 @@ const StaggerItem = ({
   const top = useRef(createMotionValue(0)).current;
 
   useLayoutEffect(() => {
-    top.value = withDelay(index * 50, withTiming(y, { duration: 0 }));
-  }, [y, index, top]);
+    top.value = withSpring(y);
+  }, [y, top, index]);
 
   return (
     <motion.span
