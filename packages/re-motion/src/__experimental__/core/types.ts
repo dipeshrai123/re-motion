@@ -6,6 +6,11 @@ export interface Animator<T> {
   cancelled?: boolean;
   wrapper?: boolean;
   callback?(finished: boolean): void;
-  start(animator: this, from: T, now: number, previous?: this | null): void;
-  step(animator: this, now: number): boolean;
+  start(
+    animator: Animator<T>,
+    from: T,
+    now: number,
+    previous?: Animator<T> | null
+  ): void;
+  step(animator: Animator<T>, now: number): boolean;
 }

@@ -1,16 +1,26 @@
 import { Easing } from '../easing/Easing';
 import { createAnimator } from '../core/animator';
+import { Animator } from '../core/types';
 
 export interface WithTimingConfig {
   duration?: number;
   easing?: (t: number) => number;
 }
 
+export interface TimingAnimator<T> extends Animator<T> {
+  type: 'timing';
+  origin: T;
+  current: T;
+  target: T;
+  startTime: number;
+  easing: (t: number) => number;
+}
+
 export function withTiming(
   target: number,
   userConfig: WithTimingConfig = {},
   callback?: (finished: boolean) => void
-) {
+): TimingAnimator<number> {
   return createAnimator(() => {
     const config: Required<WithTimingConfig> = {
       duration: 300,
@@ -24,7 +34,12 @@ export function withTiming(
       );
     }
 
-    function start(animator: any, value: number, now: number, previous: any) {
+    function start(
+      animator: TimingAnimator<number>,
+      value: number,
+      now: number,
+      previous: TimingAnimator<number>
+    ) {
       if (
         previous &&
         previous.type === 'timing' &&
@@ -41,7 +56,7 @@ export function withTiming(
       animator.easing = config.easing;
     }
 
-    function step(animator: any, now: number) {
+    function step(animator: TimingAnimator<number>, now: number) {
       const { target, startTime, origin } = animator;
       const runtime = now - startTime;
 

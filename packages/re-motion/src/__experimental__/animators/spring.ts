@@ -1,4 +1,5 @@
 import { createAnimator } from '../core/animator';
+import { Animator } from '../core/types';
 
 export interface WithSpringConfig {
   stiffness?: number;
@@ -7,11 +8,21 @@ export interface WithSpringConfig {
   velocity?: number;
 }
 
+export interface SpringAnimator<T>
+  extends Omit<Animator<T>, 'origin' | 'target'> {
+  type: 'spring';
+  origin: T;
+  current: T;
+  target: T;
+  velocity: number;
+  lastTimestamp: number;
+}
+
 export function withSpring(
   target: number,
   userConfig?: WithSpringConfig,
   callback?: (finished: boolean) => void
-) {
+): SpringAnimator<number> {
   return createAnimator(() => {
     const defaultConfig: Required<WithSpringConfig> = {
       stiffness: 100,
@@ -26,10 +37,10 @@ export function withSpring(
     };
 
     function start(
-      animator: any,
+      animator: SpringAnimator<number>,
       value: number,
       now: number,
-      previous: any
+      previous: SpringAnimator<number>
     ): void {
       animator.current = value;
 
@@ -42,7 +53,7 @@ export function withSpring(
       animator.lastTimestamp = previous?.lastTimestamp || now;
     }
 
-    function step(animation: any, now: number): boolean {
+    function step(animation: SpringAnimator<number>, now: number): boolean {
       const dt = Math.min(now - animation.lastTimestamp, 64);
       animation.lastTimestamp = now;
 
