@@ -1,18 +1,18 @@
 import { Easing } from '../easing/Easing';
 import { createAnimator } from '../core/animator';
 
-export interface TimingConfig {
+export interface WithTimingConfig {
   duration?: number;
   easing?: (t: number) => number;
 }
 
 export function withTiming(
   target: number,
-  userConfig: TimingConfig = {},
+  userConfig: WithTimingConfig = {},
   callback?: (finished: boolean) => void
 ) {
   return createAnimator(() => {
-    const config: Required<TimingConfig> = {
+    const config: Required<WithTimingConfig> = {
       duration: 300,
       easing: Easing.inOut(Easing.quad),
     };
