@@ -1,7 +1,7 @@
 import { createAnimator } from '../core/animator';
 import type { Animator } from '../core/types';
 
-export interface WithDecayConfig {
+export interface DecayConfig {
   deceleration?: number;
   velocity?: number;
 }
@@ -17,12 +17,12 @@ export interface DecayAnimator<T> extends Omit<Animator<T>, 'current'> {
 
 const VELOCITY_EPS = 1 / 20;
 
-export function withDecay(
-  userConfig?: WithDecayConfig,
+export function decay(
+  userConfig?: DecayConfig,
   callback?: (finished: boolean) => void
 ): DecayAnimator<number> {
   return createAnimator(() => {
-    const config: Required<WithDecayConfig> = {
+    const config: Required<DecayConfig> = {
       deceleration: 0.998,
       velocity: 0,
     };

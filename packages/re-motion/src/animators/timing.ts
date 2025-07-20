@@ -2,7 +2,7 @@ import { Easing } from '../easing/Easing';
 import { createAnimator } from '../core/animator';
 import { Animator } from '../core/types';
 
-export interface WithTimingConfig {
+export interface TimingConfig {
   duration?: number;
   easing?: (t: number) => number;
 }
@@ -16,13 +16,13 @@ export interface TimingAnimator<T> extends Animator<T> {
   easing: (t: number) => number;
 }
 
-export function withTiming(
+export function timing(
   target: number,
-  userConfig: WithTimingConfig = {},
+  userConfig: TimingConfig = {},
   callback?: (finished: boolean) => void
 ): TimingAnimator<number> {
   return createAnimator(() => {
-    const config: Required<WithTimingConfig> = {
+    const config: Required<TimingConfig> = {
       duration: 300,
       easing: Easing.inOut(Easing.quad),
     };

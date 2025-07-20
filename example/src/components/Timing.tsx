@@ -1,13 +1,13 @@
 import {
   createMotionValue,
-  withTiming,
+  timing,
   motion,
-  withSpring,
-  withDecay,
+  spring,
+  decay,
   cancelMotionValue,
-  withRepeat,
-  withSequence,
-  withDelay,
+  repeat,
+  sequence,
+  delay,
 } from '@raidipesh78/re-motion';
 import { useRef } from 'react';
 
@@ -18,26 +18,20 @@ export default function Example() {
     <>
       <button onClick={() => cancelMotionValue(x)}>Cancel Animation</button>
       <button onClick={() => x.set(300)}>SET IMMEDIATE 300</button>
-      <button onClick={() => x.set(withTiming(100))}>TIMING to 100</button>
-      <button onClick={() => x.set(withSpring(0))}>SPRING to 0</button>
-      <button onClick={() => x.set(withRepeat(withSpring(200), 4, true))}>
+      <button onClick={() => x.set(timing(100))}>TIMING to 100</button>
+      <button onClick={() => x.set(spring(0))}>SPRING to 0</button>
+      <button onClick={() => x.set(repeat(spring(200), 4, true))}>
         Loop 0 - 200
       </button>
       <button
         onClick={() =>
-          x.set(
-            withSequence(
-              withTiming(200),
-              withSpring(50),
-              withDecay({ velocity: 1 })
-            )
-          )
+          x.set(sequence(timing(200), spring(50), decay({ velocity: 1 })))
         }
       >
         Sequence
       </button>
-      <button onClick={() => x.set(withDecay({ velocity: 1 }))}>Decay</button>
-      <button onClick={() => x.set(withDelay(1000, withSpring(400)))}>
+      <button onClick={() => x.set(decay({ velocity: 1 }))}>Decay</button>
+      <button onClick={() => x.set(delay(1000, spring(400)))}>
         Delay 200 then start spring
       </button>
       <motion.div

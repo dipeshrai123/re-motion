@@ -1,4 +1,4 @@
-import { createMotionValue, withSpring, motion } from '@raidipesh78/re-motion';
+import { createMotionValue, spring, motion } from '@raidipesh78/re-motion';
 import { useRef } from 'react';
 
 export default function BoxShadowInterpolate() {
@@ -6,7 +6,7 @@ export default function BoxShadowInterpolate() {
 
   return (
     <div>
-      <button onClick={() => progress.set(withSpring(1))}>Animate</button>
+      <button onClick={() => progress.set(spring(1))}>Animate</button>
 
       <motion.div
         style={{

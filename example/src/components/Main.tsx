@@ -1,13 +1,13 @@
 import {
   createMotionValue,
   motion,
-  withSpring,
-  withTiming,
-  withSequence,
-  withDecay,
+  spring,
+  timing,
+  sequence,
+  decay,
   combine,
-  withRepeat,
-  withDelay,
+  repeat,
+  delay,
   cancelMotionValue,
 } from '@raidipesh78/re-motion';
 import { useState, useRef } from 'react';
@@ -33,7 +33,7 @@ export default function Version5() {
         <h4>Timing</h4>
         <button
           onClick={() => {
-            timingX.set(withTiming(500, { duration: 5000 }));
+            timingX.set(timing(500, { duration: 5000 }));
           }}
         >
           Start
@@ -56,7 +56,7 @@ export default function Version5() {
         <h4>Spring</h4>
         <button
           onClick={() => {
-            springX.set(withSpring(500));
+            springX.set(spring(500));
           }}
         >
           Start
@@ -77,7 +77,7 @@ export default function Version5() {
         <h4>Decay</h4>
         <button
           onClick={() => {
-            decayX.set(withDecay({ velocity: 1 }));
+            decayX.set(decay({ velocity: 1 }));
           }}
         >
           Start
@@ -99,11 +99,7 @@ export default function Version5() {
         <button
           onClick={() => {
             sequenceX.set(
-              withSequence(
-                withSpring(300),
-                withTiming(200),
-                withDecay({ velocity: 1 })
-              )
+              sequence(spring(300), timing(200), decay({ velocity: 1 }))
             );
           }}
         >
@@ -125,7 +121,7 @@ export default function Version5() {
         <h4>Repeat</h4>
         <button
           onClick={() => {
-            loopX.set(withRepeat(withTiming(500, { duration: 1000 }), 5));
+            loopX.set(repeat(timing(500, { duration: 1000 }), 5));
           }}
         >
           Start
@@ -146,9 +142,7 @@ export default function Version5() {
         <h4>Sequence inside repeat</h4>
         <button
           onClick={() => {
-            loopSequenceX.set(
-              withRepeat(withSequence(withTiming(200), withTiming(0)), 5)
-            );
+            loopSequenceX.set(repeat(sequence(timing(200), timing(0)), 5));
           }}
         >
           Start
@@ -170,10 +164,10 @@ export default function Version5() {
         <button
           onClick={() => {
             sequenceLoopX.set(
-              withSequence(
-                withRepeat(withSpring(200), 5),
-                withTiming(300, { duration: 5000 }),
-                withDelay(3000, withSpring(400, { damping: 8 }))
+              sequence(
+                repeat(spring(200), 5),
+                timing(300, { duration: 5000 }),
+                delay(3000, spring(400, { damping: 8 }))
               )
             );
           }}

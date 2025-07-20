@@ -1,10 +1,10 @@
 import {
   createMotionValue,
-  withSpring,
-  withTiming,
-  withDecay,
-  withSequence,
-  withRepeat,
+  spring,
+  timing,
+  decay,
+  sequence,
+  repeat,
   motion,
 } from '@raidipesh78/re-motion';
 import { useRef } from 'react';
@@ -16,35 +16,35 @@ export default function Version5() {
     <>
       <button
         onClick={() => {
-          x.set(withSpring(400, { damping: 10 }));
+          x.set(spring(400, { damping: 10 }));
         }}
       >
         Spring
       </button>
       <button
         onClick={() => {
-          x.set(withTiming(0));
+          x.set(timing(0));
         }}
       >
         Timing
       </button>
       <button
         onClick={() => {
-          x.set(withDecay({ velocity: 1 }));
+          x.set(decay({ velocity: 1 }));
         }}
       >
         Decay
       </button>
       <button
         onClick={() => {
-          x.set(withSequence(withTiming(100), withSpring(200)));
+          x.set(sequence(timing(100), spring(200)));
         }}
       >
         Sequence
       </button>
       <button
         onClick={() => {
-          x.set(withRepeat(withSpring(250), 5));
+          x.set(repeat(spring(250), 5));
         }}
       >
         Loop

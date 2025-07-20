@@ -1,7 +1,7 @@
 import { createAnimator } from '../core/animator';
 import type { Animator } from '../core/types';
 
-export function withRepeat<T>(
+export function repeat<T>(
   _nextAnimator: Animator<T> | (() => Animator<T>),
   numberOfReps = 2,
   reverse = false,

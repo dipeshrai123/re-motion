@@ -1,8 +1,8 @@
 import {
   createMotionValue,
-  withTiming,
-  withRepeat,
-  withSequence,
+  timing,
+  repeat,
+  sequence,
   motion,
   Easing,
 } from '@raidipesh78/re-motion';
@@ -18,14 +18,10 @@ export default function Example() {
       <button
         onClick={() => {
           progress.set(
-            withSequence(
-              withTiming(-20, { duration: 100, easing: EASING }),
-              withRepeat(
-                withTiming(20, { duration: 100, easing: EASING }),
-                6,
-                true
-              ),
-              withTiming(0, { duration: 100, easing: EASING })
+            sequence(
+              timing(-20, { duration: 100, easing: EASING }),
+              repeat(timing(20, { duration: 100, easing: EASING }), 6, true),
+              timing(0, { duration: 100, easing: EASING })
             )
           );
         }}

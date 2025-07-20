@@ -1,5 +1,5 @@
 import { Children, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { createMotionValue, motion, withSpring } from '@raidipesh78/re-motion';
+import { createMotionValue, motion, spring } from '@raidipesh78/re-motion';
 
 const StaggerItem = ({
   y,
@@ -13,7 +13,7 @@ const StaggerItem = ({
   const top = useRef(createMotionValue(0)).current;
 
   useLayoutEffect(() => {
-    top.set(withSpring(y));
+    top.set(spring(y));
   }, [y, top, index]);
 
   return (

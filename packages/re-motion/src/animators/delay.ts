@@ -1,7 +1,7 @@
 import { createAnimator } from '../core/animator';
 import type { Animator } from '../core/types';
 
-export function withDelay<T>(
+export function delay<T>(
   delayMs: number,
   _nextAnimator: Animator<T> | (() => Animator<T>)
 ) {

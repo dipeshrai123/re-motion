@@ -1,7 +1,7 @@
 import { createAnimator } from '../core/animator';
 import { Animator } from '../core/types';
 
-export interface WithSpringConfig {
+export interface SpringConfig {
   stiffness?: number;
   damping?: number;
   mass?: number;
@@ -18,13 +18,13 @@ export interface SpringAnimator<T>
   lastTimestamp: number;
 }
 
-export function withSpring(
+export function spring(
   target: number,
-  userConfig?: WithSpringConfig,
+  userConfig?: SpringConfig,
   callback?: (finished: boolean) => void
 ): SpringAnimator<number> {
   return createAnimator(() => {
-    const defaultConfig: Required<WithSpringConfig> = {
+    const defaultConfig: Required<SpringConfig> = {
       stiffness: 100,
       damping: 10,
       mass: 1,

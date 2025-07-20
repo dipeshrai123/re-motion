@@ -1,7 +1,7 @@
 import { createAnimator } from '../core/animator';
 import type { Animator } from '../core/types';
 
-export function withSequence<T>(
+export function sequence<T>(
   ...animators: (Animator<T> | (() => Animator<T>))[]
 ) {
   return createAnimator(() => {
