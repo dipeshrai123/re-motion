@@ -13,7 +13,7 @@ const StaggerItem = ({
   const top = useRef(createMotionValue(0)).current;
 
   useLayoutEffect(() => {
-    top.value = withSpring(y);
+    top.set(withSpring(y));
   }, [y, top, index]);
 
   return (

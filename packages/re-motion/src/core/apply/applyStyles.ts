@@ -51,7 +51,7 @@ export function applyStyles(
 
   for (const [key, val] of Object.entries(style)) {
     if (isMotionValue(val)) {
-      applyStyleProps(node, key, val.value);
+      applyStyleProps(node, key, val.get());
       unsubs.push(val.onChange((v) => applyStyleProps(node, key, v)));
     } else {
       applyStyleProps(node, key, val);

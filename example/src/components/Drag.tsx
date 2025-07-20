@@ -6,7 +6,7 @@ export default function Drag() {
   const translateX = useRef(createMotionValue(0)).current;
 
   const bind: any = useDrag(({ offset: [ox] }) => {
-    translateX.value = withSpring(ox);
+    translateX.set(withSpring(ox));
   });
 
   return (

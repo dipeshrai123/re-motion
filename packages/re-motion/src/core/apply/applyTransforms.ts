@@ -39,7 +39,7 @@ function defaultUnit(key: string) {
 }
 
 function formatTransformFunction(key: string, raw: any) {
-  const cur = isMotionValue(raw) ? (raw as MotionValue<any>).value : raw;
+  const cur = isMotionValue(raw) ? (raw as MotionValue<any>).get() : raw;
 
   if (Array.isArray(cur)) {
     return `${key}(${cur.join(',')})`;
@@ -79,7 +79,7 @@ export function applyTransforms(
     for (const key of keys) {
       const val = txProps[key];
       const initial = isMotionValue(val)
-        ? (val as MotionValue<any>).value
+        ? (val as MotionValue<any>).get()
         : val;
       updateTransformStyle(node, key, initial);
 

@@ -9,7 +9,7 @@ export function combine<T extends any[], U>(
 
   const update = () => {
     const vals = inputs.map((fv) => fv.current) as T;
-    out.value = combiner(...vals);
+    out.set(combiner(...vals));
   };
 
   inputs.map((fv) => fv.onChange(() => update()));

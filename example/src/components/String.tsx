@@ -8,7 +8,7 @@ export default function Example() {
     <>
       <button
         onClick={() => {
-          position.value = 'absolute';
+          position.set('absolute');
         }}
       >
         POSITION

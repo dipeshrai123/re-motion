@@ -58,7 +58,7 @@ export function assignAnimator<T>(
     }
 
     const now = performance.now();
-    animator.start(animator, mv.value, now, previous);
+    animator.start(animator, mv.get(), now, previous);
 
     const step = (ts: number) => {
       if (animator.cancelled) {

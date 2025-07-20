@@ -11,11 +11,11 @@ export class MotionValue<T> {
     this.current = initial;
   }
 
-  get value(): T {
+  get(): T {
     return this.current;
   }
 
-  set value(newValue: T | Animator<T> | (() => Animator<T>)) {
+  set(newValue: T | Animator<T> | (() => Animator<T>)) {
     assignAnimator(this, newValue);
   }
 
@@ -37,8 +37,8 @@ export class MotionValue<T> {
   to(arg1: any, arg2?: any, arg3?: any): MotionValue<any> {
     if (typeof arg1 === 'function') {
       const mapFn = arg1 as (v: T) => any;
-      const out = new MotionValue(mapFn(this.value));
-      this.onChange((v) => (out.value = v));
+      const out = new MotionValue(mapFn(this.get()));
+      this.onChange((v) => out.set(v));
       return out;
     }
 
@@ -48,7 +48,7 @@ export class MotionValue<T> {
 
     const mapValue = to(inRange, outRange, config);
     const out = new MotionValue(mapValue(this.current as number));
-    this.onChange((t) => (out.value = mapValue(t as number)));
+    this.onChange((t) => out.set(mapValue(t as number)));
 
     return out;
   }
@@ -59,5 +59,5 @@ export function createMotionValue<T>(initial: T): MotionValue<T> {
 }
 
 export function cancelMotionValue<T>(mv: MotionValue<T>) {
-  mv.value = mv.value;
+  mv.set(mv.get());
 }

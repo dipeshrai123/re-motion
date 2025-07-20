@@ -16,7 +16,7 @@ export function applyAttrs(
     };
 
     if (isMotionValue(val)) {
-      const initial = val.value;
+      const initial = val.get();
       if (typeof initial === 'boolean') setBool(initial);
       else if (typeof initial === 'string' || typeof initial === 'number')
         setOther(initial);

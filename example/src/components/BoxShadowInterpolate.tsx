@@ -6,7 +6,7 @@ export default function BoxShadowInterpolate() {
 
   return (
     <div>
-      <button onClick={() => (progress.value = withSpring(1))}>Animate</button>
+      <button onClick={() => progress.set(withSpring(1))}>Animate</button>
 
       <motion.div
         style={{

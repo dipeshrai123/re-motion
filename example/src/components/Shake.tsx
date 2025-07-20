@@ -17,14 +17,16 @@ export default function Example() {
     <div>
       <button
         onClick={() => {
-          progress.value = withSequence(
-            withTiming(-20, { duration: 100, easing: EASING }),
-            withRepeat(
-              withTiming(20, { duration: 100, easing: EASING }),
-              6,
-              true
-            ),
-            withTiming(0, { duration: 100, easing: EASING })
+          progress.set(
+            withSequence(
+              withTiming(-20, { duration: 100, easing: EASING }),
+              withRepeat(
+                withTiming(20, { duration: 100, easing: EASING }),
+                6,
+                true
+              ),
+              withTiming(0, { duration: 100, easing: EASING })
+            )
           );
         }}
       >

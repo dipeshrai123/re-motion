@@ -28,8 +28,8 @@ export default function Example() {
   const xs = useRef(Array.from({ length: 4 }, () => createMotionValue(0)));
   const ys = useRef(Array.from({ length: 4 }, () => createMotionValue(0)));
   const bind: any = useDrag(({ offset: [mx, my] }) => {
-    xs.current[0].value = withSpring(mx);
-    ys.current[0].value = withSpring(my);
+    xs.current[0].set(withSpring(mx));
+    ys.current[0].set(withSpring(my));
   });
 
   useEffect(() => {

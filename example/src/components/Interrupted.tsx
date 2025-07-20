@@ -16,35 +16,35 @@ export default function Version5() {
     <>
       <button
         onClick={() => {
-          x.value = withSpring(400, { damping: 10 });
+          x.set(withSpring(400, { damping: 10 }));
         }}
       >
         Spring
       </button>
       <button
         onClick={() => {
-          x.value = withTiming(0);
+          x.set(withTiming(0));
         }}
       >
         Timing
       </button>
       <button
         onClick={() => {
-          x.value = withDecay({ velocity: 1 });
+          x.set(withDecay({ velocity: 1 }));
         }}
       >
         Decay
       </button>
       <button
         onClick={() => {
-          x.value = withSequence(withTiming(100), withSpring(200));
+          x.set(withSequence(withTiming(100), withSpring(200)));
         }}
       >
         Sequence
       </button>
       <button
         onClick={() => {
-          x.value = withRepeat(withSpring(250), 5);
+          x.set(withRepeat(withSpring(250), 5));
         }}
       >
         Loop

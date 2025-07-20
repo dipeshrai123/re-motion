@@ -33,13 +33,13 @@ export default function Version5() {
         <h4>Timing</h4>
         <button
           onClick={() => {
-            timingX.value = withTiming(500, { duration: 5000 });
+            timingX.set(withTiming(500, { duration: 5000 }));
           }}
         >
           Start
         </button>
         <button onClick={() => cancelMotionValue(timingX)}>Cancel</button>
-        <button onClick={() => (timingX.value = 0)}>Reset</button>
+        <button onClick={() => timingX.set(0)}>Reset</button>
         <motion.div
           style={{
             width: 50,
@@ -56,13 +56,13 @@ export default function Version5() {
         <h4>Spring</h4>
         <button
           onClick={() => {
-            springX.value = withSpring(500);
+            springX.set(withSpring(500));
           }}
         >
           Start
         </button>
         <button onClick={() => cancelMotionValue(springX)}>Cancel</button>
-        <button onClick={() => (springX.value = 0)}>Reset</button>
+        <button onClick={() => springX.set(0)}>Reset</button>
         <motion.div
           style={{
             width: 50,
@@ -77,13 +77,13 @@ export default function Version5() {
         <h4>Decay</h4>
         <button
           onClick={() => {
-            decayX.value = withDecay({ velocity: 1 });
+            decayX.set(withDecay({ velocity: 1 }));
           }}
         >
           Start
         </button>
         <button onClick={() => cancelMotionValue(decayX)}>Cancel</button>
-        <button onClick={() => (decayX.value = 0)}>Reset</button>
+        <button onClick={() => decayX.set(0)}>Reset</button>
         <motion.div
           style={{
             width: 50,
@@ -98,17 +98,19 @@ export default function Version5() {
         <h4>Sequence</h4>
         <button
           onClick={() => {
-            sequenceX.value = withSequence(
-              withSpring(300),
-              withTiming(200),
-              withDecay({ velocity: 1 })
+            sequenceX.set(
+              withSequence(
+                withSpring(300),
+                withTiming(200),
+                withDecay({ velocity: 1 })
+              )
             );
           }}
         >
           Start
         </button>
         <button onClick={() => cancelMotionValue(sequenceX)}>Cancel</button>
-        <button onClick={() => (sequenceX.value = 0)}>Reset</button>
+        <button onClick={() => sequenceX.set(0)}>Reset</button>
         <motion.div
           style={{
             width: 50,
@@ -123,13 +125,13 @@ export default function Version5() {
         <h4>Repeat</h4>
         <button
           onClick={() => {
-            loopX.value = withRepeat(withTiming(500, { duration: 1000 }), 5);
+            loopX.set(withRepeat(withTiming(500, { duration: 1000 }), 5));
           }}
         >
           Start
         </button>
         <button onClick={() => cancelMotionValue(loopX)}>Cancel</button>
-        <button onClick={() => (loopX.value = 0)}>Reset</button>
+        <button onClick={() => loopX.set(0)}>Reset</button>
         <motion.div
           style={{
             width: 50,
@@ -144,16 +146,15 @@ export default function Version5() {
         <h4>Sequence inside repeat</h4>
         <button
           onClick={() => {
-            loopSequenceX.value = withRepeat(
-              withSequence(withTiming(200), withTiming(0)),
-              5
+            loopSequenceX.set(
+              withRepeat(withSequence(withTiming(200), withTiming(0)), 5)
             );
           }}
         >
           Start
         </button>
         <button onClick={() => cancelMotionValue(loopSequenceX)}>Cancel</button>
-        <button onClick={() => (loopSequenceX.value = 0)}>Reset</button>
+        <button onClick={() => loopSequenceX.set(0)}>Reset</button>
         <motion.div
           style={{
             width: 50,
@@ -168,17 +169,19 @@ export default function Version5() {
         <h4>Repeat inside sequence</h4>
         <button
           onClick={() => {
-            sequenceLoopX.value = withSequence(
-              withRepeat(withSpring(200), 5),
-              withTiming(300, { duration: 5000 }),
-              withDelay(3000, withSpring(400, { damping: 8 }))
+            sequenceLoopX.set(
+              withSequence(
+                withRepeat(withSpring(200), 5),
+                withTiming(300, { duration: 5000 }),
+                withDelay(3000, withSpring(400, { damping: 8 }))
+              )
             );
           }}
         >
           Start
         </button>
         <button onClick={() => cancelMotionValue(sequenceLoopX)}>Cancel</button>
-        <button onClick={() => (sequenceLoopX.value = 0)}>Reset</button>
+        <button onClick={() => sequenceLoopX.set(0)}>Reset</button>
         <motion.div
           style={{
             width: 50,
