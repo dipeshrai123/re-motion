@@ -8,7 +8,7 @@ import {
   combine,
   withRepeat,
   withDelay,
-  cancelAnimator,
+  cancelMotionValue,
 } from '@raidipesh78/re-motion';
 import { useState, useRef } from 'react';
 
@@ -38,7 +38,7 @@ export default function Version5() {
         >
           Start
         </button>
-        <button onClick={() => cancelAnimator(timingX)}>Cancel</button>
+        <button onClick={() => cancelMotionValue(timingX)}>Cancel</button>
         <button onClick={() => (timingX.value = 0)}>Reset</button>
         <motion.div
           style={{
@@ -61,7 +61,7 @@ export default function Version5() {
         >
           Start
         </button>
-        <button onClick={() => cancelAnimator(springX)}>Cancel</button>
+        <button onClick={() => cancelMotionValue(springX)}>Cancel</button>
         <button onClick={() => (springX.value = 0)}>Reset</button>
         <motion.div
           style={{
@@ -82,7 +82,7 @@ export default function Version5() {
         >
           Start
         </button>
-        <button onClick={() => cancelAnimator(decayX)}>Cancel</button>
+        <button onClick={() => cancelMotionValue(decayX)}>Cancel</button>
         <button onClick={() => (decayX.value = 0)}>Reset</button>
         <motion.div
           style={{
@@ -107,7 +107,7 @@ export default function Version5() {
         >
           Start
         </button>
-        <button onClick={() => cancelAnimator(sequenceX)}>Cancel</button>
+        <button onClick={() => cancelMotionValue(sequenceX)}>Cancel</button>
         <button onClick={() => (sequenceX.value = 0)}>Reset</button>
         <motion.div
           style={{
@@ -128,7 +128,7 @@ export default function Version5() {
         >
           Start
         </button>
-        <button onClick={() => cancelAnimator(loopX)}>Cancel</button>
+        <button onClick={() => cancelMotionValue(loopX)}>Cancel</button>
         <button onClick={() => (loopX.value = 0)}>Reset</button>
         <motion.div
           style={{
@@ -152,7 +152,7 @@ export default function Version5() {
         >
           Start
         </button>
-        <button onClick={() => cancelAnimator(loopSequenceX)}>Cancel</button>
+        <button onClick={() => cancelMotionValue(loopSequenceX)}>Cancel</button>
         <button onClick={() => (loopSequenceX.value = 0)}>Reset</button>
         <motion.div
           style={{
@@ -177,7 +177,7 @@ export default function Version5() {
         >
           Start
         </button>
-        <button onClick={() => cancelAnimator(sequenceLoopX)}>Cancel</button>
+        <button onClick={() => cancelMotionValue(sequenceLoopX)}>Cancel</button>
         <button onClick={() => (sequenceLoopX.value = 0)}>Reset</button>
         <motion.div
           style={{

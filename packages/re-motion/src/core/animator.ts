@@ -86,7 +86,3 @@ export function assignAnimator<T>(
     mv.notifyListeners();
   }
 }
-
-export function cancelAnimator<T>(mv: MotionValue<T>) {
-  mv.value = mv.value;
-}

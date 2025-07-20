@@ -57,3 +57,7 @@ export class MotionValue<T> {
 export function createMotionValue<T>(initial: T): MotionValue<T> {
   return new MotionValue(initial);
 }
+
+export function cancelMotionValue<T>(mv: MotionValue<T>) {
+  mv.value = mv.value;
+}
