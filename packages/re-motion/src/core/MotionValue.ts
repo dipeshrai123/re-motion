@@ -1,6 +1,6 @@
 import { assignAnimator } from './animator';
 import type { Animator } from './types';
-import { type ExtrapolateConfig, to } from '../to';
+import { type ExtrapolateConfig, to } from '../to/to';
 
 export class MotionValue<T> {
   current: T;
