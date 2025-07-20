@@ -1,7 +1,5 @@
-import { __experimental__ } from '@raidipesh78/re-motion';
+import { createMotionValue, motion } from '@raidipesh78/re-motion';
 import { useRef } from 'react';
-
-const { createMotionValue, motion } = __experimental__;
 
 export default function Example() {
   const position = useRef(createMotionValue('relative')).current;

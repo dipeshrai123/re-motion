@@ -1,7 +1,5 @@
-import { __experimental__ } from '@raidipesh78/re-motion';
+import { createMotionValue, withSpring, motion } from '@raidipesh78/re-motion';
 import { useRef } from 'react';
-
-const { createMotionValue, withSpring, motion } = __experimental__;
 
 export default function BoxShadowInterpolate() {
   const progress = useRef(createMotionValue(0)).current;

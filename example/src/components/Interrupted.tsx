@@ -1,7 +1,4 @@
-import { __experimental__ } from '@raidipesh78/re-motion';
-import { useRef } from 'react';
-
-const {
+import {
   createMotionValue,
   withSpring,
   withTiming,
@@ -9,7 +6,8 @@ const {
   withSequence,
   withRepeat,
   motion,
-} = __experimental__;
+} from '@raidipesh78/re-motion';
+import { useRef } from 'react';
 
 export default function Version5() {
   const x = useRef(createMotionValue(0)).current;

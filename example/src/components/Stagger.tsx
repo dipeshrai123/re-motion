@@ -1,8 +1,5 @@
 import { Children, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { __experimental__ } from '@raidipesh78/re-motion';
-
-const { createMotionValue, motion, withSpring, withDelay, withTiming } =
-  __experimental__;
+import { createMotionValue, motion, withSpring } from '@raidipesh78/re-motion';
 
 const StaggerItem = ({
   y,

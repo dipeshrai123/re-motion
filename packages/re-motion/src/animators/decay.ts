@@ -8,7 +8,7 @@ export interface WithDecayConfig {
 
 export interface DecayAnimator<T> extends Omit<Animator<T>, 'current'> {
   type: 'decay';
-  current?: number;
+  current: number | undefined;
   velocity: number;
   initialVelocity: number;
   lastTimestamp: number;

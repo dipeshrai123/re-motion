@@ -1,8 +1,12 @@
-import { __experimental__, Easing } from '@raidipesh78/re-motion';
+import {
+  createMotionValue,
+  withTiming,
+  withRepeat,
+  withSequence,
+  motion,
+  Easing,
+} from '@raidipesh78/re-motion';
 import { useRef } from 'react';
-
-const { createMotionValue, withTiming, withRepeat, withSequence, motion } =
-  __experimental__;
 
 const EASING = Easing.elastic(1.5);
 

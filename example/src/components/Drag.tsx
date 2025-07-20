@@ -1,8 +1,6 @@
 import { useDrag } from '@use-gesture/react';
 import { useRef } from 'react';
-import { __experimental__ } from '@raidipesh78/re-motion';
-
-const { createMotionValue, withSpring, motion } = __experimental__;
+import { createMotionValue, withSpring, motion } from '@raidipesh78/re-motion';
 
 export default function Drag() {
   const translateX = useRef(createMotionValue(0)).current;

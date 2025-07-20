@@ -1,9 +1,6 @@
-import { __experimental__ } from '@raidipesh78/re-motion';
+import { createMotionValue, withSpring, motion } from '@raidipesh78/re-motion';
 import { useDrag } from '@use-gesture/react';
 import { useEffect, useRef } from 'react';
-
-const { createMotionValue, withSpring, motion } = __experimental__;
-
 /**
  * Wire up mvs[1] to follow mvs[0], mvs[2] to follow mvs[1], ...
  * Returns a cleanup fn.
