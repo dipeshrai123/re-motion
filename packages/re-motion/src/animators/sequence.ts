@@ -2,7 +2,8 @@ import { createAnimator } from '../core/animator';
 import type { Animator } from '../core/types';
 
 export function sequence<T>(
-  ...animators: (Animator<T> | (() => Animator<T>))[]
+  animators: (Animator<T> | (() => Animator<T>))[],
+  callback?: (finished: boolean) => void
 ) {
   return createAnimator(() => {
     const anims = animators.map((a) => (typeof a === 'function' ? a() : a));
@@ -44,7 +45,9 @@ export function sequence<T>(
       return false;
     }
 
-    const onCancel = (finished: boolean) => {
+    const seqCallback = (finished: boolean) => {
+      callback?.(finished);
+
       if (!finished) {
         for (const anim of anims) {
           if (!anim.finished) {
@@ -58,7 +61,7 @@ export function sequence<T>(
       wrapper: true,
       start,
       step,
-      callback: onCancel,
+      callback: seqCallback,
       current: anims[0]?.current ?? 0,
       animationIndex: 0,
     };

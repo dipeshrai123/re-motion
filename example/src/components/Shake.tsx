@@ -18,11 +18,11 @@ export default function Example() {
       <button
         onClick={() => {
           progress.set(
-            sequence(
+            sequence([
               timing(-20, { duration: 100, easing: EASING }),
               repeat(timing(20, { duration: 100, easing: EASING }), 6, true),
-              timing(0, { duration: 100, easing: EASING })
-            )
+              timing(0, { duration: 100, easing: EASING }),
+            ])
           );
         }}
       >

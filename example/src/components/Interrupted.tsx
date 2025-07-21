@@ -37,7 +37,7 @@ export default function Version5() {
       </button>
       <button
         onClick={() => {
-          x.set(sequence(timing(100), spring(200)));
+          x.set(sequence([timing(100), spring(200)]));
         }}
       >
         Sequence

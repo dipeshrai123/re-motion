@@ -99,7 +99,7 @@ export default function Version5() {
         <button
           onClick={() => {
             sequenceX.set(
-              sequence(spring(300), timing(200), decay({ velocity: 1 }))
+              sequence([spring(300), timing(200), decay({ velocity: 1 })])
             );
           }}
         >
@@ -142,7 +142,7 @@ export default function Version5() {
         <h4>Sequence inside repeat</h4>
         <button
           onClick={() => {
-            loopSequenceX.set(repeat(sequence(timing(200), timing(0)), 5));
+            loopSequenceX.set(repeat(sequence([timing(200), timing(0)]), 5));
           }}
         >
           Start
@@ -164,11 +164,11 @@ export default function Version5() {
         <button
           onClick={() => {
             sequenceLoopX.set(
-              sequence(
+              sequence([
                 repeat(spring(200), 5),
                 timing(300, { duration: 5000 }),
-                delay(3000, spring(400, { damping: 8 }))
-              )
+                delay(3000, spring(400, { damping: 8 })),
+              ])
             );
           }}
         >

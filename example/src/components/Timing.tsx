@@ -25,7 +25,7 @@ export default function Example() {
       </button>
       <button
         onClick={() =>
-          x.set(sequence(timing(200), spring(50), decay({ velocity: 1 })))
+          x.set(sequence([timing(200), spring(50), decay({ velocity: 1 })]))
         }
       >
         Sequence
